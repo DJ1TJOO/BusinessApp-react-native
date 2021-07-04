@@ -1,12 +1,21 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
 
-import SafeView from "../components/SafeView";
+import FormButton from "../components/form/FormButton";
+import Form from "../components/form/Form";
+import FormInput from "../components/form/FormInput";
+import Wrapper from "../components/Wrapper";
 
 const LoginScreen = () => {
-	return <SafeView></SafeView>;
+	return (
+		<Wrapper showHeader={true}>
+			<Form title="Login">
+				<FormInput label="Bedrijf" />
+				<FormInput label="Email" />
+				<FormInput label="Wachtwoord" helpLabel="Wachtwoord vergeten?" hideText={true} />
+				<FormButton>Login</FormButton>
+			</Form>
+		</Wrapper>
+	);
 };
-
-const styles = StyleSheet.create({});
 
 export default LoginScreen;

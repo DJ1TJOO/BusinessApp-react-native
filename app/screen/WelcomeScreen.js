@@ -1,19 +1,22 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import SafeView from "../components/SafeView";
 import Colors from "../config/Colors";
 
-const WelcomeScreen = () => {
+//TODO: ugly
+const WelcomeScreen = ({ navigation }) => {
 	return (
-		<SafeView style={styles.container}>
-			<Text style={styles.header}>Business App</Text>
-			<TouchableOpacity style={styles.button}>
-				<Text style={styles.buttonText}>Login</Text>
-			</TouchableOpacity>
-			<TouchableOpacity style={styles.button}>
-				<Text style={styles.buttonText}>Register</Text>
-			</TouchableOpacity>
+		<SafeView style={styles.center}>
+			<View style={[styles.center, styles.container]}>
+				<Text style={styles.header}>Business App</Text>
+				<TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Login")}>
+					<Text style={styles.buttonText}>Login</Text>
+				</TouchableOpacity>
+				<TouchableOpacity style={styles.button}>
+					<Text style={styles.buttonText}>Register</Text>
+				</TouchableOpacity>
+			</View>
 		</SafeView>
 	);
 };
@@ -32,11 +35,13 @@ const styles = StyleSheet.create({
 		color: Colors.white,
 		fontFamily: "Segoe-UI",
 	},
-	container: {
-		flex: 1,
+	center: {
 		alignItems: "center",
 		justifyContent: "center",
+	},
+	container: {
 		top: -80,
+		width: "100%",
 	},
 	header: {
 		fontSize: 40,

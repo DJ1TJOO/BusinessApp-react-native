@@ -4,7 +4,8 @@ export default {
 	tertiary: "#EDF1FD",
 
 	textPrimary: "#333333",
-	textSecondary: "#C7C7C7",
+	textSecondary: "#333333B3",
+	textTertiary: "#C7C7C7",
 
 	white: "#FFFFFF",
 	black: "#000000",
