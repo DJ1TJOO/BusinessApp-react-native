@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 import Colors from "../../config/Colors";
+import FontSizes from "../../config/FontSizes";
 
 const FormButton = ({ children, onPress }) => {
 	return (
@@ -14,15 +15,14 @@ const FormButton = ({ children, onPress }) => {
 const styles = StyleSheet.create({
 	button: {
 		backgroundColor: Colors.primary,
-		paddingBottom: 7,
 		borderRadius: 6,
 		marginTop: 5,
 		width: "100%",
 		alignItems: "center",
-		height: 48,
+		height: 38,
 	},
 	buttonText: {
-		fontSize: 30,
+		fontSize: FontSizes.title,
 		color: Colors.white,
 		fontFamily: "Segoe-UI",
 	},

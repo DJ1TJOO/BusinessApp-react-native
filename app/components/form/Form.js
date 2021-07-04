@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import Colors from "../../config/Colors";
+import FontSizes from "../../config/FontSizes";
 
 const Form = ({ children, title }) => {
 	return (
@@ -19,7 +20,7 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		color: Colors.textPrimary,
-		fontSize: 40,
+		fontSize: FontSizes.heading,
 		fontFamily: "Segoe-UI",
 	},
 });

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { TouchableOpacity, StyleSheet, Text, TextInput, View } from "react-native";
 
 import Colors from "../../config/Colors";
+import FontSizes from "../../config/FontSizes";
 
 const FormInput = ({ label, hideText, helpLabel, helpOnPress }) => {
 	const [isFocused, setIsFocused] = useState(false);
@@ -33,23 +34,23 @@ const styles = StyleSheet.create({
 	},
 	label: {
 		color: Colors.textPrimary,
-		fontSize: 30,
+		fontSize: FontSizes.title,
 		fontFamily: "Segoe-UI",
 	},
 	helpButtonText: {
 		color: Colors.primary,
-		fontSize: 17,
+		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
 	},
 	input: {
 		color: Colors.textSecondary,
-		fontSize: 30,
+		fontSize: FontSizes.title,
 		fontFamily: "Segoe-UI",
 		borderRadius: 6,
 		borderWidth: 2,
 		borderColor: Colors.tertiary,
 		paddingHorizontal: 5,
-		height: 48,
+		height: 38,
 	},
 	inputFocused: {
 		color: Colors.textPrimary,

@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import SafeView from "../components/SafeView";
 import Colors from "../config/Colors";
+import FontSizes from "../config/FontSizes";
 
 //TODO: ugly
 const WelcomeScreen = ({ navigation }) => {
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	buttonText: {
-		fontSize: 25,
+		fontSize: FontSizes.title,
 		color: Colors.white,
 		fontFamily: "Segoe-UI",
 	},
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
 		width: "100%",
 	},
 	header: {
-		fontSize: 40,
+		fontSize: FontSizes.heading,
 		color: Colors.primary,
 		fontFamily: "Segoe-UI",
 	},
