@@ -5,13 +5,13 @@ import Form from "../components/form/Form";
 import FormInput from "../components/form/FormInput";
 import Wrapper from "../components/Wrapper";
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
 	return (
 		<Wrapper showHeader={true}>
 			<Form title="Login">
 				<FormInput label="Bedrijf" />
 				<FormInput label="Email" />
-				<FormInput label="Wachtwoord" helpLabel="Wachtwoord vergeten?" hideText={true} />
+				<FormInput label="Wachtwoord" helpLabel="Wachtwoord vergeten?" helpOnPress={() => navigation.navigate("ForgotPassword")} hideText={true} />
 				<FormButton>Login</FormButton>
 			</Form>
 		</Wrapper>
