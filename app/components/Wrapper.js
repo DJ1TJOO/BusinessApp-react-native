@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
 		padding: 10,
 		height: 45,
 		width: 45,
-		borderRadius: 6,
+		borderRadius: 12,
 	},
 	menuBar: {
 		backgroundColor: Colors.primary,

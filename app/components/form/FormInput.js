@@ -4,7 +4,7 @@ import { TouchableOpacity, StyleSheet, Text, TextInput, View } from "react-nativ
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 
-const FormInput = ({ label, hideText, helpLabel, helpOnPress }) => {
+const FormInput = ({ label, hideText, helpLabel, helpOnPress, onFocus, onBlur }) => {
 	const [isFocused, setIsFocused] = useState(false);
 
 	return (
@@ -13,9 +13,13 @@ const FormInput = ({ label, hideText, helpLabel, helpOnPress }) => {
 			<TextInput
 				style={[styles.input, isFocused && styles.inputFocused]}
 				secureTextEntry={!!hideText}
-				onFocus={() => setIsFocused(true)}
-				onBlur={() => {
+				onFocus={(e) => {
+					setIsFocused(true);
+					onFocus && onFocus(e);
+				}}
+				onBlur={(e) => {
 					setIsFocused(false);
+					onBlur && onBlur(e);
 				}}
 				keyboar
 			/>
@@ -34,22 +38,22 @@ const styles = StyleSheet.create({
 	},
 	label: {
 		color: Colors.textPrimary,
-		fontSize: FontSizes.title,
+		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
 	},
 	helpButtonText: {
 		color: Colors.primary,
-		fontSize: FontSizes.subtitle,
+		fontSize: FontSizes.default,
 		fontFamily: "Segoe-UI",
 	},
 	input: {
 		color: Colors.textSecondary,
-		fontSize: FontSizes.title,
+		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
-		borderRadius: 6,
+		borderRadius: 12,
 		borderWidth: 2,
 		borderColor: Colors.tertiary,
-		paddingHorizontal: 5,
+		paddingHorizontal: 10,
 		height: 38,
 	},
 	inputFocused: {

@@ -10,6 +10,7 @@ import LoginScreen from "./app/screen/LoginScreen";
 import ForgotPasswordScreen from "./app/screen/passwords/ForgotPasswordScreen";
 import VerifyCodeScreen from "./app/screen/passwords/VerifyCodeScreen";
 import ChangePasswordScreen from "./app/screen/passwords/ChangePasswordScreen";
+import RegisterScreen from "./app/screen/RegisterScreen";
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,7 @@ export default function App() {
 				<Stack.Navigator mode="modal" headerMode="none">
 					<Stack.Screen name="Welcome" component={WelcomeScreen} />
 					<Stack.Screen name="Login" component={LoginScreen} />
+					<Stack.Screen name="Register" component={RegisterScreen} />
 					<Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
 					<Stack.Screen name="VerifyCode" component={VerifyCodeScreen} options={{ animationEnabled: false }} />
 					<Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ animationEnabled: false }} />

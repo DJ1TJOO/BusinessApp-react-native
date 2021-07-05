@@ -14,7 +14,7 @@ const WelcomeScreen = ({ navigation }) => {
 				<TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Login")}>
 					<Text style={styles.buttonText}>Login</Text>
 				</TouchableOpacity>
-				<TouchableOpacity style={styles.button}>
+				<TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Register")}>
 					<Text style={styles.buttonText}>Register</Text>
 				</TouchableOpacity>
 			</View>
@@ -26,13 +26,13 @@ const styles = StyleSheet.create({
 	button: {
 		backgroundColor: Colors.primary,
 		padding: 10,
-		borderRadius: 6,
+		borderRadius: 12,
 		marginTop: 5,
 		width: "60%",
 		alignItems: "center",
 	},
 	buttonText: {
-		fontSize: FontSizes.title,
+		fontSize: FontSizes.subtitle,
 		color: Colors.white,
 		fontFamily: "Segoe-UI",
 	},

@@ -12,7 +12,9 @@ const ChangePasswordScreen = ({ navigation, isCreating }) => {
 				<FormInput label={isCreating ? "Wachtwoord" : "Nieuw wachtwoord"} hideText={true} />
 				<FormInput label={isCreating ? "Bevestig wachtwoord" : "Bevestig nieuw wachtwoord"} hideText={true} />
 				<FormButton onPress={() => navigation.navigate("Login")}>{isCreating ? "Wachtwoord creëren" : "Wachtwoord veranderen"}</FormButton>
-				<FormButton onPress={() => navigation.navigate("Login")}>{FormButton.ArrowBack}</FormButton>
+				<FormButton onPress={() => navigation.navigate("Login")}>
+					<IconArrowBack />
+				</FormButton>
 			</Form>
 		</Wrapper>
 	);

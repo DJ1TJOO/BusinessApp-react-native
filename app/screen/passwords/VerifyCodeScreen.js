@@ -11,7 +11,9 @@ const VerifyCodeScreen = ({ navigation }) => {
 			<Form title="Wachtwoord vergeten?">
 				<FormInput label="Verificatie code" />
 				<FormButton onPress={() => navigation.navigate("ChangePassword")}>Verifieer</FormButton>
-				<FormButton onPress={() => navigation.navigate("ForgotPassword")}>{FormButton.ArrowBack}</FormButton>
+				<FormButton onPress={() => navigation.navigate("ForgotPassword")}>
+					<IconArrowBack />
+				</FormButton>
 			</Form>
 		</Wrapper>
 	);
