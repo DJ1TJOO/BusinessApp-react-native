@@ -16,7 +16,17 @@ const RegisterScreen = () => {
 				<FormInput label="Email" />
 				<FormInput label="Wachtwoord" hideText={true} />
 				<FormInput label="Bevestig wachtwoord" hideText={true} />
-				<FormDate label="Geboorte datum" />
+				<FormDate
+					label="Geboorte datum"
+					links={[
+						{
+							text: () => "Vandaag",
+							date: function () {
+								return new Date();
+							},
+						},
+					]}
+				/>
 				<FormInput label="Functie omschrijving" />
 				<FormButton invert={true}>Logo toevoegen</FormButton>
 				<FormButton>Registeren</FormButton>

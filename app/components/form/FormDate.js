@@ -43,12 +43,19 @@ const daysInMonth = function (date) {
 	return daysInMonth;
 };
 
-const FormDate = ({ label, helpLabel, helpOnPress, viewDate }) => {
+const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links }) => {
 	const [currentDate, setCurrentDate] = useState(new Date());
 	const [currentViewDate, setCurrentViewDate] = useState(viewDate || new Date());
+	const [isSelectingMonth, setIsSelectingMonth] = useState(true);
 	const [isFocused, setIsFocused] = useState(false);
 
-	const days = daysInMonth(currentViewDate);
+	let data;
+	if (isSelectingMonth) {
+		data = [];
+		for (let i = 0; i < 12; i++) {
+			data.push(new Date(currentViewDate.getFullYear(), i));
+		}
+	} else data = daysInMonth(currentViewDate);
 
 	return (
 		<View style={styles.container}>
@@ -67,19 +74,20 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate }) => {
 					style={(() => {
 						const style = [styles.dateBox];
 
-						if (days.length > 5) style.push(styles.dateBoxLong);
-						else if (days.length < 4) style.push(styles.dateBoxShort);
+						if (data.length > 5) style.push(styles.dateBoxLong);
+						else if (data.length < 4) style.push(styles.dateBoxShort);
 						if (label) style.push(styles.dateBoxWithLabel);
 
 						return style;
 					})()}
 				>
 					<View style={styles.dateSelector}>
-						<View style={styles.monthSelector}>
+						<View>
 							<TouchableOpacity
 								style={styles.monthSelectorUp}
 								onPress={() => {
-									setCurrentViewDate(new Date(currentViewDate.getFullYear(), currentViewDate.getMonth() - 1));
+									if (isSelectingMonth) setCurrentViewDate(new Date(currentViewDate.getFullYear() - 1, currentViewDate.getMonth()));
+									else setCurrentViewDate(new Date(currentViewDate.getFullYear(), currentViewDate.getMonth() - 1));
 								}}
 							>
 								<IconArrowUp style={styles.monthSelectorIcon} />
@@ -87,59 +95,114 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate }) => {
 							<TouchableOpacity
 								style={styles.monthSelectorDown}
 								onPress={() => {
-									setCurrentViewDate(new Date(currentViewDate.getFullYear(), currentViewDate.getMonth() + 1));
+									if (isSelectingMonth) setCurrentViewDate(new Date(currentViewDate.getFullYear() + 1, currentViewDate.getMonth()));
+									else setCurrentViewDate(new Date(currentViewDate.getFullYear(), currentViewDate.getMonth() + 1));
 								}}
 							>
 								<IconArrowDown style={styles.monthSelectorIcon} />
 							</TouchableOpacity>
-							<Text style={styles.monthSelectorDate}>{currentViewDate.toLocaleString("default", { month: "long", year: "numeric" })}</Text>
-							<TouchableOpacity style={styles.monthSelectorChoose}>
-								<IconUp style={styles.monthSelectorIcon} />
+							<TouchableOpacity onPress={() => setIsSelectingMonth(!isSelectingMonth)}>
+								<Text style={styles.monthSelectorDate}>
+									{currentViewDate.toLocaleString("default", isSelectingMonth ? { year: "numeric" } : { month: "long", year: "numeric" })}
+								</Text>
 							</TouchableOpacity>
+
+							{!isSelectingMonth && (
+								<TouchableOpacity style={styles.monthSelectorChoose} onPress={() => setIsSelectingMonth(!isSelectingMonth)}>
+									<IconUp style={styles.monthSelectorIcon} />
+								</TouchableOpacity>
+							)}
 						</View>
-						<View style={styles.days}>
-							<Text style={styles.day}>Ma</Text>
-							<Text style={styles.day}>Di</Text>
-							<Text style={styles.day}>Wo</Text>
-							<Text style={styles.day}>Do</Text>
-							<Text style={styles.day}>Vr</Text>
-							<Text style={styles.day}>Za</Text>
-							<Text style={styles.day}>Zo</Text>
-						</View>
-						<View style={styles.daySelector}>
-							{(() => {
-								let i = 0;
-								return days.map((x) => (
-									<View style={styles.daySelectorRow}>
-										{x.map((y) => {
-											i++;
-											return y === currentDate.getDate() &&
-												currentViewDate.getMonth() === currentDate.getMonth() &&
-												currentViewDate.getFullYear() === currentDate.getFullYear() ? (
-												<TouchableOpacity style={styles.daySelectorDaySelectedView}>
-													<Text key={i} style={[styles.daySelectorDay, styles.daySelectorDaySelected]}>
-														{y}
-													</Text>
-												</TouchableOpacity>
-											) : (
-												<TouchableOpacity
-													onPress={() => y !== "" && setCurrentDate(new Date(currentViewDate.getFullYear(), currentViewDate.getMonth(), y))}
-												>
-													<Text key={i} style={styles.daySelectorDay}>
-														{y}
-													</Text>
-												</TouchableOpacity>
-											);
-										})}
-									</View>
-								));
-							})()}
-						</View>
+						{!isSelectingMonth && (
+							<View style={styles.days}>
+								<Text key="Ma" style={styles.day}>
+									Ma
+								</Text>
+								<Text key="Di" style={styles.day}>
+									Di
+								</Text>
+								<Text key="Wo" style={styles.day}>
+									Wo
+								</Text>
+								<Text key="Do" style={styles.day}>
+									Do
+								</Text>
+								<Text key="Vr" style={styles.day}>
+									Vr
+								</Text>
+								<Text key="Za" style={styles.day}>
+									Za
+								</Text>
+								<Text key="Zo" style={styles.day}>
+									Zo
+								</Text>
+							</View>
+						)}
+						{!isSelectingMonth && (
+							<View style={styles.daySelector}>
+								{(() => {
+									let i = 0;
+									return data.map((x) => (
+										<View style={styles.daySelectorRow}>
+											{x.map((y) => {
+												i++;
+												return y === currentDate.getDate() &&
+													currentViewDate.getMonth() === currentDate.getMonth() &&
+													currentViewDate.getFullYear() === currentDate.getFullYear() ? (
+													<TouchableOpacity key={i} style={styles.daySelectorDaySelectedView}>
+														<Text style={[styles.daySelectorDay, styles.daySelectorDaySelected]}>{y}</Text>
+													</TouchableOpacity>
+												) : (
+													<TouchableOpacity
+														key={i}
+														onPress={() => y !== "" && setCurrentDate(new Date(currentViewDate.getFullYear(), currentViewDate.getMonth(), y))}
+													>
+														<Text style={styles.daySelectorDay}>{y}</Text>
+													</TouchableOpacity>
+												);
+											})}
+										</View>
+									));
+								})()}
+							</View>
+						)}
+						{isSelectingMonth && (
+							<View style={styles.monthSelector}>
+								{data.map((x) =>
+									x.getMonth() === currentDate.getMonth() && x.getFullYear() === currentDate.getFullYear() ? (
+										<TouchableOpacity key={x} style={styles.monthSelectorMonthSelectedView} onPress={() => setIsSelectingMonth(false)}>
+											<Text style={[styles.monthSelectorMonth, styles.monthSelectorMonthSelected]}>{x.toLocaleString("default", { month: "short" })}</Text>
+										</TouchableOpacity>
+									) : (
+										<TouchableOpacity
+											key={x}
+											onPress={() => {
+												setCurrentViewDate(new Date(x.getFullYear(), x.getMonth(), currentViewDate.getDate()));
+												setIsSelectingMonth(false);
+											}}
+										>
+											<Text style={styles.monthSelectorMonth}>{x.toLocaleString("default", { month: "short" })}</Text>
+										</TouchableOpacity>
+									)
+								)}
+							</View>
+						)}
 					</View>
 					<View style={styles.dateLinks}>
-						<TouchableOpacity style={styles.dateLink}>
-							<Text style={styles.dateLinkText}>Vandaag</Text>
-						</TouchableOpacity>
+						{links &&
+							links.map((link) => (
+								<TouchableOpacity
+									style={styles.dateLink}
+									onPress={() => {
+										const date = link.date(currentDate, currentViewDate);
+										setCurrentDate(date);
+										setCurrentViewDate(date);
+										setIsSelectingMonth(false);
+									}}
+								>
+									<Text style={styles.dateLinkText}>{link.text(currentDate, currentViewDate)}</Text>
+								</TouchableOpacity>
+							))}
 					</View>
 				</View>
 			)}
@@ -264,7 +327,6 @@ const styles = StyleSheet.create({
 		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
 	},
-	monthSelector: {},
 	monthSelectorIcon: {
 		top: 0,
 		width: 17,
@@ -296,6 +358,38 @@ const styles = StyleSheet.create({
 		position: "absolute",
 		top: 10,
 		left: 205,
+	},
+	monthSelectorMonth: {
+		color: Colors.textPrimary,
+		fontSize: FontSizes.default,
+		fontFamily: "Segoe-UI",
+
+		width: 35,
+		height: 35,
+		textAlign: "center",
+
+		marginRight: 10,
+	},
+	monthSelector: {
+		width: 230,
+		flexDirection: "row",
+		flexWrap: "wrap",
+		top: 35,
+		left: 10,
+		position: "absolute",
+	},
+	monthSelectorMonthSelectedView: {
+		borderRadius: 20,
+		backgroundColor: Colors.primary,
+		marginRight: 10,
+		left: -2,
+		top: -2,
+	},
+	monthSelectorMonthSelected: {
+		left: 2,
+		top: 2,
+		marginRight: 0,
+		color: Colors.white,
 	},
 });
 
