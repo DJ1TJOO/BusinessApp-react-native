@@ -24,6 +24,38 @@ const IconArrowBack = ({ style }) => (
 	</View>
 );
 
+const IconArrowDown = ({ style }) => (
+	<View style={[styles.icon, style]}>
+		<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 11.414 10.223">
+			<G data-name="Group 141" fill="none" stroke="#333" strokeLinecap="round">
+				<Path data-name="Line 1" d="M5.707.5v9.016" />
+				<Path data-name="Line 2" d="M5.707 9.516l-5-5" />
+				<Path data-name="Line 3" d="M5.707 9.516l5-5" />
+			</G>
+		</Svg>
+	</View>
+);
+
+const IconArrowUp = ({ style }) => (
+	<View style={[styles.icon, style]}>
+		<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 11.414 10.223">
+			<G data-name="Group 67" fill="none" stroke="#333" strokeLinecap="round">
+				<Path data-name="Line 1" d="M5.707 9.723V.707" />
+				<Path data-name="Line 2" d="M5.707.707l5 5" />
+				<Path data-name="Line 3" d="M5.707.707l-5 5" />
+			</G>
+		</Svg>
+	</View>
+);
+
+const IconUp = ({ style }) => (
+	<View style={[styles.icon, style]}>
+		<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 11 6.001">
+			<Path data-name="Union 45" d="M5.5 5.5l-5-5 5 5 5-5z" fill="none" stroke="#333" strokeLinecap="round" strokeLinejoin="round" />
+		</Svg>
+	</View>
+);
+
 const IconAgenda = ({ style }) => (
 	<View style={[styles.icon, style]}>
 		<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 20 20">
@@ -47,4 +79,4 @@ const IconAgendaSelected = ({ style }) => (
 	</View>
 );
 
-export { IconArrowBack, IconAgenda, IconAgendaSelected };
+export { IconArrowBack, IconArrowUp, IconArrowDown, IconUp, IconAgenda, IconAgendaSelected };

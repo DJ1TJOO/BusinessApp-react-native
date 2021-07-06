@@ -4,4 +4,5 @@ export default {
 	title: 25,
 	subtitle: 20,
 	default: 17,
+	small: 14,
 };
