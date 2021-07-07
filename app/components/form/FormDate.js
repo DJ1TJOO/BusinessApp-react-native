@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedbackBase, View } from "react-native";
 
-import { IconAgenda, IconAgendaSelected, IconArrowDown, IconArrowUp, IconUp } from "../Icons";
+import { IconAgenda, IconAgendaSelected, IconArrowDown, IconArrowUp, IconDown, IconUp } from "../Icons";
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 
@@ -43,10 +43,11 @@ const daysInMonth = function (date) {
 	return daysInMonth;
 };
 
-const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links }) => {
+const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links, time }) => {
 	const [currentDate, setCurrentDate] = useState(new Date());
 	const [currentViewDate, setCurrentViewDate] = useState(viewDate || new Date());
-	const [isSelectingMonth, setIsSelectingMonth] = useState(true);
+	const [isSelectingMonth, setIsSelectingMonth] = useState(false);
+	const [isSelectingTime, setIsSelectingTime] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
 
 	let data;
@@ -74,8 +75,12 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links }) => {
 					style={(() => {
 						const style = [styles.dateBox];
 
-						if (data.length > 5) style.push(styles.dateBoxLong);
-						else if (data.length < 4) style.push(styles.dateBoxShort);
+						if (isSelectingMonth) {
+							style.push(styles.dateBoxShorter);
+						} else {
+							if (data.length > 5) style.push(styles.dateBoxLong);
+							else if (data.length < 4) style.push(styles.dateBoxShort);
+						}
 						if (label) style.push(styles.dateBoxWithLabel);
 
 						return style;
@@ -101,19 +106,29 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links }) => {
 							>
 								<IconArrowDown style={styles.monthSelectorIcon} />
 							</TouchableOpacity>
-							<TouchableOpacity onPress={() => setIsSelectingMonth(!isSelectingMonth)}>
+							<TouchableOpacity onPress={() => (isSelectingTime ? setIsSelectingTime(!isSelectingTime) : setIsSelectingMonth(!isSelectingMonth))}>
 								<Text style={styles.monthSelectorDate}>
-									{currentViewDate.toLocaleString("default", isSelectingMonth ? { year: "numeric" } : { month: "long", year: "numeric" })}
+									{currentViewDate.toLocaleString(
+										"default",
+										isSelectingMonth
+											? { year: "numeric" }
+											: isSelectingTime
+											? { day: "numeric", month: "long", year: "numeric" }
+											: { month: "long", year: "numeric" }
+									)}
 								</Text>
 							</TouchableOpacity>
 
 							{!isSelectingMonth && (
-								<TouchableOpacity style={styles.monthSelectorChoose} onPress={() => setIsSelectingMonth(!isSelectingMonth)}>
-									<IconUp style={styles.monthSelectorIcon} />
+								<TouchableOpacity
+									style={styles.monthSelectorChoose}
+									onPress={() => (isSelectingTime ? setIsSelectingTime(!isSelectingTime) : setIsSelectingMonth(!isSelectingMonth))}
+								>
+									<IconDown style={styles.monthSelectorIcon} />
 								</TouchableOpacity>
 							)}
 						</View>
-						{!isSelectingMonth && (
+						{!isSelectingMonth && !isSelectingTime && (
 							<View style={styles.days}>
 								<Text key="Ma" style={styles.day}>
 									Ma
@@ -138,24 +153,34 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links }) => {
 								</Text>
 							</View>
 						)}
-						{!isSelectingMonth && (
+						{!isSelectingMonth && !isSelectingTime && (
 							<View style={styles.daySelector}>
 								{(() => {
 									let i = 0;
 									return data.map((x) => (
-										<View style={styles.daySelectorRow}>
+										<View style={styles.daySelectorRow} key={i}>
 											{x.map((y) => {
 												i++;
 												return y === currentDate.getDate() &&
 													currentViewDate.getMonth() === currentDate.getMonth() &&
 													currentViewDate.getFullYear() === currentDate.getFullYear() ? (
-													<TouchableOpacity key={i} style={styles.daySelectorDaySelectedView}>
+													<TouchableOpacity
+														key={i}
+														style={styles.daySelectorDaySelectedView}
+														onPress={() => {
+															if (time) setIsSelectingTime(true);
+														}}
+													>
 														<Text style={[styles.daySelectorDay, styles.daySelectorDaySelected]}>{y}</Text>
 													</TouchableOpacity>
 												) : (
 													<TouchableOpacity
 														key={i}
-														onPress={() => y !== "" && setCurrentDate(new Date(currentViewDate.getFullYear(), currentViewDate.getMonth(), y))}
+														onPress={() => {
+															if (y === "") return;
+															setCurrentDate(new Date(currentViewDate.getFullYear(), currentViewDate.getMonth(), y));
+															if (time) setIsSelectingTime(true);
+														}}
 													>
 														<Text style={styles.daySelectorDay}>{y}</Text>
 													</TouchableOpacity>
@@ -166,7 +191,7 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links }) => {
 								})()}
 							</View>
 						)}
-						{isSelectingMonth && (
+						{isSelectingMonth && !isSelectingTime && (
 							<View style={styles.monthSelector}>
 								{data.map((x) =>
 									x.getMonth() === currentDate.getMonth() && x.getFullYear() === currentDate.getFullYear() ? (
@@ -187,22 +212,130 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links }) => {
 								)}
 							</View>
 						)}
+						{!isSelectingMonth && isSelectingTime && (
+							<View style={styles.timeSelector}>
+								<View style={styles.timeSlider}>
+									<Text style={styles.timeSliderHeader}>Uren</Text>
+									<TouchableOpacity
+										style={styles.timeSliderButton}
+										onPress={() =>
+											setCurrentDate(
+												new Date(
+													currentDate.getFullYear(),
+													currentDate.getMonth(),
+													currentDate.getDate(),
+													currentDate.getHours() <= 0 ? 23 : currentDate.getHours() - 1,
+													currentDate.getMinutes()
+												)
+											)
+										}
+									>
+										<IconUp />
+									</TouchableOpacity>
+									<Text style={styles.timeSliderText}>
+										{new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), currentDate.getHours() - 1).getHours()}
+									</Text>
+									<View style={styles.timeSliderTextViewSelected}>
+										<Text style={[styles.timeSliderText, styles.timeSliderTextSelected]}>{currentDate.getHours()}</Text>
+									</View>
+									<Text style={styles.timeSliderText}>
+										{new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), currentDate.getHours() + 1).getHours()}
+									</Text>
+									<TouchableOpacity
+										style={styles.timeSliderButton}
+										onPress={() =>
+											setCurrentDate(
+												new Date(
+													currentDate.getFullYear(),
+													currentDate.getMonth(),
+													currentDate.getDate(),
+													currentDate.getHours() >= 23 ? 0 : currentDate.getHours() + 1,
+													currentDate.getMinutes()
+												)
+											)
+										}
+									>
+										<IconDown />
+									</TouchableOpacity>
+								</View>
+								<View style={styles.timeSlider}>
+									<Text style={styles.timeSliderHeader}>Minuten</Text>
+									<TouchableOpacity
+										style={styles.timeSliderButton}
+										onPress={() =>
+											setCurrentDate(
+												new Date(
+													currentDate.getFullYear(),
+													currentDate.getMonth(),
+													currentDate.getDate(),
+													currentDate.getHours(),
+													currentDate.getMinutes() <= 0 ? 59 : currentDate.getMinutes() - 1
+												)
+											)
+										}
+									>
+										<IconUp />
+									</TouchableOpacity>
+									<Text style={styles.timeSliderText}>
+										{new Date(
+											currentDate.getFullYear(),
+											currentDate.getMonth(),
+											currentDate.getDate(),
+											currentDate.getHours(),
+											currentDate.getMinutes() - 1
+										).getMinutes()}
+									</Text>
+									<View style={styles.timeSliderTextViewSelected}>
+										<Text style={[styles.timeSliderText, styles.timeSliderTextSelected]}>{currentDate.getMinutes()}</Text>
+									</View>
+									<Text style={styles.timeSliderText}>
+										{new Date(
+											currentDate.getFullYear(),
+											currentDate.getMonth(),
+											currentDate.getDate(),
+											currentDate.getHours(),
+											currentDate.getMinutes() + 1
+										).getMinutes()}
+									</Text>
+									<TouchableOpacity
+										style={styles.timeSliderButton}
+										onPress={() =>
+											setCurrentDate(
+												new Date(
+													currentDate.getFullYear(),
+													currentDate.getMonth(),
+													currentDate.getDate(),
+													currentDate.getHours(),
+													currentDate.getMinutes() >= 59 ? 0 : currentDate.getMinutes() + 1
+												)
+											)
+										}
+									>
+										<IconDown />
+									</TouchableOpacity>
+								</View>
+							</View>
+						)}
 					</View>
 					<View style={styles.dateLinks}>
-						{links &&
-							links.map((link) => (
-								<TouchableOpacity
-									style={styles.dateLink}
-									onPress={() => {
-										const date = link.date(currentDate, currentViewDate);
-										setCurrentDate(date);
-										setCurrentViewDate(date);
-										setIsSelectingMonth(false);
-									}}
-								>
-									<Text style={styles.dateLinkText}>{link.text(currentDate, currentViewDate)}</Text>
-								</TouchableOpacity>
-							))}
+						{links
+							? links.map((link) => {
+									return (
+										<TouchableOpacity
+											style={styles.dateLink}
+											onPress={() => {
+												const date = link.date(currentDate, currentViewDate);
+												setCurrentDate(date);
+												setCurrentViewDate(date);
+												setIsSelectingMonth(false);
+											}}
+											key={link.text(currentDate, currentViewDate)}
+										>
+											<Text style={styles.dateLinkText}>{link.text(currentDate, currentViewDate)}</Text>
+										</TouchableOpacity>
+									);
+							  })
+							: {}}
 					</View>
 				</View>
 			)}
@@ -290,6 +423,12 @@ const styles = StyleSheet.create({
 	},
 	dateBoxLong: {
 		height: 205,
+	},
+	dateBoxShort: {
+		height: 165,
+	},
+	dateBoxShorter: {
+		height: 145,
 	},
 	dateLinks: {
 		flex: 1,
@@ -382,14 +521,53 @@ const styles = StyleSheet.create({
 		borderRadius: 20,
 		backgroundColor: Colors.primary,
 		marginRight: 10,
-		left: -2,
-		top: -2,
+		marginLeft: -2,
+		marginTop: -3,
+		height: 35,
 	},
 	monthSelectorMonthSelected: {
 		left: 2,
-		top: 2,
+		marginTop: 3,
 		marginRight: 0,
 		color: Colors.white,
+	},
+	timeSelector: {
+		width: 230,
+		flexDirection: "row",
+		top: 35,
+		left: 10,
+		position: "absolute",
+		justifyContent: "space-between",
+	},
+	timeSlider: {
+		width: 100,
+		justifyContent: "space-around",
+	},
+	timeSliderHeader: {
+		color: Colors.textPrimary,
+		fontSize: FontSizes.subtitle,
+		textAlign: "center",
+	},
+	timeSliderText: {
+		color: Colors.textPrimary,
+		fontSize: FontSizes.default,
+		textAlign: "center",
+	},
+	timeSliderTextSelected: {
+		color: Colors.white,
+	},
+	timeSliderTextViewSelected: {
+		borderRadius: 20,
+		backgroundColor: Colors.primary,
+		width: 28,
+		height: 28,
+		marginLeft: 36,
+		justifyContent: "center",
+		alignContent: "center",
+	},
+	timeSliderButton: {
+		marginLeft: 40,
+		top: -10,
 	},
 });
 

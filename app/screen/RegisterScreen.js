@@ -20,9 +20,33 @@ const RegisterScreen = () => {
 					label="Geboorte datum"
 					links={[
 						{
-							text: () => "Vandaag",
+							text: () => "1960",
 							date: function () {
-								return new Date();
+								return new Date("1960");
+							},
+						},
+						{
+							text: () => "1970",
+							date: function () {
+								return new Date("1970");
+							},
+						},
+						{
+							text: () => "1980",
+							date: function () {
+								return new Date("1980");
+							},
+						},
+						{
+							text: () => "1990",
+							date: function () {
+								return new Date("1990");
+							},
+						},
+						{
+							text: () => "2000",
+							date: function () {
+								return new Date("2000");
 							},
 						},
 					]}

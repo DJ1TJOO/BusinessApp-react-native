@@ -48,10 +48,18 @@ const IconArrowUp = ({ style }) => (
 	</View>
 );
 
-const IconUp = ({ style }) => (
+const IconDown = ({ style }) => (
 	<View style={[styles.icon, style]}>
 		<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 11 6.001">
 			<Path data-name="Union 45" d="M5.5 5.5l-5-5 5 5 5-5z" fill="none" stroke="#333" strokeLinecap="round" strokeLinejoin="round" />
+		</Svg>
+	</View>
+);
+
+const IconUp = ({ style }) => (
+	<View style={[styles.icon, style]}>
+		<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 11 6.001">
+			<Path data-name="Union 46" d="M5.5.5l5 5-5-5-5 5z" fill="none" stroke="#333" strokeLinecap="round" strokeLinejoin="round" />
 		</Svg>
 	</View>
 );
@@ -79,4 +87,4 @@ const IconAgendaSelected = ({ style }) => (
 	</View>
 );
 
-export { IconArrowBack, IconArrowUp, IconArrowDown, IconUp, IconAgenda, IconAgendaSelected };
+export { IconArrowBack, IconArrowUp, IconArrowDown, IconUp, IconDown, IconAgenda, IconAgendaSelected };
