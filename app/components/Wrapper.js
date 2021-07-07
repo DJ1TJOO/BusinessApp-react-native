@@ -1,24 +1,36 @@
-import React from "react";
-import { StyleSheet, ScrollView, Text, View } from "react-native";
+import React, { useState, useRef } from "react";
+import { StyleSheet, ScrollView, Text, View, Animated, StatusBar } from "react-native";
 
 import SafeView from "./SafeView";
-import Colors from "../config/Colors";
-import FontSizes from "../config/FontSizes";
+import Header from "./Header";
 
 const Wrapper = ({ children, style, showHeader }) => {
+	const offset = useRef(new Animated.Value(0)).current;
 	return (
 		<SafeView>
-			{showHeader && (
-				<View style={styles.header}>
-					<View style={styles.menu}>
-						<View style={styles.menuBar}></View>
-						<View style={styles.menuBar}></View>
-						<View style={styles.menuBar}></View>
-					</View>
-					<Text style={styles.title}>Business App</Text>
-				</View>
-			)}
-			<ScrollView keyboardDismissMode="interactive" style={[styles.wrapper, style]}>
+			{showHeader && <Header animatedValue={offset} />}
+			<ScrollView
+				onScroll={(e) => {
+					Animated.event(
+						[
+							{
+								nativeEvent: {
+									contentOffset: {
+										y: offset,
+									},
+								},
+							},
+						],
+						{ useNativeDriver: false }
+					)(e);
+
+					if (e.nativeEvent.contentOffset.y > 25) StatusBar.setBarStyle("light-content");
+					else StatusBar.setBarStyle("dark-content");
+				}}
+				scrollEventThrottle={1}
+				keyboardDismissMode="interactive"
+				style={[styles.wrapper, style]}
+			>
 				{children}
 			</ScrollView>
 		</SafeView>
@@ -26,30 +38,6 @@ const Wrapper = ({ children, style, showHeader }) => {
 };
 
 const styles = StyleSheet.create({
-	header: {
-		flexDirection: "row",
-		marginHorizontal: 10,
-		alignItems: "center",
-	},
-	title: {
-		fontSize: FontSizes.header,
-		color: Colors.primary,
-		fontFamily: "Segoe-UI",
-		top: -2,
-		marginLeft: 5,
-	},
-	menu: {
-		backgroundColor: Colors.secondary,
-		justifyContent: "space-evenly",
-		padding: 10,
-		height: 45,
-		width: 45,
-		borderRadius: 12,
-	},
-	menuBar: {
-		backgroundColor: Colors.primary,
-		height: 2,
-	},
 	wrapper: {
 		flex: 1,
 		marginHorizontal: 10,
