@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, forwardRef } from "react";
 import { Alert, Image, Linking, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
@@ -13,8 +13,11 @@ import Colors from "../config/Colors";
 const RegisterScreen = () => {
 	const [formLayout, setFormLayout] = useState(null);
 	const [formData, setFormData] = useState({});
+	const [isLogoSet, setIsLogoSet] = useState(false);
 
 	const pickImage = async () => {
+		setIsLogoSet(true);
+
 		let currentStatus = false;
 		let tryAgain = true;
 		while (currentStatus !== "granted" && tryAgain) {
@@ -110,15 +113,39 @@ const RegisterScreen = () => {
 						return true;
 					}}
 				/>
-				<FormInput label="Wachtwoord" hideText={true} onChange={(text) => setFormData({ ...formData, account_password: text })} textContentType="password" />
+				<FormInput
+					label="Wachtwoord"
+					hideText={true}
+					onChange={(text) => setFormData({ ...formData, account_password: text })}
+					textContentType="password"
+					validate={(text) => {
+						if (text.length < 9) return "Het wachtwoord mag niet korter zijn dan 8 karakters";
+						if (text.length > 255) return "Het wachtwoord mag niet langer zijn dan 255 karakters";
+						if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*_-])(?=.{8,})/.test(text))
+							return "Het wachtwoord moet minimaal:\n - 1 hoofdletter \n - 1 kleineletter\n - 1 speciaalteken \n - 1 nummer bevatten";
+						return true;
+					}}
+				/>
 				<FormInput
 					label="Bevestig wachtwoord"
 					hideText={true}
 					onChange={(text) => setFormData({ ...formData, account_confirm_password: text })}
 					textContentType="password"
+					validate={(text) => {
+						if (text !== formData.account_password) return "Het wachtwoord moet het zelfde zijn ";
+						return true;
+					}}
 				/>
 				<FormDate
 					onChange={(currentDate) => setFormData({ ...formData, account_born: currentDate })}
+					validate={(currentDate) => {
+						const ageDiffMilliseconds = Date.now() - currentDate.getTime();
+						const ageDate = new Date(ageDiffMilliseconds);
+						const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+						if (age < 18) return "U moet minimaal 18 jaar oud zijn";
+						return true;
+					}}
 					label="Geboorte datum"
 					links={[
 						{
@@ -152,8 +179,18 @@ const RegisterScreen = () => {
 							},
 						},
 					]}
+					date={new Date(new Date().getFullYear() - 19, new Date().getMonth(), new Date().getDate())}
 				/>
-				<FormInput label="Functie omschrijving" onChange={(text) => setFormData({ ...formData, account_function: text })} textContentType="jobTitle" />
+				<FormInput
+					label="Functie omschrijving"
+					onChange={(text) => setFormData({ ...formData, account_function: text })}
+					textContentType="jobTitle"
+					validate={(text) => {
+						if (text.length < 6) return "De functie omschrijving mag niet korter zijn dan 5 karakters";
+						if (text.length > 255) return "De functie omschrijving mag niet langer zijn dan 255 karakters";
+						return true;
+					}}
+				/>
 				{formData.image && (
 					<Image
 						source={{ uri: formData.image.uri }}
@@ -165,13 +202,14 @@ const RegisterScreen = () => {
 						resizeMode="cover"
 					/>
 				)}
-				<FormButton invert={true} onPress={pickImage}>
+
+				<FormButton invert={true} bad={isLogoSet && !formData.image} onPress={pickImage}>
 					{formData.image ? "Logo veranderen" : "Logo toevoegen"}
 				</FormButton>
 
 				<FormButton
 					onPress={() => {
-						console.log(formData);
+						//TODO: register
 					}}
 				>
 					Registeren
@@ -186,7 +224,7 @@ const styles = StyleSheet.create({
 		borderRadius: 12,
 		marginTop: 5,
 		borderWidth: 2,
-		borderColor: Colors.tertiary,
+		borderColor: Colors.primary,
 	},
 });
 

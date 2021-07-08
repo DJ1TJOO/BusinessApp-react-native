@@ -64,13 +64,13 @@ const IconUp = ({ style }) => (
 	</View>
 );
 
-const IconAgenda = ({ style }) => (
+const IconAgenda = ({ style, color }) => (
 	<View style={[styles.icon, style]}>
 		<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 20 20">
 			<Path
 				data-name="Subtraction 1"
 				d="M13.999 20h-8a6.006 6.006 0 01-6-6V7h20v7a6.007 6.007 0 01-6 6zm5.658-15H.341a6 6 0 014.658-3.917V1a1 1 0 011-1 1 1 0 011 1h6a1 1 0 011-1 1 1 0 011 1v.083a6 6 0 014.659 3.915z"
-				fill="rgb(237, 241, 253)"
+				fill={color || "rgb(237, 241, 253)"}
 			/>
 		</Svg>
 	</View>

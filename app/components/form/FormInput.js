@@ -47,6 +47,7 @@ const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorO
 				)}
 				{isValid === false && <IconCross style={[styles.icon]} />}
 				<TextInput
+					clearTextOnFocus={false}
 					style={[styles.input, isFocused && styles.inputFocused, isValid === true && styles.inputValid, isValid === false && styles.inputInvalid]}
 					secureTextEntry={!!hideText}
 					onFocus={(e) => {

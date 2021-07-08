@@ -4,18 +4,19 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 
-import { IconAgenda, IconArrowBack } from "../Icons";
-
-const FormButton = ({ children, onPress, invert }) => {
+const FormButton = ({ children, onPress, invert, bad }) => {
 	let child;
 	if (typeof children === "string") {
-		child = <Text style={invert ? [styles.buttonText, styles.buttonTextInvert] : styles.buttonText}>{children}</Text>;
+		child = <Text style={[styles.buttonText, invert && !bad && styles.buttonTextInvert, invert && bad && styles.buttonTextInvertBad]}>{children}</Text>;
 	} else {
 		child = children;
 	}
 
 	return (
-		<TouchableOpacity style={invert ? [styles.button, styles.buttonInvert] : styles.button} onPress={onPress}>
+		<TouchableOpacity
+			style={[styles.button, invert && !bad && styles.buttonInvert, !invert && bad && styles.buttonBad, invert && bad && styles.buttonInvertBad]}
+			onPress={onPress}
+		>
 			{child}
 		</TouchableOpacity>
 	);
@@ -35,6 +36,14 @@ const styles = StyleSheet.create({
 		borderColor: Colors.primary,
 		borderWidth: 2,
 	},
+	buttonBad: {
+		backgroundColor: Colors.red,
+	},
+	buttonInvertBad: {
+		backgroundColor: Colors.white,
+		borderColor: Colors.red,
+		borderWidth: 2,
+	},
 	buttonText: {
 		fontSize: FontSizes.subtitle,
 		color: Colors.white,
@@ -42,6 +51,10 @@ const styles = StyleSheet.create({
 		marginTop: 4,
 	},
 	buttonTextInvert: { color: Colors.primary, marginTop: 1 },
+	buttonTextInvertBad: {
+		color: Colors.red,
+		marginTop: 1,
+	},
 });
 
 export default FormButton;

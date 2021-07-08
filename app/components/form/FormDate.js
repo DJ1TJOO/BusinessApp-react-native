@@ -6,7 +6,7 @@ import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 
 const monthDays = function (date) {
-	return new Date(date.getFullYear(), date.getMonth(), 0).getDate();
+	return new Date(date.getFullYear(), date.getMonth() - 1, 0).getDate();
 };
 
 const day = function (date) {
@@ -43,14 +43,29 @@ const daysInMonth = function (date) {
 	return daysInMonth;
 };
 
-const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links, time, onChange }) => {
-	const [currentDate, setCurrentDate] = useState(new Date());
-	const [currentViewDate, setCurrentViewDate] = useState(viewDate || new Date());
+const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, date, links, time, onChange, validate }) => {
+	const [currentDate, setCurrentDate] = useState(date || new Date());
+	const [currentViewDate, setCurrentViewDate] = useState(date || new Date());
 	const [isSelectingMonth, setIsSelectingMonth] = useState(false);
 	const [isSelectingTime, setIsSelectingTime] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
 
+	const [currentErrorLabel, setCurrentErrorLabel] = useState(errorLabel);
+	const [isValid, setIsValid] = useState(null);
+
 	useEffect(() => {
+		if (!currentDate) return;
+
+		if (validate) {
+			const valid = validate(currentDate);
+			if (valid === true) {
+				setCurrentErrorLabel(null);
+				setIsValid(true);
+			} else {
+				setCurrentErrorLabel(valid);
+				setIsValid(false);
+			}
+		}
 		onChange(currentDate);
 	}, [currentDate]);
 
@@ -65,9 +80,44 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links, time, onChan
 	return (
 		<View style={styles.container}>
 			{label && <Text style={styles.label}>{label}</Text>}
-			<TouchableOpacity onPress={() => setIsFocused(!isFocused)} style={[styles.currentDateBox, isFocused && styles.currentDateBoxFocused]}>
-				{isFocused ? <IconAgendaSelected style={styles.icon} /> : <IconAgenda style={styles.icon} />}
-				<Text style={[styles.currentDate, isFocused && styles.currentDateFocused]}>{currentDate.toLocaleDateString()}</Text>
+			{currentErrorLabel && (
+				<TouchableOpacity onPress={errorOnPress}>
+					<Text style={styles.errorButtonText}>{currentErrorLabel}</Text>
+				</TouchableOpacity>
+			)}
+			<TouchableOpacity
+				onPress={() => setIsFocused(!isFocused)}
+				style={[
+					styles.currentDateBox,
+					isValid === true && {
+						borderColor: Colors.primary,
+					},
+					isValid === false && {
+						borderColor: Colors.red,
+					},
+					isFocused && styles.currentDateBoxFocused,
+				]}
+			>
+				{isFocused ? (
+					<IconAgendaSelected style={styles.icon} />
+				) : (
+					<IconAgenda style={styles.icon} color={isValid === true ? Colors.primary : isValid === false ? Colors.red : null} />
+				)}
+				<Text
+					style={[
+						styles.currentDate,
+
+						isValid === true && {
+							color: Colors.primary,
+						},
+						isValid === false && {
+							color: Colors.red,
+						},
+						isFocused && styles.currentDateFocused,
+					]}
+				>
+					{currentDate.toLocaleDateString()}
+				</Text>
 				{helpLabel && (
 					<TouchableOpacity onPress={helpOnPress}>
 						<Text style={styles.helpButtonText}>{helpLabel}</Text>
@@ -80,13 +130,27 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links, time, onChan
 						const style = [styles.dateBox];
 
 						if (isSelectingMonth) {
-							style.push(styles.dateBoxShorter);
+							style.push({
+								height: 145,
+							});
 						} else {
-							if (data.length > 5) style.push(styles.dateBoxLong);
-							else if (data.length < 4) style.push(styles.dateBoxShort);
+							if (data.length > 5)
+								style.push({
+									height: 205,
+								});
+							else if (data.length < 4)
+								style.push({
+									height: 165,
+								});
 						}
-						if (label) style.push(styles.dateBoxWithLabel);
-
+						if (label)
+							style.push({
+								top: 63,
+							});
+						if (currentErrorLabel)
+							style.push({
+								top: 85,
+							});
 						return style;
 					})()}
 				>
@@ -422,18 +486,6 @@ const styles = StyleSheet.create({
 
 		backgroundColor: Colors.white,
 	},
-	dateBoxWithLabel: {
-		top: 63,
-	},
-	dateBoxLong: {
-		height: 205,
-	},
-	dateBoxShort: {
-		height: 165,
-	},
-	dateBoxShorter: {
-		height: 145,
-	},
 	dateLinks: {
 		flex: 1,
 		flexDirection: "column",
@@ -452,6 +504,11 @@ const styles = StyleSheet.create({
 		textAlign: "right",
 	},
 	dateSelector: {},
+	errorButtonText: {
+		color: Colors.red,
+		fontSize: FontSizes.default,
+		fontFamily: "Segoe-UI",
+	},
 	helpButtonText: {
 		color: Colors.primary,
 		fontSize: FontSizes.default,
