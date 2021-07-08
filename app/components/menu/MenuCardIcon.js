@@ -11,7 +11,7 @@ const MenuCardIcon = ({ animatedValue, style }) => {
 		extrapolate: "clamp",
 	});
 	return (
-		<Animated.View style={[style, { transform: [{ translateY: 6 }, { rotate: spin }, { translateY: -6 }] }]}>
+		<Animated.View style={[style, { transform: [{ translateY: -3 }, { translateY: 10 }, { rotate: spin }, { translateY: -10 }] }]}>
 			<IconDown color={Colors.textPrimary} />
 		</Animated.View>
 	);

@@ -8,13 +8,13 @@ import MenuCard from "./components/menu/MenuCard";
 import Colors from "./config/Colors";
 import FontSizes from "./config/FontSizes";
 
-const Menu = (props) => {
+const Menu = ({ navigation }) => {
 	return (
 		<DrawerContentScrollView style={[styles.container, { width: useWindowDimensions().width }]}>
 			<TouchableOpacity
 				style={styles.header}
 				onPress={() => {
-					props.navigation.closeDrawer();
+					navigation.closeDrawer();
 				}}
 			>
 				<Image source={{ uri: "https://dummyimage.com/400x400/ffffff/fff" }} resizeMode="cover" style={[styles.logo]} />
@@ -25,14 +25,87 @@ const Menu = (props) => {
 				<IconArrowBack style={styles.back} />
 			</TouchableOpacity>
 			<MenuCard
-				title="Test"
+				title="Test 1"
+				onPress={() => {
+					navigation.closeDrawer();
+				}}
+			/>
+			<MenuCard
+				title="Test 2"
 				routes={[
 					{
-						title: "Bla",
-						onPress: () => {},
+						title: "Close1",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Close2",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Close3",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
 					},
 				]}
 			/>
+			<MenuCard
+				title="Test 3"
+				onPress={() => {
+					navigation.closeDrawer();
+				}}
+			/>
+			<MenuCard
+				title="Test 4"
+				routes={[
+					{
+						title: "Close1",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Close2",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Close3",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+				]}
+			/>
+			<MenuCard
+				title="Test 5"
+				routes={[
+					{
+						title: "Close1",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Close2",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Close3",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+				]}
+			/>
+			<View style={{ height: 50, width: "100%", backgroundColor: Colors.secondary }} />
 		</DrawerContentScrollView>
 	);
 };
