@@ -78,19 +78,45 @@ const RegisterScreen = () => {
 	return (
 		<Wrapper showHeader={true}>
 			<Form title="Registeer bedrijf" onLayout={(e) => setFormLayout(e.nativeEvent.layout)}>
-				<FormInput label="Bedrijfsnaam" onChange={(e) => setFormData({ ...formData, business_name: e.nativeEvent.text })} />
+				<FormInput
+					label="Bedrijfsnaam"
+					onChange={(text) => setFormData({ ...formData, business_name: text })}
+					textContentType="name"
+					validate={(text) => {
+						if (text.length < 6) return "De bedrijfsnaam mag niet korter zijn dan 5 karakters";
+						if (text.length > 255) return "De bedrijfsnaam mag niet langer zijn dan 255 karakters";
+						return true;
+					}}
+				/>
 				<FormHeading title="Hoofdaccount" />
 				<FormInput
 					label="Email"
-					onChange={(e) =>
+					onChange={(text) =>
 						setFormData({
 							...formData,
-							account_email: e.nativeEvent.text,
+							account_email: text,
 						})
 					}
+					textContentType="emailAddress"
+					validate={(text) => {
+						if (
+							!/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(
+								text
+							)
+						)
+							return "Het email address is incorrect";
+
+						if (text.length > 255) return "Het email address mag niet langer zijn dan 255 karakters";
+						return true;
+					}}
 				/>
-				<FormInput label="Wachtwoord" hideText={true} onChange={(e) => setFormData({ ...formData, account_password: e.nativeEvent.text })} />
-				<FormInput label="Bevestig wachtwoord" hideText={true} onChange={(e) => setFormData({ ...formData, account_confirm_password: e.nativeEvent.text })} />
+				<FormInput label="Wachtwoord" hideText={true} onChange={(text) => setFormData({ ...formData, account_password: text })} textContentType="password" />
+				<FormInput
+					label="Bevestig wachtwoord"
+					hideText={true}
+					onChange={(text) => setFormData({ ...formData, account_confirm_password: text })}
+					textContentType="password"
+				/>
 				<FormDate
 					onChange={(currentDate) => setFormData({ ...formData, account_born: currentDate })}
 					label="Geboorte datum"
@@ -127,7 +153,7 @@ const RegisterScreen = () => {
 						},
 					]}
 				/>
-				<FormInput label="Functie omschrijving" onChange={(e) => setFormData({ ...formData, account_function: e.nativeEvent.text })} />
+				<FormInput label="Functie omschrijving" onChange={(text) => setFormData({ ...formData, account_function: text })} textContentType="jobTitle" />
 				{formData.image && (
 					<Image
 						source={{ uri: formData.image.uri }}
