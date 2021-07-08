@@ -1,10 +1,15 @@
 import React from "react";
-import { StatusBar, Platform, StyleSheet, SafeAreaView } from "react-native";
+import { StatusBar, Platform, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import Colors from "../config/Colors";
 
 const SafeView = ({ children, style }) => {
-	return <SafeAreaView style={[styles.safeView, style]}>{children}</SafeAreaView>;
+	return (
+		<SafeAreaView forceInset={{ top: "always" }} style={[styles.safeView, style]}>
+			{children}
+		</SafeAreaView>
+	);
 };
 
 const styles = StyleSheet.create({

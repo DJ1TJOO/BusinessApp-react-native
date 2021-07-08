@@ -5,10 +5,10 @@ import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 import { IconCheck, IconCross } from "../Icons";
 
-const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorOnPress, onFocus, onBlur, onChange, validate, textContentType }) => {
+const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorOnPress, valid, onFocus, onBlur, onChange, validate, textContentType }) => {
 	const [currentErrorLabel, setCurrentErrorLabel] = useState(errorLabel);
 	const [isFocused, setIsFocused] = useState(false);
-	const [isValid, setIsValid] = useState(null);
+	const [isValid, setIsValid] = useState(valid);
 
 	const checkValue = (text) => {
 		if (!text) return;
@@ -23,7 +23,7 @@ const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorO
 				setIsValid(false);
 			}
 		}
-		onChange(text);
+		if (onChange) onChange(text);
 	};
 
 	return (

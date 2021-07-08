@@ -1,15 +1,18 @@
-import React, { useState, useRef } from "react";
-import { StyleSheet, ScrollView, Text, View, Animated, StatusBar } from "react-native";
+import React, { useRef } from "react";
+import { StyleSheet, ScrollView, Animated, StatusBar } from "react-native";
 
 import SafeView from "./SafeView";
 import Header from "./Header";
 
-const Wrapper = ({ children, style, showHeader }) => {
+const Wrapper = ({ children, style, showHeader, navigation }) => {
 	const offset = useRef(new Animated.Value(0)).current;
+	const scrollView = useRef();
+
 	return (
 		<SafeView>
-			{showHeader && <Header animatedValue={offset} />}
+			{showHeader && <Header navigation={navigation} scrollView={scrollView} animatedValue={offset} />}
 			<ScrollView
+				ref={scrollView}
 				showsVerticalScrollIndicator={false}
 				onScroll={(e) => {
 					Animated.event(

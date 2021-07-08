@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Animated, StatusBar } from "react-native";
+import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
 
 import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";
 
-const Header = ({ animatedValue }) => {
+const Header = ({ animatedValue, navigation, scrollView }) => {
 	const [headerLayout, setHeaderLayout] = useState({ x: 0, y: 0, height: 0, width: 0 });
 
 	const colorWhiteToPrimary = animatedValue.interpolate({
@@ -47,12 +47,27 @@ const Header = ({ animatedValue }) => {
 					setHeaderLayout(e.nativeEvent.layout);
 				}}
 			>
-				<Animated.View style={[styles.menu, { backgroundColor: colorSecundaryToPrimary, borderColor: colorSecundaryToWhite }]}>
-					<Animated.View style={[styles.menuBar, { backgroundColor: colorPrimaryToWhite }]}></Animated.View>
-					<Animated.View style={[styles.menuBar, { backgroundColor: colorPrimaryToWhite }]}></Animated.View>
-					<Animated.View style={[styles.menuBar, { backgroundColor: colorPrimaryToWhite }]}></Animated.View>
-				</Animated.View>
-				<Animated.Text style={[styles.title, { color: colorPrimaryToWhite }]}>Business App</Animated.Text>
+				<TouchableOpacity
+					onPress={() => {
+						if (navigation) {
+							if (navigation.openDrawer) navigation.openDrawer();
+							else navigation.goBack();
+						}
+					}}
+				>
+					<Animated.View style={[styles.menu, { backgroundColor: colorSecundaryToPrimary, borderColor: colorSecundaryToWhite }]}>
+						<Animated.View style={[styles.menuBar, { backgroundColor: colorPrimaryToWhite }]}></Animated.View>
+						<Animated.View style={[styles.menuBar, { backgroundColor: colorPrimaryToWhite }]}></Animated.View>
+						<Animated.View style={[styles.menuBar, { backgroundColor: colorPrimaryToWhite }]}></Animated.View>
+					</Animated.View>
+				</TouchableOpacity>
+				<TouchableOpacity
+					onPress={() => {
+						if (scrollView && scrollView.current) scrollView.current.scrollTo({ x: 0, y: 0, animated: true });
+					}}
+				>
+					<Animated.Text style={[styles.title, { color: colorPrimaryToWhite }]}>Business App</Animated.Text>
+				</TouchableOpacity>
 			</View>
 		</View>
 	);

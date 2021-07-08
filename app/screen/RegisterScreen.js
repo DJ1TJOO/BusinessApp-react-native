@@ -10,7 +10,7 @@ import FormHeading from "../components/form/FormHeading";
 import FormDate from "../components/form/FormDate";
 import Colors from "../config/Colors";
 
-const RegisterScreen = () => {
+const RegisterScreen = ({ navigation }) => {
 	const [formLayout, setFormLayout] = useState(null);
 	const [formData, setFormData] = useState({});
 	const [isLogoSet, setIsLogoSet] = useState(false);
@@ -79,7 +79,7 @@ const RegisterScreen = () => {
 	};
 
 	return (
-		<Wrapper showHeader={true}>
+		<Wrapper navigation={navigation} showHeader={true}>
 			<Form title="Registeer bedrijf" onLayout={(e) => setFormLayout(e.nativeEvent.layout)}>
 				<FormInput
 					label="Bedrijfsnaam"
