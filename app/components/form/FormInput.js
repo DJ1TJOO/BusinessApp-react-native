@@ -4,14 +4,19 @@ import { TouchableOpacity, StyleSheet, Text, TextInput, View } from "react-nativ
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 
-const FormInput = ({ label, hideText, helpLabel, helpOnPress, onFocus, onBlur }) => {
+const FormInput = ({ label, hideText, helpLabel, helpOnPress, onFocus, onBlur, onChange }) => {
 	const [isFocused, setIsFocused] = useState(false);
+	const [isValid, setIsValid] = useState(null);
+
+	const checkValue = (e) => {
+		onChange(e);
+	};
 
 	return (
 		<View style={styles.container}>
 			{label && <Text style={styles.label}>{label}</Text>}
 			<TextInput
-				style={[styles.input, isFocused && styles.inputFocused]}
+				style={[styles.input, isFocused && styles.inputFocused, isValid === true && styles.inputValid, isValid === false && styles.inputValid]}
 				secureTextEntry={!!hideText}
 				onFocus={(e) => {
 					setIsFocused(true);
@@ -21,7 +26,7 @@ const FormInput = ({ label, hideText, helpLabel, helpOnPress, onFocus, onBlur })
 					setIsFocused(false);
 					onBlur && onBlur(e);
 				}}
-				keyboar
+				onChange={checkValue}
 			/>
 			{helpLabel && (
 				<TouchableOpacity onPress={helpOnPress}>
@@ -55,6 +60,12 @@ const styles = StyleSheet.create({
 		borderColor: Colors.tertiary,
 		paddingHorizontal: 10,
 		height: 38,
+	},
+	inputValid: {
+		borderColor: Colors.primary,
+	},
+	inputInvalid: {
+		borderColor: Colors.red,
 	},
 	inputFocused: {
 		color: Colors.textPrimary,

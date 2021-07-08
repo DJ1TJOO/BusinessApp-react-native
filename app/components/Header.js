@@ -8,24 +8,24 @@ const Header = ({ animatedValue }) => {
 	const [headerLayout, setHeaderLayout] = useState({ x: 0, y: 0, height: 0, width: 0 });
 
 	const colorWhiteToPrimary = animatedValue.interpolate({
-		inputRange: [0, 50],
+		inputRange: [5, 50],
 		outputRange: [Colors.white, Colors.primary],
 		extrapolate: "clamp",
 	});
 
 	const colorPrimaryToWhite = animatedValue.interpolate({
-		inputRange: [0, 50],
+		inputRange: [5, 50],
 		outputRange: [Colors.primary, Colors.white],
 		extrapolate: "clamp",
 	});
 
 	const colorSecundaryToPrimary = animatedValue.interpolate({
-		inputRange: [0, 50],
+		inputRange: [5, 50],
 		outputRange: [Colors.secondary, Colors.primary],
 		extrapolate: "clamp",
 	});
 	const colorSecundaryToWhite = animatedValue.interpolate({
-		inputRange: [0, 50],
+		inputRange: [5, 50],
 		outputRange: [Colors.secondary, Colors.white],
 		extrapolate: "clamp",
 	});
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		marginHorizontal: 10,
 		alignItems: "center",
-		paddingVertical: 5,
+		paddingVertical: 10,
 	},
 	title: {
 		fontSize: FontSizes.header,

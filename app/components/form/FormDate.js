@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedbackBase, View } from "react-native";
 
 import { IconAgenda, IconAgendaSelected, IconArrowDown, IconArrowUp, IconDown, IconUp } from "../Icons";
@@ -43,12 +43,16 @@ const daysInMonth = function (date) {
 	return daysInMonth;
 };
 
-const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links, time }) => {
+const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links, time, onChange }) => {
 	const [currentDate, setCurrentDate] = useState(new Date());
 	const [currentViewDate, setCurrentViewDate] = useState(viewDate || new Date());
 	const [isSelectingMonth, setIsSelectingMonth] = useState(false);
 	const [isSelectingTime, setIsSelectingTime] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
+
+	useEffect(() => {
+		onChange(currentDate);
+	}, [currentDate]);
 
 	let data;
 	if (isSelectingMonth) {
@@ -61,9 +65,9 @@ const FormDate = ({ label, helpLabel, helpOnPress, viewDate, links, time }) => {
 	return (
 		<View style={styles.container}>
 			{label && <Text style={styles.label}>{label}</Text>}
-			<TouchableOpacity onPress={() => setIsFocused(!isFocused)} style={isFocused ? [styles.currentDateBox, styles.currentDateBoxFocused] : styles.currentDateBox}>
+			<TouchableOpacity onPress={() => setIsFocused(!isFocused)} style={[styles.currentDateBox, isFocused && styles.currentDateBoxFocused]}>
 				{isFocused ? <IconAgendaSelected style={styles.icon} /> : <IconAgenda style={styles.icon} />}
-				<Text style={isFocused ? [styles.currentDate, styles.currentDateFocused] : styles.currentDate}>{currentDate.toLocaleDateString()}</Text>
+				<Text style={[styles.currentDate, isFocused && styles.currentDateFocused]}>{currentDate.toLocaleDateString()}</Text>
 				{helpLabel && (
 					<TouchableOpacity onPress={helpOnPress}>
 						<Text style={styles.helpButtonText}>{helpLabel}</Text>

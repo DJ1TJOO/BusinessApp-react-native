@@ -10,6 +10,7 @@ const Wrapper = ({ children, style, showHeader }) => {
 		<SafeView>
 			{showHeader && <Header animatedValue={offset} />}
 			<ScrollView
+				showsVerticalScrollIndicator={false}
 				onScroll={(e) => {
 					Animated.event(
 						[
@@ -24,7 +25,7 @@ const Wrapper = ({ children, style, showHeader }) => {
 						{ useNativeDriver: false }
 					)(e);
 
-					if (e.nativeEvent.contentOffset.y > 25) StatusBar.setBarStyle("light-content");
+					if (e.nativeEvent.contentOffset.y > 20) StatusBar.setBarStyle("light-content");
 					else StatusBar.setBarStyle("dark-content");
 				}}
 				scrollEventThrottle={1}
