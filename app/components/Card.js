@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";
 
-const Card = ({ style, color, title, description, onPress, icon }) => {
+const Card = ({ style, color, title, description, onPress, icon, children }) => {
 	const Icon = icon;
 	return (
 		<TouchableOpacity key={title} onPress={onPress}>
@@ -14,6 +14,7 @@ const Card = ({ style, color, title, description, onPress, icon }) => {
 					{Icon && <Icon style={styles.icon} />}
 				</View>
 				<Text style={[styles.description, color && { color: color }]}>{description}</Text>
+				<View>{children}</View>
 			</View>
 		</TouchableOpacity>
 	);

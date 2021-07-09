@@ -1,7 +1,7 @@
 import React from "react";
-import { StyleSheet, Text } from "react-native";
-import Heading from "../components/Heading";
+import { StyleSheet } from "react-native";
 
+import Heading from "../components/Heading";
 import Wrapper from "../components/Wrapper";
 import MenuCard from "../components/menu/MenuCard";
 import Card from "../components/Card";

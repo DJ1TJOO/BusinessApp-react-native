@@ -5,7 +5,7 @@ import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 import { IconCheck, IconCross } from "../Icons";
 
-const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorOnPress, valid, onFocus, onBlur, onChange, validate, textContentType }) => {
+const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorOnPress, valid, onFocus, onBlur, onChange, validate, textContentType, style, children, value }) => {
 	const [currentErrorLabel, setCurrentErrorLabel] = useState(errorLabel);
 	const [isFocused, setIsFocused] = useState(false);
 	const [isValid, setIsValid] = useState(valid);
@@ -27,7 +27,7 @@ const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorO
 	};
 
 	return (
-		<View style={styles.container}>
+		<View style={[styles.container, style]}>
 			{label && <Text style={styles.label}>{label}</Text>}
 			{currentErrorLabel && (
 				<TouchableOpacity onPress={errorOnPress}>
@@ -60,6 +60,7 @@ const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorO
 					}}
 					textContentType={textContentType}
 					onChangeText={(text) => checkValue(text)}
+					value={value}
 				></TextInput>
 			</View>
 			{helpLabel && (
@@ -67,6 +68,7 @@ const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorO
 					<Text style={styles.helpButtonText}>{helpLabel}</Text>
 				</TouchableOpacity>
 			)}
+			{children}
 		</View>
 	);
 };

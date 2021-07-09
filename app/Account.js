@@ -1,8 +1,9 @@
 import React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 
-import HomeScreen from "./screen/HomeScreen";
 import Menu from "./Menu";
+import HomeScreen from "./screen/HomeScreen";
+import Hours from "./Hours";
 
 const Drawer = createDrawerNavigator();
 const Account = () => {
@@ -14,13 +15,9 @@ const Account = () => {
 			}}
 			edgeWidth={50}
 		>
-			<Drawer.Screen
-				name="Home"
-				component={HomeScreen}
-				options={{
-					header: false,
-				}}
-			/>
+			<Drawer.Screen name="Home" component={HomeScreen} />
+
+			<Drawer.Screen name="Hours" component={Hours} />
 		</Drawer.Navigator>
 	);
 };

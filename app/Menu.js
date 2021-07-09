@@ -25,12 +25,18 @@ const Menu = ({ navigation }) => {
 				<IconArrowBack style={styles.back} />
 			</TouchableOpacity>
 			<MenuCard
+				title="Start"
+				onPress={() => {
+					navigation.navigate("Home");
+				}}
+			/>
+			<MenuCard
 				title="Uren"
 				routes={[
 					{
 						title: "Mijn uren",
 						onPress: () => {
-							navigation.closeDrawer();
+							navigation.navigate("Hours");
 						},
 					},
 					{
