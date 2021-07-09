@@ -25,85 +25,58 @@ const Menu = ({ navigation }) => {
 				<IconArrowBack style={styles.back} />
 			</TouchableOpacity>
 			<MenuCard
-				title="Test 1"
+				title="Uren"
+				routes={[
+					{
+						title: "Mijn uren",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Uren controleren",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+				]}
+			/>
+			<MenuCard
+				title="Leden"
+				routes={[
+					{
+						title: "Alle leden",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Lid toevoegen",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Alle functies",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+					{
+						title: "Functie toevoegen",
+						onPress: () => {
+							navigation.closeDrawer();
+						},
+					},
+				]}
+			/>
+			<MenuCard
+				title="Logout"
+				style={{ backgroundColor: Colors.red }}
+				color={Colors.white}
 				onPress={() => {
-					navigation.closeDrawer();
+					navigation.navigate("Login");
 				}}
-			/>
-			<MenuCard
-				title="Test 2"
-				routes={[
-					{
-						title: "Close1",
-						onPress: () => {
-							navigation.closeDrawer();
-						},
-					},
-					{
-						title: "Close2",
-						onPress: () => {
-							navigation.closeDrawer();
-						},
-					},
-					{
-						title: "Close3",
-						onPress: () => {
-							navigation.closeDrawer();
-						},
-					},
-				]}
-			/>
-			<MenuCard
-				title="Test 3"
-				onPress={() => {
-					navigation.closeDrawer();
-				}}
-			/>
-			<MenuCard
-				title="Test 4"
-				routes={[
-					{
-						title: "Close1",
-						onPress: () => {
-							navigation.closeDrawer();
-						},
-					},
-					{
-						title: "Close2",
-						onPress: () => {
-							navigation.closeDrawer();
-						},
-					},
-					{
-						title: "Close3",
-						onPress: () => {
-							navigation.closeDrawer();
-						},
-					},
-				]}
-			/>
-			<MenuCard
-				title="Test 5"
-				routes={[
-					{
-						title: "Close1",
-						onPress: () => {
-							navigation.closeDrawer();
-						},
-					},
-					{
-						title: "Close2",
-						onPress: () => {
-							navigation.closeDrawer();
-						},
-					},
-					{
-						title: "Close3",
-						onPress: () => {
-							navigation.closeDrawer();
-						},
-					},
-				]}
 			/>
 			<View style={{ height: 50, width: "100%", backgroundColor: Colors.secondary }} />
 		</DrawerContentScrollView>
@@ -127,6 +100,7 @@ const styles = StyleSheet.create({
 		borderRadius: 12,
 		padding: 10,
 		flexDirection: "row",
+		marginBottom: 5,
 	},
 	logo: {
 		height: 100,

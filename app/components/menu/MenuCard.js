@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, Animated, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, Animated } from "react-native";
 
 import { IconArrowForward } from "../Icons";
 import Colors from "../../config/Colors";
@@ -7,7 +7,7 @@ import FontSizes from "../../config/FontSizes";
 import MenuCardIcon from "./MenuCardIcon";
 import MenuRoutes from "./MenuRoutes";
 
-const MenuCard = ({ title, onPress, routes }) => {
+const MenuCard = ({ title, onPress, routes, style, color }) => {
 	const animatedValue = useRef(new Animated.Value(0)).current;
 	const [isOpenend, setIsOpenend] = useState(false);
 
@@ -39,10 +39,10 @@ const MenuCard = ({ title, onPress, routes }) => {
 					: onPress
 			}
 		>
-			<Animated.View style={[styles.card, { height: height }]}>
-				<Text style={styles.text}>{title}</Text>
+			<Animated.View style={[styles.card, style, { height: height }]}>
+				<Text style={[styles.text, color && { color: color }]}>{title}</Text>
 				{routes && <MenuCardIcon animatedValue={animatedValue} style={styles.icon} />}
-				{!routes && <IconArrowForward color={Colors.textPrimary} style={[styles.icon, { top: 12 }]} />}
+				{!routes && <IconArrowForward color={color || Colors.textPrimary} style={[styles.icon, { top: 12 }]} />}
 				{routes && <MenuRoutes routes={routes} animatedValue={animatedValue} />}
 			</Animated.View>
 		</TouchableOpacity>
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
 		width: "100%",
 		backgroundColor: Colors.tertiary,
 		borderRadius: 12,
-		marginTop: 10,
+		marginBottom: 5,
 		padding: 10,
 		paddingTop: 35,
 	},
