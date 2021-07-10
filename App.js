@@ -3,7 +3,7 @@ import AppLoading from "expo-app-loading";
 import { useFonts } from "@use-expo/font";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { StatusBar } from "react-native";
+import { Platform, StatusBar } from "react-native";
 
 import WelcomeScreen from "./app/screen/WelcomeScreen";
 
@@ -19,6 +19,12 @@ import Account from "./app/Account";
 const Stack = createStackNavigator();
 
 export default function App() {
+	if (Platform.OS === "android") {
+		// only android needs polyfill
+		require("intl"); // import intl object
+		require("intl/locale-data/jsonp/en-IN"); // load the required locale details
+	}
+
 	let [fontsLoaded] = useFonts({
 		"Segoe-UI": require("./app/assets/fonts/Segoe-UI.ttf"),
 	});

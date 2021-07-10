@@ -131,7 +131,7 @@ const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, dat
 
 						if (isSelectingMonth) {
 							style.push({
-								height: 145,
+								height: 165,
 							});
 						} else {
 							if (data.length > 5)
@@ -143,14 +143,6 @@ const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, dat
 									height: 165,
 								});
 						}
-						if (label)
-							style.push({
-								top: 63,
-							});
-						if (currentErrorLabel)
-							style.push({
-								top: 85,
-							});
 						return style;
 					})()}
 				>
@@ -174,8 +166,12 @@ const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, dat
 							>
 								<IconArrowDown style={styles.monthSelectorIcon} />
 							</TouchableOpacity>
-							<TouchableOpacity onPress={() => (isSelectingTime ? setIsSelectingTime(!isSelectingTime) : setIsSelectingMonth(!isSelectingMonth))}>
-								<Text style={styles.monthSelectorDate}>
+
+							<TouchableOpacity
+								style={[styles.monthSelectorDateBox]}
+								onPress={() => (isSelectingTime ? setIsSelectingTime(!isSelectingTime) : setIsSelectingMonth(!isSelectingMonth))}
+							>
+								<Text style={[styles.monthSelectorDate]}>
 									{currentViewDate.toLocaleString(
 										"default",
 										isSelectingMonth
@@ -263,7 +259,11 @@ const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, dat
 							<View style={styles.monthSelector}>
 								{data.map((x) =>
 									x.getMonth() === currentDate.getMonth() && x.getFullYear() === currentDate.getFullYear() ? (
-										<TouchableOpacity key={x} style={styles.monthSelectorMonthSelectedView} onPress={() => setIsSelectingMonth(false)}>
+										<TouchableOpacity
+											key={x}
+											style={[styles.monthSelectorMonthView, styles.monthSelectorMonthSelectedView]}
+											onPress={() => setIsSelectingMonth(false)}
+										>
 											<Text style={[styles.monthSelectorMonth, styles.monthSelectorMonthSelected]}>{x.toLocaleString("default", { month: "short" })}</Text>
 										</TouchableOpacity>
 									) : (
@@ -273,6 +273,7 @@ const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, dat
 												setCurrentViewDate(new Date(x.getFullYear(), x.getMonth(), currentViewDate.getDate()));
 												setIsSelectingMonth(false);
 											}}
+											style={styles.monthSelectorMonthView}
 										>
 											<Text style={styles.monthSelectorMonth}>{x.toLocaleString("default", { month: "short" })}</Text>
 										</TouchableOpacity>
@@ -464,17 +465,19 @@ const styles = StyleSheet.create({
 		width: 25,
 		height: 25,
 		textAlign: "center",
+		textAlignVertical: "center",
 	},
 	daySelectorDaySelectedView: {
 		borderRadius: 20,
 		backgroundColor: Colors.primary,
+
+		padding: 1,
 	},
 	daySelectorDaySelected: {
 		color: Colors.white,
 	},
 	dateBox: {
-		position: "absolute",
-		top: 36,
+		top: -2,
 		height: 185,
 
 		width: "100%",
@@ -544,13 +547,15 @@ const styles = StyleSheet.create({
 		left: 29,
 		padding: 4,
 	},
+	monthSelectorDateBox: {
+		position: "absolute",
+		top: 4,
+		left: 55,
+	},
 	monthSelectorDate: {
 		color: Colors.textPrimary,
 		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
-		position: "absolute",
-		top: 4,
-		left: 55,
 		textAlign: "center",
 		width: 150,
 	},
@@ -564,11 +569,8 @@ const styles = StyleSheet.create({
 		fontSize: FontSizes.default,
 		fontFamily: "Segoe-UI",
 
-		width: 35,
-		height: 35,
 		textAlign: "center",
-
-		marginRight: 10,
+		marginTop: -6,
 	},
 	monthSelector: {
 		width: 230,
@@ -578,18 +580,18 @@ const styles = StyleSheet.create({
 		left: 10,
 		position: "absolute",
 	},
+	monthSelectorMonthView: {
+		marginRight: 5,
+		width: 38,
+		height: 38,
+		justifyContent: "center",
+		alignContent: "center",
+	},
 	monthSelectorMonthSelectedView: {
 		borderRadius: 20,
 		backgroundColor: Colors.primary,
-		marginRight: 10,
-		marginLeft: -2,
-		marginTop: -3,
-		height: 35,
 	},
 	monthSelectorMonthSelected: {
-		left: 2,
-		marginTop: 3,
-		marginRight: 0,
 		color: Colors.white,
 	},
 	timeSelector: {

@@ -1,18 +1,36 @@
 import React, { useState } from "react";
-import { TouchableOpacity, StyleSheet, Text, TextInput, View, textContentType } from "react-native";
+import { TouchableOpacity, StyleSheet, Text, TextInput, View } from "react-native";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 import { IconCheck, IconCross } from "../Icons";
 
-const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorOnPress, valid, onFocus, onBlur, onChange, validate, textContentType, style, children, value }) => {
+const FormInput = ({
+	label,
+	hideText,
+	helpLabel,
+	helpOnPress,
+	errorLabel,
+	errorOnPress,
+	valid,
+	onFocus,
+	onBlur,
+	onChange,
+	validate,
+	textContentType,
+	style,
+	children,
+	value,
+	innerRef,
+	innerStyle,
+	...otherProps
+}) => {
 	const [currentErrorLabel, setCurrentErrorLabel] = useState(errorLabel);
 	const [isFocused, setIsFocused] = useState(false);
 	const [isValid, setIsValid] = useState(valid);
 
 	const checkValue = (text) => {
-		if (!text) return;
-
+		value = text;
 		if (validate) {
 			const valid = validate(text);
 			if (valid === true) {
@@ -47,8 +65,15 @@ const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorO
 				)}
 				{isValid === false && <IconCross style={[styles.icon]} />}
 				<TextInput
+					ref={innerRef}
 					clearTextOnFocus={false}
-					style={[styles.input, isFocused && styles.inputFocused, isValid === true && styles.inputValid, isValid === false && styles.inputInvalid]}
+					style={[
+						styles.input,
+						isFocused && styles.inputFocused,
+						isValid === true && styles.inputValid,
+						isValid === false && styles.inputInvalid,
+						innerStyle && innerStyle,
+					]}
 					secureTextEntry={!!hideText}
 					onFocus={(e) => {
 						setIsFocused(true);
@@ -61,6 +86,8 @@ const FormInput = ({ label, hideText, helpLabel, helpOnPress, errorLabel, errorO
 					textContentType={textContentType}
 					onChangeText={(text) => checkValue(text)}
 					value={value}
+					returnKeyType="done"
+					{...otherProps}
 				></TextInput>
 			</View>
 			{helpLabel && (
