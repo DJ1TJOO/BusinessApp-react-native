@@ -199,7 +199,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 					<View style={styles.column}>
 						<Text style={styles.total}>Totaal</Text>
 						{hours.map((project, index) => (
-							<View>
+							<View key={index}>
 								<View
 									style={{
 										backgroundColor: Colors.primary,
