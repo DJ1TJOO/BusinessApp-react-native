@@ -42,7 +42,7 @@ const Menu = ({ navigation }) => {
 					{
 						title: "Uren controleren",
 						onPress: () => {
-							navigation.closeDrawer();
+							navigation.navigate("CheckHours");
 						},
 					},
 				]}

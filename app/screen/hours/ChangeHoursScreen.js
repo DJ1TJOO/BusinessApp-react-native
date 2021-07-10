@@ -288,10 +288,6 @@ const styles = StyleSheet.create({
 		top: 9,
 		left: 9,
 	},
-	back: {
-		marginRight: 5,
-		marginTop: 2,
-	},
 	header: {
 		flexDirection: "row",
 	},
