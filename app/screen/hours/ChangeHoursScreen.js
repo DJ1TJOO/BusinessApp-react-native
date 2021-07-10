@@ -9,7 +9,43 @@ import FontSizes from "../../config/FontSizes";
 import FormInput from "../../components/form/FormInput";
 import FormButton from "../../components/form/FormButton";
 
-const ChangeHoursScreen = ({ navigation }) => {
+const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
+	return (
+		<View style={styles.column}>
+			<Text style={styles.name}>{name}</Text>
+
+			{hours.map((project, index) => (
+				<FormInput
+					editable={canSelect}
+					onChange={(text) => {
+						hours[index].hours[hoursIndex] = text;
+						setHours([...hours]);
+					}}
+					onEndEditing={(e) => {
+						try {
+							hours[index].hours[hoursIndex] = Number(e.nativeEvent.text || "0").toString();
+							setHours([...hours]);
+						} catch (error) {}
+					}}
+					keyboardType={"numeric"}
+					key={index}
+					style={styles.hours}
+					value={project.hours[hoursIndex]}
+				/>
+			))}
+			<View
+				style={{
+					backgroundColor: Colors.primary,
+					height: 2,
+					width: "100%",
+				}}
+			/>
+			<Text style={styles.totalValue}>{hours.reduce((currentValue, project) => (currentValue += Number(project.hours[hoursIndex])), 0)}</Text>
+		</View>
+	);
+};
+
+const ChangeHoursScreen = ({ navigation, route }) => {
 	const projects = [
 		"Huizen - 113133",
 		"Maarsen - 123431",
@@ -21,7 +57,7 @@ const ChangeHoursScreen = ({ navigation }) => {
 		"Rotterdam - 2636575",
 	];
 
-	const [hours, setHours] = useState([{ project: "Pauze", description: "d", hours: ["0.513", "0", "0", "0", "0", "0", "0"] }]);
+	const [hours, setHours] = useState([{ project: "Project", description: "", hours: ["0", "0", "0", "0", "0", "0", "0"] }]);
 	const [currentProjectSelector, setCurrentProjectSelector] = useState(-1);
 	const [canSelect, setCanSelect] = useState(true);
 
@@ -117,6 +153,14 @@ const ChangeHoursScreen = ({ navigation }) => {
 								</View>
 							);
 						})}
+						<View
+							style={{
+								backgroundColor: Colors.primary,
+								height: 2,
+								width: "100%",
+							}}
+						/>
+						<Text style={styles.total}>Totaal</Text>
 					</View>
 					<View style={styles.column}>
 						<Text style={styles.name}>Omschrijving</Text>
@@ -136,147 +180,50 @@ const ChangeHoursScreen = ({ navigation }) => {
 								value={project.description}
 							/>
 						))}
+						<View
+							style={{
+								backgroundColor: Colors.primary,
+								height: 2,
+								width: "100%",
+							}}
+						/>
 					</View>
-					<View style={styles.column}>
-						<Text style={styles.name}>Maandag</Text>
+					<HoursColumn hours={hours} setHours={setHours} hoursIndex={0} name="Maandag" canSelect={canSelect} />
+					<HoursColumn hours={hours} setHours={setHours} hoursIndex={1} name="Dinsdag" canSelect={canSelect} />
+					<HoursColumn hours={hours} setHours={setHours} hoursIndex={2} name="Woensdag" canSelect={canSelect} />
+					<HoursColumn hours={hours} setHours={setHours} hoursIndex={3} name="Donderdag" canSelect={canSelect} />
+					<HoursColumn hours={hours} setHours={setHours} hoursIndex={4} name="Vrijdag" canSelect={canSelect} />
+					<HoursColumn hours={hours} setHours={setHours} hoursIndex={5} name="Zaterdag" canSelect={canSelect} />
+					<HoursColumn hours={hours} setHours={setHours} hoursIndex={6} name="Zondag" canSelect={canSelect} />
 
-						{hours.map((project, index) => (
-							<FormInput
-								editable={canSelect}
-								onChange={(text) => {
-									hours[index].hours[0] = text;
-									setHours([...hours]);
-								}}
-								onEndEditing={(e) => {
-									hours[index].hours[0] = e.nativeEvent.text || "0";
-									setHours([...hours]);
-								}}
-								keyboardType={"numeric"}
-								key={index}
-								style={styles.hours}
-								value={project.hours[0]}
-							/>
-						))}
-					</View>
 					<View style={styles.column}>
-						<Text style={styles.name}>Dinsdag</Text>
+						<Text style={styles.total}>Totaal</Text>
 						{hours.map((project, index) => (
-							<FormInput
-								editable={canSelect}
-								onChange={(text) => {
-									hours[index].hours[1] = text;
-									setHours([...hours]);
-								}}
-								onEndEditing={(e) => {
-									hours[index].hours[1] = e.nativeEvent.text || "0";
-									setHours([...hours]);
-								}}
-								keyboardType={"numeric"}
-								key={index}
-								style={styles.hours}
-								value={project.hours[1]}
-							/>
+							<View>
+								<View
+									style={{
+										backgroundColor: Colors.primary,
+										height: 38,
+										width: 2,
+										marginTop: -5,
+										marginBottom: 10,
+									}}
+								>
+									<Text style={styles.totalValue}>{project.hours.reduce((currentValue, hours) => (currentValue += Number(hours)), 0)}</Text>
+								</View>
+							</View>
 						))}
-					</View>
-					<View style={styles.column}>
-						<Text style={styles.name}>Woensdag</Text>
-						{hours.map((project, index) => (
-							<FormInput
-								editable={canSelect}
-								onChange={(text) => {
-									hours[index].hours[2] = text;
-									setHours([...hours]);
-								}}
-								onEndEditing={(e) => {
-									hours[index].hours[2] = e.nativeEvent.text || "0";
-									setHours([...hours]);
-								}}
-								keyboardType={"numeric"}
-								key={index}
-								style={styles.hours}
-								value={project.hours[2]}
-							/>
-						))}
-					</View>
-					<View style={styles.column}>
-						<Text style={styles.name}>Donderdag</Text>
-						{hours.map((project, index) => (
-							<FormInput
-								editable={canSelect}
-								onChange={(text) => {
-									hours[index].hours[3] = text;
-									setHours([...hours]);
-								}}
-								onEndEditing={(e) => {
-									hours[index].hours[3] = e.nativeEvent.text || "0";
-									setHours([...hours]);
-								}}
-								keyboardType={"numeric"}
-								key={index}
-								style={styles.hours}
-								value={project.hours[3]}
-							/>
-						))}
-					</View>
-					<View style={styles.column}>
-						<Text style={styles.name}>Vrijdag</Text>
-						{hours.map((project, index) => (
-							<FormInput
-								editable={canSelect}
-								onChange={(text) => {
-									hours[index].hours[4] = text;
-									setHours([...hours]);
-								}}
-								onEndEditing={(e) => {
-									hours[index].hours[4] = e.nativeEvent.text || "0";
-									setHours([...hours]);
-								}}
-								keyboardType={"numeric"}
-								key={index}
-								style={styles.hours}
-								value={project.hours[4]}
-							/>
-						))}
-					</View>
-					<View style={styles.column}>
-						<Text style={styles.name}>Zaterdag</Text>
-						{hours.map((project, index) => (
-							<FormInput
-								editable={canSelect}
-								onChange={(text) => {
-									hours[index].hours[5] = text;
-									setHours([...hours]);
-								}}
-								onEndEditing={(e) => {
-									hours[index].hours[5] = e.nativeEvent.text || "0";
-									setHours([...hours]);
-								}}
-								keyboardType={"numeric"}
-								key={index}
-								style={styles.hours}
-								value={project.hours[5]}
-							/>
-						))}
-					</View>
-					<View style={styles.column}>
-						<Text style={styles.name}>Zondag</Text>
-						{hours.map((project, index) => (
-							<FormInput
-								editable={canSelect}
-								onChange={(text) => {
-									hours[index].hours[6] = text;
-									setHours([...hours]);
-								}}
-								onEndEditing={(e) => {
-									hours[index].hours[6] = e.nativeEvent.text || "0";
-									setHours([...hours]);
-								}}
-								keyboardType={"numeric"}
-								key={index}
-								style={styles.hours}
-								value={project.hours[6]}
-							/>
-						))}
+						<View
+							style={{
+								backgroundColor: Colors.primary,
+								height: 2,
+								width: "100%",
+								marginTop: -5,
+							}}
+						/>
+						<Text style={styles.totalValue}>
+							{hours.reduce((currentValue, project) => (currentValue += project.hours.reduce((currentValue, hours) => (currentValue += Number(hours)), 0)), 0)}
+						</Text>
 					</View>
 					<View style={styles.column}>
 						<Text style={styles.name}> </Text>
@@ -417,6 +364,20 @@ const styles = StyleSheet.create({
 		color: Colors.textPrimary,
 		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
+	},
+	total: {
+		color: Colors.primary,
+		fontSize: FontSizes.subtitle,
+		fontFamily: "Segoe-UI",
+
+		marginBottom: 5,
+	},
+	totalValue: {
+		color: Colors.primary,
+		fontSize: FontSizes.subtitle,
+		fontFamily: "Segoe-UI",
+		left: 12,
+		width: 80,
 	},
 	remove: {
 		backgroundColor: Colors.secondary,
