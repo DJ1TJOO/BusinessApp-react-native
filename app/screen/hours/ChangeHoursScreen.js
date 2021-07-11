@@ -131,7 +131,9 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 											>
 												<FlatList
 													style={styles.projectSelector}
-													data={projects}
+													data={projects.filter(
+														(name) => name.toLowerCase().includes(project.project.toLowerCase()) || "project".includes(project.project.toLowerCase())
+													)}
 													keyExtractor={(project, index) => index.toString()}
 													renderItem={({ item, index: projectIndex }) => (
 														<TouchableOpacity
