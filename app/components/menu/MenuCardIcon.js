@@ -17,6 +17,4 @@ const MenuCardIcon = ({ animatedValue, style }) => {
 	);
 };
 
-const styles = StyleSheet.create({});
-
 export default MenuCardIcon;

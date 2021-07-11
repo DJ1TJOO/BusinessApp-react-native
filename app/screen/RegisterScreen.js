@@ -93,6 +93,26 @@ const RegisterScreen = ({ navigation }) => {
 				/>
 				<FormHeading title="Hoofdaccount" />
 				<FormInput
+					label="Voornaam"
+					onChange={(text) => setFormData({ ...formData, firstname: text })}
+					textContentType="name"
+					validate={(text) => {
+						if (text.length < 6) return "De voornaam mag niet korter zijn dan 5 karakters";
+						if (text.length > 255) return "De voornaam mag niet langer zijn dan 255 karakters";
+						return true;
+					}}
+				/>
+				<FormInput
+					label="Achternaam"
+					onChange={(text) => setFormData({ ...formData, lastname: text })}
+					textContentType="name"
+					validate={(text) => {
+						if (text.length < 6) return "De achternaam mag niet korter zijn dan 5 karakters";
+						if (text.length > 255) return "De achternaam mag niet langer zijn dan 255 karakters";
+						return true;
+					}}
+				/>
+				<FormInput
 					label="Email"
 					onChange={(text) =>
 						setFormData({
@@ -186,7 +206,6 @@ const RegisterScreen = ({ navigation }) => {
 					onChange={(text) => setFormData({ ...formData, account_function: text })}
 					textContentType="jobTitle"
 					validate={(text) => {
-						if (text.length < 6) return "De functie omschrijving mag niet korter zijn dan 5 karakters";
 						if (text.length > 255) return "De functie omschrijving mag niet langer zijn dan 255 karakters";
 						return true;
 					}}

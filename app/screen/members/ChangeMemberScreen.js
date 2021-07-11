@@ -22,26 +22,11 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 			<FormInput label="Email" value={route.params?.email} />
 			<FormDate label="Geboorte datum" date={new Date(route.params?.born)} />
 			<FormInput label="Functie omschrijving" value={route.params?.function} />
-			{/* TODO: select */}
 			<FormSelect label="Team(s)" multiple={true} defaultValue={["Geen team"]} data={teams} value={route.params?.teams} />
 			<FormSelect label="Rechten" defaultValue={"Geen rechten"} value={route.params?.rights} data={rights} />
 			<FormButton>Aanpassen</FormButton>
 		</Wrapper>
 	);
 };
-
-const styles = StyleSheet.create({
-	label: {
-		color: Colors.textPrimary,
-		fontSize: FontSizes.subtitle,
-		fontFamily: "Segoe-UI",
-	},
-	value: {
-		color: Colors.textSecondary,
-		fontSize: FontSizes.subtitle,
-		fontFamily: "Segoe-UI",
-		marginBottom: 10,
-	},
-});
 
 export default ChangeMemberScreen;

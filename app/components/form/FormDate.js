@@ -66,7 +66,7 @@ const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, dat
 				setIsValid(false);
 			}
 		}
-		onChange(currentDate);
+		if (onChange) onChange(currentDate);
 	}, [currentDate]);
 
 	let data;
@@ -387,24 +387,23 @@ const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, dat
 						)}
 					</View>
 					<View style={styles.dateLinks}>
-						{links
-							? links.map((link) => {
-									return (
-										<TouchableOpacity
-											style={styles.dateLink}
-											onPress={() => {
-												const date = link.date(currentDate, currentViewDate);
-												setCurrentDate(date);
-												setCurrentViewDate(date);
-												setIsSelectingMonth(false);
-											}}
-											key={link.text(currentDate, currentViewDate)}
-										>
-											<Text style={styles.dateLinkText}>{link.text(currentDate, currentViewDate)}</Text>
-										</TouchableOpacity>
-									);
-							  })
-							: {}}
+						{links &&
+							links.map((link) => {
+								return (
+									<TouchableOpacity
+										style={styles.dateLink}
+										onPress={() => {
+											const date = link.date(currentDate, currentViewDate);
+											setCurrentDate(date);
+											setCurrentViewDate(date);
+											setIsSelectingMonth(false);
+										}}
+										key={link.text(currentDate, currentViewDate)}
+									>
+										<Text style={styles.dateLinkText}>{link.text(currentDate, currentViewDate)}</Text>
+									</TouchableOpacity>
+								);
+							})}
 					</View>
 				</View>
 			)}

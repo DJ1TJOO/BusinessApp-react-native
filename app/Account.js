@@ -6,6 +6,7 @@ import HomeScreen from "./screen/HomeScreen";
 import Menu from "./Menu";
 import Hours from "./Hours";
 import CheckHours from "./CheckHours";
+import Members from "./Members";
 
 const Drawer = createDrawerNavigator();
 const Account = () => {
@@ -21,6 +22,7 @@ const Account = () => {
 
 			<Drawer.Screen name="Hours" component={Hours} />
 			<Drawer.Screen name="CheckHours" component={CheckHours} />
+			<Drawer.Screen name="Members" component={Members} />
 		</Drawer.Navigator>
 	);
 };

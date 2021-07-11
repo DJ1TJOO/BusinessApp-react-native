@@ -8,6 +8,7 @@ import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 import FormInput from "../../components/form/FormInput";
 import FormButton from "../../components/form/FormButton";
+import FormSelect from "../../components/form/FormSelect";
 
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	return (
@@ -92,66 +93,24 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 					<View style={styles.column}>
 						<Text style={styles.name}>Project</Text>
 						{hours.map((project, index) => {
-							let ref;
 							return (
 								<View key={index}>
-									<FormInput
+									<FormSelect
+										allowsCustomValue={true}
 										editable={canSelect}
-										innerRef={(input) => {
-											ref = input;
-										}}
-										value={project.project}
 										style={[styles.project, { width: Dimensions.get("window").width - 20 }]}
-										innerStyle={[index === currentProjectSelector && styles.projectSelected]}
+										data={projects}
+										value={project.project}
 										onChange={(text) => {
 											hours[index].project = text;
 											setHours([...hours]);
 										}}
-									>
-										<TouchableOpacity
-											style={styles.projectIconTouch}
-											onPress={() => {
-												if (!canSelect) return;
-												if (currentProjectSelector === index) {
-													setCurrentProjectSelector(-1);
-												} else {
-													setCurrentProjectSelector(index);
-												}
-											}}
-										>
-											<View style={styles.projectIcon}>
-												<IconDown style={styles.projectIconDown} />
-											</View>
-										</TouchableOpacity>
-										{currentProjectSelector === index && (
-											<TouchableOpacity
-												onPress={() => {
-													setCurrentProjectSelector(index);
-												}}
-											>
-												<FlatList
-													style={styles.projectSelector}
-													data={projects.filter(
-														(name) => name.toLowerCase().includes(project.project.toLowerCase()) || "project".includes(project.project.toLowerCase())
-													)}
-													keyExtractor={(project, index) => index.toString()}
-													renderItem={({ item, index: projectIndex }) => (
-														<TouchableOpacity
-															key={projectIndex}
-															style={styles.projectSelectorProject}
-															onPress={() => {
-																hours[index].project = item;
-																setHours([...hours]);
-																setCurrentProjectSelector(-1);
-															}}
-														>
-															<Text style={styles.projectSelectorProjectText}>{item}</Text>
-														</TouchableOpacity>
-													)}
-												></FlatList>
-											</TouchableOpacity>
-										)}
-									</FormInput>
+										selected={currentProjectSelector === index}
+										onSelected={(selected) => {
+											if (selected) setCurrentProjectSelector(index);
+											else setCurrentProjectSelector(-1);
+										}}
+									/>
 								</View>
 							);
 						})}
@@ -310,58 +269,6 @@ const styles = StyleSheet.create({
 	},
 	project: {
 		marginBottom: 5,
-	},
-	projectIconTouch: {
-		height: 38,
-		width: 38,
-
-		position: "absolute",
-		left: "100%",
-		marginLeft: -38,
-		borderRadius: 8,
-
-		justifyContent: "center",
-		alignContent: "center",
-	},
-	projectIcon: {
-		backgroundColor: Colors.secondary,
-		height: 30,
-		width: 30,
-
-		borderRadius: 8,
-
-		justifyContent: "center",
-		alignContent: "center",
-
-		left: 4,
-	},
-	projectIconDown: {
-		marginTop: -18,
-		left: 5,
-	},
-	projectSelected: {
-		borderBottomRightRadius: 0,
-		borderBottomLeftRadius: 0,
-		borderColor: Colors.textPrimary,
-		color: Colors.textPrimary,
-	},
-	projectSelector: {
-		borderWidth: 2,
-		borderColor: Colors.textPrimary,
-		borderBottomRightRadius: 12,
-		borderBottomLeftRadius: 12,
-		marginTop: -2,
-		maxHeight: 196,
-	},
-	projectSelectorProject: {
-		borderBottomColor: Colors.textPrimary,
-		borderBottomWidth: 2,
-		padding: 10,
-	},
-	projectSelectorProjectText: {
-		color: Colors.textPrimary,
-		fontSize: FontSizes.subtitle,
-		fontFamily: "Segoe-UI",
 	},
 	total: {
 		color: Colors.primary,

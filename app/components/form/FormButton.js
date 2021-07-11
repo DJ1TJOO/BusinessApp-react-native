@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, Platform } from "react-native";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 		fontSize: FontSizes.subtitle,
 		color: Colors.white,
 		fontFamily: "Segoe-UI",
-		marginTop: 4,
+		marginTop: Platform.OS === "android" ? 7 : 4,
 	},
 	buttonTextInvert: { color: Colors.primary, marginTop: 1 },
 	buttonTextInvertBad: {

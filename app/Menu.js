@@ -53,7 +53,7 @@ const Menu = ({ navigation }) => {
 					{
 						title: "Alle leden",
 						onPress: () => {
-							navigation.closeDrawer();
+							navigation.navigate("Members");
 						},
 					},
 					{
@@ -63,13 +63,13 @@ const Menu = ({ navigation }) => {
 						},
 					},
 					{
-						title: "Alle functies",
+						title: "Alle rechten",
 						onPress: () => {
 							navigation.closeDrawer();
 						},
 					},
 					{
-						title: "Functie toevoegen",
+						title: "Recht toevoegen",
 						onPress: () => {
 							navigation.closeDrawer();
 						},

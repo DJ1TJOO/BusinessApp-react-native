@@ -8,7 +8,7 @@ import { IconArrowForward } from "../Icons";
 const MenuRoutes = ({ routes, animatedValue }) => {
 	const height = animatedValue.interpolate({
 		inputRange: [0, 1],
-		outputRange: [0, 40],
+		outputRange: [0, 35],
 		extrapolate: "clamp",
 	});
 	return (
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
 	route: {
 		backgroundColor: Colors.primary,
 		borderRadius: 12,
-		marginTop: 10,
+		marginTop: 5,
 		width: "100%",
 		padding: 5,
 		paddingLeft: 10,
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
 	},
 	routeTitle: {
 		color: Colors.white,
-		fontSize: FontSizes.title,
+		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
 
 		textAlignVertical: "center",
@@ -49,7 +49,8 @@ const styles = StyleSheet.create({
 		position: "absolute",
 		left: "100%",
 		marginLeft: -15,
-		top: 10,
+		top: 8,
+		height: 18,
 	},
 });
 

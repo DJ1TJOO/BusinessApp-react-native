@@ -23,6 +23,7 @@ const FormInput = ({
 	value,
 	innerRef,
 	innerStyle,
+	onPress,
 	...otherProps
 }) => {
 	const [currentErrorLabel, setCurrentErrorLabel] = useState(errorLabel);
@@ -88,7 +89,7 @@ const FormInput = ({
 					value={value}
 					returnKeyType="done"
 					{...otherProps}
-				></TextInput>
+				/>
 			</View>
 			{helpLabel && (
 				<TouchableOpacity onPress={helpOnPress}>

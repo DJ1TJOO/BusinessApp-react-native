@@ -9,12 +9,14 @@ const Card = ({ style, color, title, description, onPress, icon, children }) => 
 	return (
 		<TouchableOpacity key={title} onPress={onPress}>
 			<View style={[styles.card, style]}>
-				<View style={styles.header}>
-					<Text style={[styles.title, color && { color: color }]}>{title}</Text>
-					{Icon && <Icon style={styles.icon} />}
-				</View>
-				<Text style={[styles.description, color && { color: color }]}>{description}</Text>
-				<View>{children}</View>
+				{(Icon || title) && (
+					<View style={styles.header}>
+						<Text style={[styles.title, color && { color: color }]}>{title}</Text>
+						{Icon && <Icon style={styles.icon} />}
+					</View>
+				)}
+				{description && <Text style={[styles.description, color && { color: color }]}>{description}</Text>}
+				{children}
 			</View>
 		</TouchableOpacity>
 	);
