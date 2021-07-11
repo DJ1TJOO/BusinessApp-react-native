@@ -69,9 +69,11 @@ const styles = StyleSheet.create({
 		fontSize: FontSizes.title,
 		fontFamily: "Segoe-UI",
 
+		textAlignVertical: "center",
+
 		position: "absolute",
 		left: 10,
-		top: 5,
+		top: Platform.OS === "android" ? 7 : 5,
 	},
 });
 

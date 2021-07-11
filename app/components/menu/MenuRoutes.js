@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, Animated, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, Animated, TouchableOpacity, Platform } from "react-native";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
@@ -36,12 +36,14 @@ const styles = StyleSheet.create({
 		width: "100%",
 		padding: 5,
 		paddingLeft: 10,
-		paddingTop: 2,
+		paddingTop: Platform.OS === "android" ? 5 : 2,
 	},
 	routeTitle: {
 		color: Colors.white,
 		fontSize: FontSizes.title,
 		fontFamily: "Segoe-UI",
+
+		textAlignVertical: "center",
 	},
 	icon: {
 		position: "absolute",
