@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TouchableOpacity, StyleSheet, Text, TextInput, View } from "react-native";
 
 import Colors from "../../config/Colors";
@@ -16,7 +16,7 @@ const FormInput = ({
 	onFocus,
 	onBlur,
 	onChange,
-	validate,
+	validator,
 	textContentType,
 	style,
 	children,
@@ -29,21 +29,37 @@ const FormInput = ({
 	const [currentErrorLabel, setCurrentErrorLabel] = useState(errorLabel);
 	const [isFocused, setIsFocused] = useState(false);
 	const [isValid, setIsValid] = useState(valid);
+	const [currentValue, setCurrentValue] = useState(value);
 
 	const checkValue = (text) => {
-		value = text;
-		if (validate) {
-			const valid = validate(text);
+		setCurrentValue(text);
+		const valid = validate(true);
+		if (onChange) onChange(currentValue, valid);
+	};
+
+	const validate = (feedback = false) => {
+		if (validator) {
+			const valid = validator(currentValue);
 			if (valid === true) {
-				setCurrentErrorLabel(null);
-				setIsValid(true);
+				if (feedback) {
+					setCurrentErrorLabel(null);
+					setIsValid(true);
+				}
+				return true;
 			} else {
-				setCurrentErrorLabel(valid);
-				setIsValid(false);
+				if (feedback) {
+					setCurrentErrorLabel(valid);
+					setIsValid(false);
+				}
+				return false;
 			}
 		}
-		if (onChange) onChange(text);
+		return true;
 	};
+
+	useEffect(() => {
+		if (value !== currentValue) setCurrentValue(value);
+	}, [value]);
 
 	return (
 		<View style={[styles.container, style]}>
@@ -86,7 +102,7 @@ const FormInput = ({
 					}}
 					textContentType={textContentType}
 					onChangeText={(text) => checkValue(text)}
-					value={value}
+					value={currentValue}
 					returnKeyType="done"
 					{...otherProps}
 				/>

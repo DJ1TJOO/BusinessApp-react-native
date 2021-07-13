@@ -43,9 +43,9 @@ const daysInMonth = function (date) {
 	return daysInMonth;
 };
 
-const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, date, links, time, onChange, validate }) => {
-	const [currentDate, setCurrentDate] = useState(date || new Date());
-	const [currentViewDate, setCurrentViewDate] = useState(date || new Date());
+const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, value, links, time, onChange, validator }) => {
+	const [currentDate, setCurrentDate] = useState(value || new Date());
+	const [currentViewDate, setCurrentViewDate] = useState(value || new Date());
 	const [isSelectingMonth, setIsSelectingMonth] = useState(false);
 	const [isSelectingTime, setIsSelectingTime] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
@@ -55,19 +55,29 @@ const FormDate = ({ label, helpLabel, helpOnPress, errorLabel, errorOnPress, dat
 
 	useEffect(() => {
 		if (!currentDate) return;
+		const valid = validate(true);
+		if (onChange) onChange(currentDate, valid);
+	}, [currentDate]);
 
-		if (validate) {
-			const valid = validate(currentDate);
+	const validate = (feedback = false) => {
+		if (validator) {
+			const valid = validator(currentDate);
 			if (valid === true) {
-				setCurrentErrorLabel(null);
-				setIsValid(true);
+				if (feedback) {
+					setCurrentErrorLabel(null);
+					setIsValid(true);
+				}
+				return true;
 			} else {
-				setCurrentErrorLabel(valid);
-				setIsValid(false);
+				if (feedback) {
+					setCurrentErrorLabel(valid);
+					setIsValid(false);
+				}
+				return false;
 			}
 		}
-		if (onChange) onChange(currentDate);
-	}, [currentDate]);
+		return true;
+	};
 
 	let data;
 	if (isSelectingMonth) {

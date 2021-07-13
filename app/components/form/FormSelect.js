@@ -32,7 +32,8 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 	const [currentSelected, setCurrentSelected] = useState(!!selected);
 
 	useEffect(() => {
-		setCurrentValue(getValueToSet(value, defaultValue, multiple));
+		const newValue = getValueToSet(value, defaultValue, multiple);
+		if (value !== newValue) setCurrentValue(newValue);
 	}, [value]);
 
 	useEffect(() => {
