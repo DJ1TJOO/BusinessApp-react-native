@@ -1,0 +1,16 @@
+{
+	"name": "business-api",
+	"version": "1.0.0",
+	"main": "server.js",
+	"author": "DJ1TJOO",
+	"license": "UNLIESENCED",
+	"private": true,
+	"scripts": {
+		"start": "node server",
+		"dev": "nodemon server"
+	},
+	"dependencies": {
+		"express": "^4.17.1",
+		"mysql2": "^2.2.5"
+	}
+}
