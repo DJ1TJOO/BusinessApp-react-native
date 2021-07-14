@@ -57,10 +57,6 @@ const FormInput = ({
 		return true;
 	};
 
-	useEffect(() => {
-		if (value !== currentValue) setCurrentValue(value);
-	}, [value]);
-
 	return (
 		<View style={[styles.container, style]}>
 			{label && <Text style={styles.label}>{label}</Text>}
