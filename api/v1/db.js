@@ -6,4 +6,6 @@ const pool = mysql.createPool({
 	database: "business_api",
 });
 
-module.exports = pool;
+const promisePool = pool.promise();
+
+module.exports = { pool, promisePool };

@@ -68,9 +68,9 @@ const defaultFormData = [
 			key: "account_password",
 			validator: (formData, text) => {
 				if (!text) return "Het wachtwoord mag niet leeg zijn";
-				if (text.length < 9) return "Het wachtwoord mag niet korter zijn dan 8 karakters";
+				if (text.length < 8) return "Het wachtwoord mag niet korter zijn dan 8 karakters";
 				if (text.length > 255) return "Het wachtwoord mag niet langer zijn dan 255 karakters";
-				if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*_-])(?=.{8,})/.test(text, valid))
+				if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*_-])(?=.{8,})/.test(text))
 					return "Het wachtwoord moet minimaal:\n - 1 hoofdletter \n - 1 kleineletter\n - 1 speciaalteken \n - 1 nummer bevatten";
 				return true;
 			},
@@ -98,7 +98,6 @@ const defaultFormData = [
 		{
 			key: "account_function",
 			validator: (formData, text) => {
-				if (!text) return "De functie omschrijving mag niet leeg zijn";
 				if (text.length > 255) return "De functie omschrijving mag niet langer zijn dan 255 karakters";
 				return true;
 			},
