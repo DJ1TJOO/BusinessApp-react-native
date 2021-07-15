@@ -35,7 +35,7 @@ const defaultFormData = [
 			key: "account_firstname",
 			validator: (formData, text) => {
 				if (!text) return "De voornaam mag niet leeg zijn";
-				if (text.length < 6) return "De voornaam mag niet korter zijn dan 5 karakters";
+				if (text.length < 3) return "De voornaam mag niet korter zijn dan 5 karakters";
 				if (text.length > 255) return "De voornaam mag niet langer zijn dan 255 karakters";
 				return true;
 			},
@@ -44,7 +44,7 @@ const defaultFormData = [
 			key: "account_lastname",
 			validator: (formData, text) => {
 				if (!text) return "De achternaam mag niet leeg zijn";
-				if (text.length < 6) return "De achternaam mag niet korter zijn dan 5 karakters";
+				if (text.length < 3) return "De achternaam mag niet korter zijn dan 5 karakters";
 				if (text.length > 255) return "De achternaam mag niet langer zijn dan 255 karakters";
 				return true;
 			},

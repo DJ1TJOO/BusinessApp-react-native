@@ -6,7 +6,7 @@ const users = require("express").Router();
 
 // TODO: authorization
 users.get("/:id", async (req, res) => {
-	const { id, businessId } = req.params;
+	const { id } = req.params;
 	try {
 		const [results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
 		if (results.length < 1) {
@@ -144,14 +144,14 @@ users.post("/", async (req, res) => {
 		}
 
 		// First name too short
-		if (firstName.length < 6) {
+		if (firstName.length < 3) {
 			// Return status 422 (unprocessable entity) too short
 			return res.status(422).send({
 				success: false,
 				error: "too_short",
 				data: {
 					field: "firstName",
-					minLength: 6,
+					minLength: 3,
 				},
 			});
 		}
@@ -183,14 +183,14 @@ users.post("/", async (req, res) => {
 		}
 
 		// Last name too short
-		if (lastName.length < 6) {
+		if (lastName.length < 3) {
 			// Return status 422 (unprocessable entity) too short
 			return res.status(422).send({
 				success: false,
 				error: "too_short",
 				data: {
 					field: "lastName",
-					minLength: 6,
+					minLength: 3,
 				},
 			});
 		}
@@ -322,10 +322,266 @@ users.post("/", async (req, res) => {
 		// Insert user into db
 		await db.query(
 			`INSERT INTO 
-                    users (id, business_id, ${hasRight ? "rightId," : ""} first_name, last_name, 
-							email, pwd, born${hasFunctionDescription ? ", function_descr" : ""})
-                    VALUES ('${id}', '${businessId}',${hasRight ? `'${rightId}',` : ""}'${firstName}','${lastName}',
-							'${email}', '${pwd}', '${born}'${hasFunctionDescription ? `,'${functionDescription}'` : ""})`
+					users (id, business_id, ${hasRight ? "right_id," : ""} first_name, last_name,
+						email, pwd, born${hasFunctionDescription ? ", function_descr" : ""})
+					VALUES ('${id}', '${businessId}',${hasRight ? `'${rightId}',` : ""}'${firstName}','${lastName}',
+						'${email}', '${pwd}', '${bornDate.toISOString()}'${hasFunctionDescription ? `,'${functionDescription}'` : ""})`
+		);
+
+		const [results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		if (results.length < 1) {
+			// Return status 500 (internal server error) internal
+			return res.status(500).send({
+				success: false,
+				error: "internal",
+			});
+		}
+		const { pwd: hashed, ...user } = results[0];
+		return res.send({
+			success: true,
+			data: user,
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
+// TODO: patch password
+users.patch("/:id", async (req, res) => {
+	const { id } = req.params;
+	const { rightId, firstName, lastName, email, born, functionDescription } = req.body;
+
+	try {
+		// Get user
+		const [getResults] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		if (getResults.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "user_not_found",
+			});
+		}
+
+		const currentUser = getResults[0];
+
+		// Check if email is specified
+		let hasEmail = false;
+		if (email && currentUser.email !== email) {
+			// Not an email
+			if (
+				!/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(
+					email
+				)
+			) {
+				// Return status 422 (unprocessable entity) incorrect
+				return res.status(422).send({
+					success: false,
+					error: "incorrect",
+					data: {
+						field: "email",
+					},
+				});
+			}
+
+			// Email too long
+			if (email.length > 255) {
+				// Return status 422 (unprocessable entity) too long
+				return res.status(422).send({
+					success: false,
+					error: "too_long",
+					data: {
+						field: "email",
+						maxLength: 255,
+					},
+				});
+			}
+
+			const [email_result] = await db.query(`SELECT count(*) FROM users WHERE business_id = '${currentUser.business_id}' AND email = '${email}'`);
+
+			// User already exists
+			if (email_result[0]["count(*)"] > 0) {
+				// Return status 409 (conflict) already exists
+				return res.status(409).send({
+					success: false,
+					error: "user_exists",
+				});
+			}
+
+			hasEmail = true;
+		}
+
+		// Check if right is specified
+		let hasRight = false;
+		if (rightId && currentUser.right_id !== rightId) {
+			const [function_result] = await db.query(`SELECT count(*) FROM rights WHERE id = '${rightId}'`);
+
+			// Right does not exists
+			if (function_result[0]["count(*)"] < 1) {
+				// Return status 404 (not found) right not found
+				return res.status(404).send({
+					success: false,
+					error: "right_not_found",
+				});
+			}
+
+			hasRight = true;
+		}
+
+		// Check if first name is specified
+		let hasFirstName = false;
+		if (firstName && currentUser.first_name !== firstName) {
+			// First name too long
+			if (firstName.length > 255) {
+				// Return status 422 (unprocessable entity) too long
+				return res.status(422).send({
+					success: false,
+					error: "too_long",
+					data: {
+						field: "firstName",
+						maxLength: 255,
+					},
+				});
+			}
+
+			// First name too short
+			if (firstName.length < 3) {
+				// Return status 422 (unprocessable entity) too short
+				return res.status(422).send({
+					success: false,
+					error: "too_short",
+					data: {
+						field: "firstName",
+						minLength: 3,
+					},
+				});
+			}
+			hasFirstName = true;
+		}
+
+		// Check if last name is specified
+		let hasLastName = false;
+		if (lastName && currentUser.last_name !== lastName) {
+			// Last name too long
+			if (lastName.length > 255) {
+				// Return status 422 (unprocessable entity) too long
+				return res.status(422).send({
+					success: false,
+					error: "too_long",
+					data: {
+						field: "lastName",
+						maxLength: 255,
+					},
+				});
+			}
+
+			// Last name too short
+			if (lastName.length < 3) {
+				// Return status 422 (unprocessable entity) too short
+				return res.status(422).send({
+					success: false,
+					error: "too_short",
+					data: {
+						field: "lastName",
+						minLength: 3,
+					},
+				});
+			}
+			hasLastName = true;
+		}
+
+		// Check if function description is specified
+		let hasFunctionDescription = false;
+		if (functionDescription && currentUser.function_description !== functionDescription) {
+			// Function description too long
+			if (functionDescription.length > 255) {
+				// Return status 422 (unprocessable entity) too long
+				return res.status(422).send({
+					success: false,
+					error: "too_long",
+					data: {
+						field: "functionDescription",
+						maxLength: 255,
+					},
+				});
+			}
+
+			hasFunctionDescription = true;
+		}
+
+		// Check if born is specified
+		let hasBorn = false;
+		let bornDate = null;
+		if (born) {
+			try {
+				bornDate = new Date(born);
+				currentBornDate = new Date(currentUser.born);
+
+				// Same date
+				if (
+					bornDate.getUTCFullYear() === currentBornDate.getFullYear() &&
+					bornDate.getUTCMonth() === currentBornDate.getMonth() &&
+					bornDate.getUTCDate() === currentBornDate.getDate()
+				) {
+					hasBorn = false;
+				} else {
+					const ageDiffMilliseconds = Date.now() - bornDate.getTime();
+					const ageDate = new Date(ageDiffMilliseconds);
+					const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+					// Invalid age
+					if (age < 18) {
+						// Return status 422 (unprocessable entity) invalid
+						return res.status(422).send({
+							success: false,
+							error: "invalid",
+							data: {
+								field: "born",
+							},
+						});
+					}
+					hasBorn = true;
+				}
+			} catch (error) {
+				// Return status 422 (unprocessable entity) incorrect
+				return res.status(422).send({
+					success: false,
+					error: "incorrect",
+					data: {
+						field: "born",
+					},
+				});
+			}
+		}
+
+		// Nothing changed
+		if (!hasEmail && !hasRight && !hasFirstName && !hasLastName && !hasFunctionDescription && !hasBorn) {
+			// Send current user
+			const { pwd, ...user } = currentUser;
+			return res.send({
+				success: true,
+				data: user,
+			});
+		}
+
+		const update = [];
+		if (hasRight) update.push({ name: "right_id", value: rightId });
+		if (hasFirstName) update.push({ name: "first_name", value: firstName });
+		if (hasLastName) update.push({ name: "last_name", value: lastName });
+		if (hasEmail) update.push({ name: "email", value: email });
+		if (hasBorn) update.push({ name: "born", value: born });
+		if (hasFunctionDescription) update.push({ name: "function_descr", value: functionDescription });
+
+		// Insert user into db
+		await db.query(
+			`UPDATE 
+					users
+					SET ${update.map((x) => `${x.name} = '${x.value}'`).join(",")}
+					WHERE id = '${id}'`
 		);
 
 		const [results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
