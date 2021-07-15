@@ -1,5 +1,36 @@
 const { promisePool: db } = require("./db");
+const bcrypt = require("bcrypt");
+const { v4: uuid } = require("uuid");
+
 const users = require("express").Router();
+
+// TODO: authorization
+users.get("/:id", async (req, res) => {
+	const { id, businessId } = req.params;
+	try {
+		const [results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		if (results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "user_not_found",
+			});
+		}
+
+		const { pwd: hashed, ...user } = results[0];
+		return res.send({
+			success: true,
+			data: user,
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
 
 users.post("/", async (req, res) => {
 	const { businessId, rightId, firstName, lastName, email, password, born, functionDescription } = req.body;
@@ -215,7 +246,8 @@ users.post("/", async (req, res) => {
 			});
 		}
 
-		//TODO: encrypt password
+		// Hash password
+		const pwd = bcrypt.hashSync(password, 12);
 
 		// Check if function description is specified
 		let hasFunctionDescription = false;
@@ -279,26 +311,73 @@ users.post("/", async (req, res) => {
 			});
 		}
 
+		// Generate id
+		let id;
+		let id_results;
+		do {
+			id = uuid();
+			[id_results] = await db.query(`SELECT count(*) FROM users WHERE id = '${id}'`);
+		} while (id_results[0]["count(*)"] > 0);
+
 		// Insert user into db
-		// TODO: generate or get id
 		await db.query(
 			`INSERT INTO 
                     users (id, business_id, ${hasRight ? "rightId," : ""} first_name, last_name, 
-							email, pwd, birth_date, ${hasFunctionDescription ? "function_descr" : ""})
-                    VALUES ('${id}', '${businessId}',${hasRight ? `'${rightId}',` : ""}${firstName}','${lastName}',
-							'${email}', '${pwd}', '${born}',${hasFunctionDescription ? `'${functionDescription}'` : ""})`
+							email, pwd, born${hasFunctionDescription ? ", function_descr" : ""})
+                    VALUES ('${id}', '${businessId}',${hasRight ? `'${rightId}',` : ""}'${firstName}','${lastName}',
+							'${email}', '${pwd}', '${born}'${hasFunctionDescription ? `,'${functionDescription}'` : ""})`
 		);
 
-		const [result] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
-		if (result.length < 1) {
+		const [results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
 				success: false,
 				error: "internal",
 			});
 		}
-		const { pwd, ...user } = result[0];
-		return res.send(user);
+		const { pwd: hashed, ...user } = results[0];
+		return res.send({
+			success: true,
+			data: user,
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
+users.delete("/:id", async (req, res) => {
+	const id = req.params.id;
+	try {
+		const [get_results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		if (get_results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "user_not_found",
+			});
+		}
+
+		const { pwd: hashed, ...user } = get_results[0];
+
+		const [delete_results] = await db.query(`DELETE FROM users WHERE id = '${id}'`);
+
+		if (delete_results.affectedRows < 1) {
+			return res.send({
+				success: false,
+				error: "failed_to_delete",
+			});
+		}
+
+		return res.send({
+			success: true,
+			data: user,
+		});
 	} catch (error) {
 		// Mysql error
 		console.log(error);
