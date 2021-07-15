@@ -1,6 +1,9 @@
 const { promisePool: db } = require("./db");
 const bcrypt = require("bcrypt");
 const { v4: uuid } = require("uuid");
+const sendEmail = require("./mailer");
+const fs = require("fs");
+const path = require("path");
 
 const users = require("express").Router();
 
@@ -352,10 +355,264 @@ users.post("/", async (req, res) => {
 	}
 });
 
-// TODO: patch password
+// TODO: forgot password code
+/**
+ * @type {Array<{
+ * 	businessId: string,
+ * 	userId: string,
+ * 	expirationDate: Date,
+ * 	code: number
+ * }>}
+ */
+const recoverCodes = [];
+
+const generateCode = (length) => {
+	return Math.random()
+		.toString()
+		.slice(2, 2 + length);
+};
+
+users.get("/recover/:business/:email", async (req, res) => {
+	const { business, email } = req.params;
+
+	try {
+		// Get business
+		const [getBusinessResults] = await db.query(`SELECT * FROM business WHERE name = '${business}'`);
+		if (getBusinessResults.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "business_not_found",
+			});
+		}
+
+		// Check if user exists
+		const [getUserResults] = await db.query(`SELECT * FROM users WHERE email = '${email}' AND business_id = '${getBusinessResults[0].id}'`);
+		if (getUserResults.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "user_not_found",
+			});
+		}
+
+		// Find code
+		let code;
+		do {
+			code = generateCode(6);
+		} while (recoverCodes.find((x) => x.code === code));
+
+		// Date plus one hour
+		const expirationDate = Date.now() + 60 * 60 * 1000;
+
+		// Remove code after one hour
+		setTimeout(() => {
+			const index = recoverCodes.findIndex((x) => x.code === code);
+			if (index >= 0) {
+				recoverCodes.splice(index, 1);
+			}
+		}, 60 * 60 * 1000);
+
+		// Datetime
+		const date = new Date();
+
+		// Send email
+		let html = fs.readFileSync(path.resolve(__dirname, "./mails/resetPassword.html"), "utf8");
+		html = html.replace("{resetCode}", code);
+		html = html.replace(
+			"{date}",
+			date.toLocaleDateString(undefined, {
+				year: "2-digit",
+				month: "2-digit",
+				day: "2-digit",
+			})
+		);
+		html = html.replace(
+			"{time}",
+			date.toLocaleTimeString(undefined, {
+				hour: "2-digit",
+				minute: "2-digit",
+			})
+		);
+		date.setHours(date.getHours() + 1);
+		html = html.replace(
+			"{timeAllowed}",
+			date.toLocaleTimeString(undefined, {
+				hour: "2-digit",
+				minute: "2-digit",
+			})
+		);
+
+		sendEmail(
+			{
+				from: "Business App <business.app.api@gmail.com>",
+				to: email,
+				subject: "Reset wachtwoord",
+				html: html,
+			},
+			(err, info) => {
+				console.log(err, info);
+			}
+		);
+
+		// Add code to list
+		recoverCodes.push({
+			businessId: getBusinessResults[0].id,
+			userId: getUserResults[0].id,
+			expirationDate,
+			code,
+		});
+
+		res.status(200).send({
+			success: true,
+			data: {
+				businessId: getBusinessResults[0].id,
+				userId: getUserResults[0].id,
+			},
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
+users.post("/recover/:businessId/:userId/:code", async (req, res) => {
+	const { businessId, userId, code } = req.params;
+	const { newPassword } = req.body;
+
+	// Check if code exists
+	const set = recoverCodes.find((x) => x.code === code);
+	if (!set) {
+		return res.status(404).send({
+			success: false,
+			error: "code_not_found",
+		});
+	}
+
+	// Remove recover codes
+	recoverCodes.splice(recoverCodes.indexOf(set), 1);
+
+	// Check if businessId is correct
+	if (!businessId) {
+		return res.status(404).send({
+			success: false,
+			error: "empty",
+			data: {
+				params: "businessId",
+			},
+		});
+	}
+
+	// Business id incorrect
+	if (businessId !== set.businessId) {
+		return res.status(404).send({
+			success: false,
+			error: "incorrect",
+			data: {
+				params: "businessId",
+			},
+		});
+	}
+
+	// Check if userId is correct
+	if (!userId) {
+		return res.status(404).send({
+			success: false,
+			error: "empty",
+			data: {
+				params: "userId",
+			},
+		});
+	}
+
+	// User id incorrect
+	if (userId !== set.userId) {
+		return res.status(404).send({
+			success: false,
+			error: "incorrect",
+			data: {
+				params: "userId",
+			},
+		});
+	}
+
+	// Check expired
+	if (set.expirationDate < Date.now()) {
+		// Expired code
+		return res.status(498).send({
+			success: false,
+			error: "expired",
+		});
+	}
+
+	// Control request
+	if (!newPassword) {
+		// Readd code
+		recoverCodes.push(set);
+
+		return res.send({
+			success: true,
+		});
+	}
+
+	// Invalid password
+	if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*_-])(?=.{8,})/.test(newPassword)) {
+		// Readd code
+		recoverCodes.push(set);
+
+		// Return status 422 (unprocessable entity) incorrect
+		return res.status(422).send({
+			success: false,
+			error: "incorrect",
+			data: {
+				field: "newPassword",
+			},
+		});
+	}
+
+	// Hash new password
+	pwd = bcrypt.hashSync(newPassword, 12);
+
+	try {
+		// Insert user into db
+		await db.query(
+			`UPDATE 
+					users
+					SET pwd = '${pwd}'
+					WHERE id = '${set.userId}'`
+		);
+
+		const [results] = await db.query(`SELECT * FROM users WHERE id = '${set.userId}'`);
+		if (results.length < 1) {
+			// Return status 500 (internal server error) internal
+			return res.status(500).send({
+				success: false,
+				error: "internal",
+			});
+		}
+
+		const { pwd: hashed, ...user } = results[0];
+		return res.send({
+			success: true,
+			data: user,
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
 users.patch("/:id", async (req, res) => {
 	const { id } = req.params;
-	const { rightId, firstName, lastName, email, born, functionDescription } = req.body;
+	const { rightId, firstName, lastName, email, born, functionDescription, password, newPassword } = req.body;
 
 	try {
 		// Get user
@@ -368,6 +625,53 @@ users.patch("/:id", async (req, res) => {
 		}
 
 		const currentUser = getResults[0];
+
+		// Check if password is specified
+		let hasPassword = false;
+		let pwd;
+		if (newPassword) {
+			if (!password) {
+				// Return status 422 (unprocessable entity) empty
+				return res.status(422).send({
+					success: false,
+					error: "empty",
+					data: {
+						field: "password",
+					},
+				});
+			}
+
+			if (password !== newPassword) {
+				// Current password not correct
+				if (!bcrypt.compareSync(password, currentUser.pwd)) {
+					// Return status 401 (unauthorized) incorrect
+					return res.status(401).send({
+						success: false,
+						error: "incorrect",
+						data: {
+							field: "password",
+						},
+					});
+				}
+
+				// Invalid password
+				if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*_-])(?=.{8,})/.test(newPassword)) {
+					// Return status 422 (unprocessable entity) incorrect
+					return res.status(422).send({
+						success: false,
+						error: "incorrect",
+						data: {
+							field: "newPassword",
+						},
+					});
+				}
+
+				// Hash new password
+				pwd = bcrypt.hashSync(newPassword, 12);
+
+				hasPassword = true;
+			}
+		}
 
 		// Check if email is specified
 		let hasEmail = false;
@@ -521,14 +825,14 @@ users.patch("/:id", async (req, res) => {
 				bornDate = new Date(born);
 				currentBornDate = new Date(currentUser.born);
 
-				// Same date
+				// Not same date
 				if (
-					bornDate.getUTCFullYear() === currentBornDate.getFullYear() &&
-					bornDate.getUTCMonth() === currentBornDate.getMonth() &&
-					bornDate.getUTCDate() === currentBornDate.getDate()
+					!(
+						bornDate.getUTCFullYear() === currentBornDate.getFullYear() &&
+						bornDate.getUTCMonth() === currentBornDate.getMonth() &&
+						bornDate.getUTCDate() === currentBornDate.getDate()
+					)
 				) {
-					hasBorn = false;
-				} else {
 					const ageDiffMilliseconds = Date.now() - bornDate.getTime();
 					const ageDate = new Date(ageDiffMilliseconds);
 					const age = Math.abs(ageDate.getUTCFullYear() - 1970);
@@ -559,7 +863,7 @@ users.patch("/:id", async (req, res) => {
 		}
 
 		// Nothing changed
-		if (!hasEmail && !hasRight && !hasFirstName && !hasLastName && !hasFunctionDescription && !hasBorn) {
+		if (!hasEmail && !hasRight && !hasFirstName && !hasLastName && !hasFunctionDescription && !hasBorn && !hasPassword) {
 			// Send current user
 			const { pwd, ...user } = currentUser;
 			return res.send({
@@ -575,6 +879,7 @@ users.patch("/:id", async (req, res) => {
 		if (hasEmail) update.push({ name: "email", value: email });
 		if (hasBorn) update.push({ name: "born", value: born });
 		if (hasFunctionDescription) update.push({ name: "function_descr", value: functionDescription });
+		if (hasPassword) update.push({ name: "pwd", value: pwd });
 
 		// Insert user into db
 		await db.query(

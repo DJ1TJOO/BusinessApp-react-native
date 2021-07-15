@@ -1,6 +1,9 @@
 const express = require("express");
 const V1 = require("./v1/router");
 
+const dotenv = require("dotenv");
+dotenv.config();
+
 const server = express();
 
 server.use(express.json());
