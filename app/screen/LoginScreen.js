@@ -39,7 +39,7 @@ const LoginScreen = ({ navigation }) => {
 				<FormInput
 					label="Wachtwoord"
 					helpLabel="Wachtwoord vergeten?"
-					helpOnPress={() => navigation.navigate("ForgotPassword")}
+					helpOnPress={() => navigation.navigate("ForgotPassword", { isCreating: false, businessId: null, userId: null, code: null })}
 					hideText={true}
 					valid={isInvalidUser ? false : null}
 				/>

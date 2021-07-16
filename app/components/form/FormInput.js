@@ -31,15 +31,19 @@ const FormInput = ({
 	const [isValid, setIsValid] = useState(valid);
 	const [currentValue, setCurrentValue] = useState(value);
 
+	useEffect(() => {
+		setCurrentErrorLabel(errorLabel);
+	}, [errorLabel]);
+
 	const checkValue = (text) => {
 		setCurrentValue(text);
-		const valid = validate(true);
-		if (onChange) onChange(currentValue, valid);
+		const valid = validate(true, text);
+		if (onChange) onChange(text, valid);
 	};
 
-	const validate = (feedback = false) => {
+	const validate = (feedback = false, value = null) => {
 		if (validator) {
-			const valid = validator(currentValue);
+			const valid = validator(value || currentValue);
 			if (valid === true) {
 				if (feedback) {
 					setCurrentErrorLabel(null);

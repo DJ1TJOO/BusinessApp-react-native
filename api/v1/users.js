@@ -36,7 +36,7 @@ users.get("/:id", async (req, res) => {
 });
 
 users.post("/", async (req, res) => {
-	const { businessId, rightId, firstName, lastName, email, password, born, functionDescription } = req.body;
+	const { businessId, rightId, firstName, lastName, email, password, born, functionDescription, sendCreateCode, prefix } = req.body;
 
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = '${businessId}'`);
@@ -339,7 +339,79 @@ users.post("/", async (req, res) => {
 				error: "internal",
 			});
 		}
+
 		const { pwd: hashed, ...user } = results[0];
+		if (sendCreateCode) {
+			// Find code
+			let code;
+			do {
+				code = generateCode(6);
+			} while (recoverCodes.find((x) => x.code === code));
+
+			// Date plus twelve hours
+			const expirationDate = Date.now() + 12 * 60 * 60 * 1000;
+
+			// Remove code after twelve hours
+			setTimeout(() => {
+				const index = recoverCodes.findIndex((x) => x.code === code);
+				if (index >= 0) {
+					recoverCodes.splice(index, 1);
+				}
+			}, 12 * 60 * 60 * 1000);
+
+			// Datetime
+			const date = new Date();
+
+			// Send email
+			let html = fs.readFileSync(path.resolve(__dirname, "./mails/createPassword.html"), "utf8");
+			html = html.replace("{createCode}", code);
+			html = html.replace(/{link}/g, `${prefix}forgotpassword/true/${businessId}/${user.id}/${code}`);
+			html = html.replace(/{backuplink}/g, `http://thomasbrants.nl/redirect/?e${prefix}forgotpassword/true/${businessId}/${user.id}/${code}`);
+			html = html.replace(
+				"{date}",
+				date.toLocaleDateString(undefined, {
+					year: "2-digit",
+					month: "2-digit",
+					day: "2-digit",
+				})
+			);
+			html = html.replace(
+				"{time}",
+				date.toLocaleTimeString(undefined, {
+					hour: "2-digit",
+					minute: "2-digit",
+				})
+			);
+			date.setHours(date.getHours() + 12);
+			html = html.replace(
+				"{timeAllowed}",
+				date.toLocaleTimeString(undefined, {
+					hour: "2-digit",
+					minute: "2-digit",
+				})
+			);
+
+			sendEmail(
+				{
+					from: "Business App <business.app.api@gmail.com>",
+					to: email,
+					subject: "Creëer wachtwoord",
+					html: html,
+				},
+				(err, info) => {
+					if (err) console.log(err);
+				}
+			);
+
+			// Add code to list
+			recoverCodes.push({
+				businessId: businessId,
+				userId: user.id,
+				expirationDate,
+				code,
+			});
+		}
+
 		return res.send({
 			success: true,
 			data: user,
@@ -355,7 +427,6 @@ users.post("/", async (req, res) => {
 	}
 });
 
-// TODO: forgot password code
 /**
  * @type {Array<{
  * 	businessId: string,
@@ -449,7 +520,7 @@ users.get("/recover/:business/:email", async (req, res) => {
 				html: html,
 			},
 			(err, info) => {
-				console.log(err, info);
+				if (err) console.log(err);
 			}
 		);
 
@@ -484,8 +555,8 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 	const { newPassword } = req.body;
 
 	// Check if code exists
-	const set = recoverCodes.find((x) => x.code === code);
-	if (!set) {
+	const index = recoverCodes.findIndex((x) => x.code === code);
+	if (index < 0) {
 		return res.status(404).send({
 			success: false,
 			error: "code_not_found",
@@ -493,7 +564,7 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 	}
 
 	// Remove recover codes
-	recoverCodes.splice(recoverCodes.indexOf(set), 1);
+	const set = recoverCodes.splice(index, 1)[0];
 
 	// Check if businessId is correct
 	if (!businessId) {

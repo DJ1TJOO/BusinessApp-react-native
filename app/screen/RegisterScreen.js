@@ -245,7 +245,6 @@ const RegisterScreen = ({ navigation }) => {
 						//TODO: Registeren
 						const valid = validate();
 						if (valid !== true) {
-							console.log(valid);
 							setCurrentError(valid.error);
 							return;
 						}
