@@ -1,9 +1,10 @@
-const { promisePool: db } = require("./db");
 const bcrypt = require("bcrypt");
-const { v4: uuid } = require("uuid");
-const sendEmail = require("./mailer");
 const fs = require("fs");
 const path = require("path");
+
+const sendEmail = require("./helpers/mailer");
+const { promisePool: db } = require("./helpers/db");
+const { dbGenerateUniqueId } = require("./helpers/utils");
 
 const users = require("express").Router();
 
@@ -315,12 +316,7 @@ users.post("/", async (req, res) => {
 		}
 
 		// Generate id
-		let id;
-		let id_results;
-		do {
-			id = uuid();
-			[id_results] = await db.query(`SELECT count(*) FROM users WHERE id = '${id}'`);
-		} while (id_results[0]["count(*)"] > 0);
+		const id = await dbGenerateUniqueId("users", "id");
 
 		// Insert user into db
 		await db.query(
@@ -366,7 +362,7 @@ users.post("/", async (req, res) => {
 			let html = fs.readFileSync(path.resolve(__dirname, "./mails/createPassword.html"), "utf8");
 			html = html.replace("{createCode}", code);
 			html = html.replace(/{link}/g, `${prefix}forgotpassword/true/${businessId}/${user.id}/${code}`);
-			html = html.replace(/{backuplink}/g, `http://thomasbrants.nl/redirect/?e${prefix}forgotpassword/true/${businessId}/${user.id}/${code}`);
+			html = html.replace(/{backuplink}/g, `http://thomasbrants.nl/redirect/?${prefix}forgotpassword/true/${businessId}/${user.id}/${code}`);
 			html = html.replace(
 				"{date}",
 				date.toLocaleDateString(undefined, {
