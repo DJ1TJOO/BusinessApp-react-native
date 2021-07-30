@@ -1,5 +1,7 @@
 const fs = require("fs");
 const path = require("path");
+const sizeOf = require("image-size");
+
 const images = require("express").Router();
 
 /**
@@ -22,10 +24,55 @@ const dataURLtoImgFile = (dataurl, filename, force = false) => {
 				console.log(err);
 				reject(err);
 			} else {
-				resolve();
+				resolve(location);
 			}
 		})
 	);
+};
+
+/**
+ * @param {string} folder
+ * @param {string} image
+ * @returns {{id: string,
+ *            location: string,
+ *            size: {
+ *              width: number,
+ *              height: number,
+ *            },
+ *            file: fs.Stats
+ *          }?}
+ */
+const saveImage = async (folder, image) => {
+	const id = fileGenerateUniqueId(path.join(process.env.IMAGE_LOCATION, folder), "png");
+	const location = await dataURLtoImgFile(image, path.join(folder, id));
+	const size = sizeOf(location);
+
+	const file = fs.statSync(location);
+
+	// Convert the file size to megabytes
+	file.sizeMb = file.size / (1024 * 1024);
+
+	try {
+		return { id, location, size, file };
+	} catch (error) {
+		return null;
+	}
+};
+
+/**
+ *
+ * @param {string} folder
+ * @param {string} id
+ * @returns {boolean}
+ */
+const deleteImage = (folder, id) => {
+	const location = path.join(process.env.IMAGE_LOCATION, folder, id + ".png");
+	try {
+		fs.unlinkSync(location);
+		return true;
+	} catch (error) {
+		return false;
+	}
 };
 
 images.get("/*", (req, res) => {
@@ -39,4 +86,4 @@ images.get("/*", (req, res) => {
 	res.sendFile(path.resolve(location));
 });
 
-module.exports = { router: images, dataURLtoImgFile };
+module.exports = { router: images, dataURLtoImgFile, saveImage, deleteImage };
