@@ -1,6 +1,5 @@
 const { promisePool: db } = require("./helpers/db");
-const sendEmail = require("./helpers/mailer");
-const { dbGenerateUniqueId, fileGenerateUniqueId } = require("./helpers/utils");
+const { dbGenerateUniqueId } = require("./helpers/utils");
 const { saveImage, deleteImage } = require("./helpers/images");
 
 const business = require("express").Router();
