@@ -4,6 +4,20 @@ const fs = require("fs");
 const path = require("path");
 
 /**
+ *
+ * @param {import("express").Response} res
+ * @param {Object} obj
+ */
+const objectToResponse = (res, obj) => {
+	if (obj.status) {
+		const { status, ...send } = obj;
+		return res.status(status).send(send);
+	} else {
+		return res.send(obj);
+	}
+};
+
+/**
  * @param {string} table
  * @param {string} column
  * @param {function} generator
@@ -53,4 +67,4 @@ const fileGenerateUnique = (folder, ext, generator) => {
  */
 const fileGenerateUniqueId = (folder, ext) => fileGenerateUnique(folder, ext, uuid);
 
-module.exports = { dbGenerateUnique, dbGenerateUniqueId, fileGenerateUnique, fileGenerateUniqueId };
+module.exports = { objectToResponse, dbGenerateUnique, dbGenerateUniqueId, fileGenerateUnique, fileGenerateUniqueId };
