@@ -5,6 +5,15 @@ const sizeOf = require("image-size");
 const images = require("express").Router();
 
 /**
+ * @type {Array<{
+ * 	location: String,
+ * 	buffer: Buffer,
+ * 	needsUpdate: Boolean
+ * }>}
+ */
+const cachedImages = [];
+
+/**
  * @param {string} dataurl
  * @param {string} filename
  * @param {boolean} force
@@ -14,7 +23,8 @@ const dataURLtoImgFile = (dataurl, filename, force = false) => {
 
 	const location = path.join(process.env.IMAGE_LOCATION, filename + ".png");
 
-	if (!force && fs.existsSync(location)) {
+	const exists = fs.existsSync(location);
+	if (!force && exists) {
 		return new Promise((resolve, reject) => reject(true));
 	}
 
@@ -25,6 +35,11 @@ const dataURLtoImgFile = (dataurl, filename, force = false) => {
 				reject(err);
 			} else {
 				resolve(location);
+
+				if (exists) {
+					const cached = cachedImages.find((x) => x.location === location);
+					if (cached) cached.needsUpdate = true;
+				}
 			}
 		})
 	);
@@ -77,13 +92,40 @@ const deleteImage = (folder, id) => {
 
 images.get("/*", (req, res) => {
 	const location = path.join(process.env.IMAGE_LOCATION, req.params["0"] + ".png");
+
+	const cached = cachedImages.findIndex((x) => x.location === location);
+	if (cached > -1) {
+		if (cachedImages[cached].needsUpdate) {
+			cachedImages.splice(cached, 1);
+		} else {
+			return res.type("image/png").send(cachedImages[cached].buffer);
+		}
+	}
+
 	if (!fs.existsSync(location)) {
 		return res.status(404).send({
 			success: false,
 			error: "image_not_found",
 		});
 	}
-	res.sendFile(path.resolve(location));
+
+	try {
+		const image = fs.readFileSync(location, "base64");
+		const buffer = Buffer.from(image, "base64");
+
+		cachedImages.push({
+			location,
+			buffer,
+			needsUpdate: false,
+		});
+
+		return res.type("image/png").send(buffer);
+	} catch (error) {
+		return res.status(500).send({
+			success: false,
+			error: "internal",
+		});
+	}
 });
 
 module.exports = { router: images, dataURLtoImgFile, saveImage, deleteImage };
