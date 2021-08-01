@@ -1,4 +1,4 @@
-const { promisePool: db } = require("./helpers/db");
+const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 
 const hours = require("express").Router();
@@ -13,7 +13,7 @@ const getHours = async (params) => {
 		const [results] = await db.query(
 			`SELECT * FROM hours WHERE ${params
 				.keys()
-				.map((x) => `${x} = '${params[x]}'`)
+				.map((x) => `${x} = '${escape(params[x])}'`)
 				.join(" AND ")}`
 		);
 		if (results.length < 1) {
@@ -64,7 +64,7 @@ const getHours = async (params) => {
  */
 const addProjectHours = async (hours) => {
 	try {
-		const [hoursResults] = await db.query(`SELECT * FROM project_hours WHERE hours_id = '${hours.id}'`);
+		const [hoursResults] = await db.query(`SELECT * FROM project_hours WHERE hours_id = ?`, [hours.id]);
 
 		return {
 			success: true,
@@ -122,7 +122,7 @@ hours.get("/business/:businessId/:year?/:week?", async (req, res) => {
 const createHours = async (body) => {
 	const { userId, businessId, week, year } = body;
 	try {
-		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = '${businessId}'`);
+		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
 
 		// Busines does not exists
 		if (business_result[0]["count(*)"] < 1) {
@@ -130,7 +130,7 @@ const createHours = async (body) => {
 			return { status: 404, success: false, error: "business_not_found" };
 		}
 
-		const [user_result] = await db.query(`SELECT count(*) FROM users WHERE id = '${userId}'`);
+		const [user_result] = await db.query(`SELECT count(*) FROM users WHERE id = ?`, [userId]);
 
 		// User does not exists
 		if (user_result[0]["count(*)"] < 1) {
@@ -253,10 +253,11 @@ const createHours = async (body) => {
 		await db.query(
 			`INSERT INTO 
 					hours (id, user_id, business_id, year, week)
-					VALUES ('${id}', '${userId}','${businessId}','${year}','${week}')`
+					VALUES (?,?,?,?,?)`,
+			[id, userId, businessId, year, week]
 		);
 
-		const [results] = await db.query(`SELECT * FROM hours WHERE id = '${id}'`);
+		const [results] = await db.query(`SELECT * FROM hours WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return { status: 500, success: false, error: "internal" };
@@ -442,7 +443,7 @@ const createProjectHours = async (hoursId, body) => {
 
 		let hasProjectId = false;
 		if (projectId) {
-			const [project_result] = await db.query(`SELECT count(*) FROM projects WHERE id = '${projectId}'`);
+			const [project_result] = await db.query(`SELECT count(*) FROM projects WHERE id = ?`, [projectId]);
 
 			// Project does not exists
 			if (project_result[0]["count(*)"] < 1) {
@@ -459,12 +460,12 @@ const createProjectHours = async (hoursId, body) => {
 		await db.query(
 			`INSERT INTO 
 					project_hours (id, hours_id, project, ${hasProjectId ? "project_id," : ""} ${hasDescription ? "description," : ""} monday, tueseday, wednesday, thursday, friday, saturday, sunday)
-					VALUES ('${id}', '${hoursId}','${project}', ${hasProjectId ? `'${projectId}',` : ""} ${
-				hasDescription ? `'${description}',` : ""
-			} '${monday}', '${tueseday}', '${wednesday}', '${thursday}', '${friday}', '${saturday}', '${sunday}')`
+					VALUES ('${escape(id)}', '${escape(hoursId)}','${escape(project)}', ${hasProjectId ? `'${escape(projectId)}',` : ""} ${hasDescription ? `'${escape(description)}',` : ""} '${escape(
+				monday
+			)}', '${escape(tueseday)}', '${escape(wednesday)}', '${escape(thursday)}', '${escape(friday)}', '${escape(saturday)}', '${escape(sunday)}')`
 		);
 
-		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = '${id}'`);
+		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return { status: 500, success: false, error: "internal" };
@@ -486,7 +487,7 @@ hours.post("/:hoursId", async (req, res) => {
 	const { hoursId } = req.params;
 
 	try {
-		const [hours_result] = await db.query(`SELECT count(*) FROM hours WHERE id = '${hoursId}'`);
+		const [hours_result] = await db.query(`SELECT count(*) FROM hours WHERE id = ?`, [hoursId]);
 
 		// Hours does not exists
 		if (hours_result[0]["count(*)"] < 1) {
@@ -509,7 +510,7 @@ hours.post("/:userId/:year/:week", async (req, res) => {
 	try {
 		// Get id
 		let id = null;
-		const [hours_result] = await db.query(`SELECT id FROM hours WHERE user_id = '${userId}' AND week = '${week}' AND year = '${year}'`);
+		const [hours_result] = await db.query(`SELECT id FROM hours WHERE user_id = ? AND week = ? AND year = ?`, [userId, week, year]);
 
 		// Hours does not exists
 		if (hours_result.length < 1) {
@@ -538,7 +539,7 @@ hours.patch("/:projectHoursId", async (req, res) => {
 	const { projectHoursId } = req.params;
 	const { project, projectId, description, monday, tueseday, wednesday, thursday, friday, saturday, sunday } = req.body;
 	try {
-		const [get_results] = await db.query(`SELECT count(*) FROM project_hours WHERE id = '${projectHoursId}'`);
+		const [get_results] = await db.query(`SELECT count(*) FROM project_hours WHERE id = ?`, [projectHoursId]);
 		if (get_results[0]["count(*)"] < 1) {
 			return res.status(404).send({
 				success: false,
@@ -624,7 +625,7 @@ hours.patch("/:projectHoursId", async (req, res) => {
 
 		let hasProjectId = false;
 		if (projectId) {
-			const [project_result] = await db.query(`SELECT count(*) FROM projects WHERE id = '${projectId}'`);
+			const [project_result] = await db.query(`SELECT count(*) FROM projects WHERE id = ?`, [projectId]);
 
 			// Project does not exists
 			if (project_result[0]["count(*)"] < 1) {
@@ -636,17 +637,17 @@ hours.patch("/:projectHoursId", async (req, res) => {
 
 		const update = [];
 
-		if (mondayValidation.success && mondayValidation.data) update.push({ name: "monday", value: mondayValidation.data });
-		if (tuesedayValidation.success && tuesedayValidation.data) update.push({ name: "tueseday", value: tuesedayValidation.data });
-		if (wednesdayValidation.success && wednesdayValidation.data) update.push({ name: "wednesday", value: wednesdayValidation.data });
-		if (thursdayValidation.success && thursdayValidation.data) update.push({ name: "thursday", value: thursdayValidation.data });
-		if (fridayValidation.success && fridayValidation.data) update.push({ name: "friday", value: fridayValidation.data });
-		if (saturdayValidation.success && saturdayValidation.data) update.push({ name: "saturday", value: saturdayValidation.data });
-		if (sundayValidation.success && sundayValidation.data) update.push({ name: "sunday", value: sundayValidation.data });
+		if (mondayValidation.success && mondayValidation.data) update.push({ name: "monday", value: escape(mondayValidation.data) });
+		if (tuesedayValidation.success && tuesedayValidation.data) update.push({ name: "tueseday", value: escape(tuesedayValidation.data) });
+		if (wednesdayValidation.success && wednesdayValidation.data) update.push({ name: "wednesday", value: escape(wednesdayValidation.data) });
+		if (thursdayValidation.success && thursdayValidation.data) update.push({ name: "thursday", value: escape(thursdayValidation.data) });
+		if (fridayValidation.success && fridayValidation.data) update.push({ name: "friday", value: escape(fridayValidation.data) });
+		if (saturdayValidation.success && saturdayValidation.data) update.push({ name: "saturday", value: escape(saturdayValidation.data) });
+		if (sundayValidation.success && sundayValidation.data) update.push({ name: "sunday", value: escape(sundayValidation.data) });
 
-		if (hasProject) update.push({ name: "project", value: project });
-		if (hasProjectId) update.push({ name: "project_id", value: projectId });
-		if (hasDescription) update.push({ name: "description", value: description });
+		if (hasProject) update.push({ name: "project", value: escape(project) });
+		if (hasProjectId) update.push({ name: "project_id", value: escape(projectId) });
+		if (hasDescription) update.push({ name: "description", value: escape(description) });
 
 		// Update project_hours
 		await db.query(
@@ -656,7 +657,7 @@ hours.patch("/:projectHoursId", async (req, res) => {
 					WHERE id = '${projectHoursId}'`
 		);
 
-		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = '${projectHoursId}'`);
+		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = ?`, [projectHoursId]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({

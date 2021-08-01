@@ -12,7 +12,7 @@ const users = require("express").Router();
 users.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
-		const [results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -40,7 +40,7 @@ users.post("/", async (req, res) => {
 	const { businessId, rightId, firstName, lastName, email, password, born, functionDescription, sendCreateCode, prefix } = req.body;
 
 	try {
-		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = '${businessId}'`);
+		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
 
 		// Busines does not exists
 		if (business_result[0]["count(*)"] < 1) {
@@ -93,7 +93,7 @@ users.post("/", async (req, res) => {
 			});
 		}
 
-		const [email_result] = await db.query(`SELECT count(*) FROM users WHERE business_id = '${businessId}' AND email = '${email}'`);
+		const [email_result] = await db.query(`SELECT count(*) FROM users WHERE business_id = ? AND email = ?`, [businessId, email]);
 
 		// User already exists
 		if (email_result[0]["count(*)"] > 0) {
@@ -107,7 +107,7 @@ users.post("/", async (req, res) => {
 		// Check if right is specified
 		let hasRight = false;
 		if (rightId) {
-			const [function_result] = await db.query(`SELECT count(*) FROM rights WHERE id = '${rightId}'`);
+			const [function_result] = await db.query(`SELECT count(*) FROM rights WHERE id = ?`, [rightId]);
 
 			// Right does not exists
 			if (function_result[0]["count(*)"] < 1) {
@@ -323,11 +323,11 @@ users.post("/", async (req, res) => {
 			`INSERT INTO 
 					users (id, business_id, ${hasRight ? "right_id," : ""} first_name, last_name,
 						email, pwd, born${hasFunctionDescription ? ", function_descr" : ""})
-					VALUES ('${id}', '${businessId}',${hasRight ? `'${rightId}',` : ""}'${firstName}','${lastName}',
-						'${email}', '${pwd}', '${bornDate.toISOString()}'${hasFunctionDescription ? `,'${functionDescription}'` : ""})`
+					VALUES ('${escape(id)}', '${escape(businessId)}',${hasRight ? `'${escape(rightId)}',` : ""}'${escape(firstName)}','${escape(lastName)}',
+						'${escape(email)}', '${escape(pwd)}', '${escape(bornDate.toISOString())}'${hasFunctionDescription ? `,'${escape(functionDescription)}'` : ""})`
 		);
 
-		const [results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -444,7 +444,7 @@ users.get("/recover/:business/:email", async (req, res) => {
 
 	try {
 		// Get business
-		const [getBusinessResults] = await db.query(`SELECT * FROM business WHERE name = '${business}'`);
+		const [getBusinessResults] = await db.query(`SELECT * FROM business WHERE name = ?`, [business]);
 		if (getBusinessResults.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -453,7 +453,7 @@ users.get("/recover/:business/:email", async (req, res) => {
 		}
 
 		// Check if user exists
-		const [getUserResults] = await db.query(`SELECT * FROM users WHERE email = '${email}' AND business_id = '${getBusinessResults[0].id}'`);
+		const [getUserResults] = await db.query(`SELECT * FROM users WHERE email = ? AND business_id = ?`, [email, getBusinessResults[0].id]);
 		if (getUserResults.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -648,11 +648,12 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 		await db.query(
 			`UPDATE 
 					users
-					SET pwd = '${pwd}'
-					WHERE id = '${set.userId}'`
+					SET pwd = ?
+					WHERE id = ?`,
+			[pwd, set.userId]
 		);
 
-		const [results] = await db.query(`SELECT * FROM users WHERE id = '${set.userId}'`);
+		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [set.userId]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -683,7 +684,7 @@ users.patch("/:id", async (req, res) => {
 
 	try {
 		// Get user
-		const [getResults] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		const [getResults] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
 		if (getResults.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -772,7 +773,7 @@ users.patch("/:id", async (req, res) => {
 				});
 			}
 
-			const [email_result] = await db.query(`SELECT count(*) FROM users WHERE business_id = '${currentUser.business_id}' AND email = '${email}'`);
+			const [email_result] = await db.query(`SELECT count(*) FROM users WHERE business_id = ? AND email = ?`, [currentUser.business_id, email]);
 
 			// User already exists
 			if (email_result[0]["count(*)"] > 0) {
@@ -789,7 +790,7 @@ users.patch("/:id", async (req, res) => {
 		// Check if right is specified
 		let hasRight = false;
 		if (rightId && currentUser.right_id !== rightId) {
-			const [function_result] = await db.query(`SELECT count(*) FROM rights WHERE id = '${rightId}'`);
+			const [function_result] = await db.query(`SELECT count(*) FROM rights WHERE id = ?`, [rightId]);
 
 			// Right does not exists
 			if (function_result[0]["count(*)"] < 1) {
@@ -940,13 +941,13 @@ users.patch("/:id", async (req, res) => {
 		}
 
 		const update = [];
-		if (hasRight) update.push({ name: "right_id", value: rightId });
-		if (hasFirstName) update.push({ name: "first_name", value: firstName });
-		if (hasLastName) update.push({ name: "last_name", value: lastName });
-		if (hasEmail) update.push({ name: "email", value: email });
-		if (hasBorn) update.push({ name: "born", value: born });
-		if (hasFunctionDescription) update.push({ name: "function_descr", value: functionDescription });
-		if (hasPassword) update.push({ name: "pwd", value: pwd });
+		if (hasRight) update.push({ name: "right_id", value: escape(rightId) });
+		if (hasFirstName) update.push({ name: "first_name", value: escape(firstName) });
+		if (hasLastName) update.push({ name: "last_name", value: escape(lastName) });
+		if (hasEmail) update.push({ name: "email", value: escape(email) });
+		if (hasBorn) update.push({ name: "born", value: escape(born) });
+		if (hasFunctionDescription) update.push({ name: "function_descr", value: escape(functionDescription) });
+		if (hasPassword) update.push({ name: "pwd", value: escape(pwd) });
 
 		// Update user
 		await db.query(
@@ -956,7 +957,7 @@ users.patch("/:id", async (req, res) => {
 					WHERE id = '${id}'`
 		);
 
-		const [results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -983,7 +984,7 @@ users.patch("/:id", async (req, res) => {
 users.delete("/:id", async (req, res) => {
 	const id = req.params.id;
 	try {
-		const [get_results] = await db.query(`SELECT * FROM users WHERE id = '${id}'`);
+		const [get_results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
 		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -993,7 +994,7 @@ users.delete("/:id", async (req, res) => {
 
 		const { pwd: hashed, ...user } = get_results[0];
 
-		const [delete_results] = await db.query(`DELETE FROM users WHERE id = '${id}'`);
+		const [delete_results] = await db.query(`DELETE FROM users WHERE id = ?`, [id]);
 
 		if (delete_results.affectedRows < 1) {
 			return res.send({

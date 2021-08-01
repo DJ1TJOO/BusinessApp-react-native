@@ -1,4 +1,4 @@
-const { promisePool: db } = require("./db");
+const { promisePool: db, escape } = require("./db");
 const { v4: uuid } = require("uuid");
 const fs = require("fs");
 const path = require("path");
@@ -27,7 +27,7 @@ const dbGenerateUnique = async (table, column, generator) => {
 	let value, results;
 	do {
 		value = generator();
-		[results] = await db.query(`SELECT count(*) FROM ${table} WHERE ${column} = '${value}'`);
+		[results] = await db.query(`SELECT count(*) FROM ${table} WHERE ${column} = '${escape(value)}'`);
 	} while (results[0]["count(*)"] > 0);
 
 	return value;

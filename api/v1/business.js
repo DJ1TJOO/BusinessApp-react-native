@@ -1,4 +1,4 @@
-const { promisePool: db } = require("./helpers/db");
+const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId } = require("./helpers/utils");
 const { saveImage, deleteImage } = require("./helpers/images");
 
@@ -9,7 +9,7 @@ const business = require("express").Router();
 business.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
-		const [results] = await db.query(`SELECT * FROM business WHERE id = '${id}'`);
+		const [results] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -193,10 +193,11 @@ business.post("/", async (req, res) => {
 		await db.query(
 			`INSERT INTO 
 					 business (id, name, logo)
-					VALUES ('${id}', '${name}','${imageInfo.id}')`
+					VALUES (?,?,?)`,
+			[id, name, imageInfo.id]
 		);
 
-		const [results] = await db.query(`SELECT * FROM business WHERE id = '${id}'`);
+		const [results] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -228,7 +229,7 @@ business.patch("/:id", async (req, res) => {
 	const { name, image, owner, ownerCode } = req.body;
 	try {
 		// Check if business exists
-		const [getResults] = await db.query(`SELECT * FROM business WHERE id = '${id}'`);
+		const [getResults] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
 		if (getResults.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -280,7 +281,7 @@ business.patch("/:id", async (req, res) => {
 			}
 
 			// Check if user exists
-			const [getUserResults] = await db.query(`SELECT * FROM users WHERE id = '${owner}'`);
+			const [getUserResults] = await db.query(`SELECT * FROM users WHERE id = ?`, [owner]);
 			if (getUserResults.length < 1) {
 				return res.status(404).send({
 					success: false,
@@ -391,19 +392,20 @@ business.patch("/:id", async (req, res) => {
 		}
 
 		const update = [];
-		if (hasOwnerId) update.push({ name: "owner_id", value: owner });
-		if (hasName) update.push({ name: "name", value: name });
-		if (hasImage) update.push({ name: "logo", value: imageInfo.id });
+		if (hasOwnerId) update.push({ name: "owner_id", value: escape(owner) });
+		if (hasName) update.push({ name: "name", value: escape(name) });
+		if (hasImage) update.push({ name: "logo", value: escape(imageInfo.id) });
 
 		// Update business
 		await db.query(
 			`UPDATE 
 					business
 					SET ${update.map((x) => `${x.name} = '${x.value}'`).join(",")}
-					WHERE id = '${id}'`
+					WHERE id = ?`,
+			[id]
 		);
 
-		const [results] = await db.query(`SELECT * FROM business WHERE id = '${id}'`);
+		const [results] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -433,7 +435,7 @@ business.patch("/:id", async (req, res) => {
 business.delete("/:id", async (req, res) => {
 	const id = req.params.id;
 	try {
-		const [get_results] = await db.query(`SELECT * FROM business WHERE id = '${id}'`);
+		const [get_results] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
 		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -441,7 +443,7 @@ business.delete("/:id", async (req, res) => {
 			});
 		}
 
-		const [delete_results] = await db.query(`DELETE FROM business WHERE id = '${id}'`);
+		const [delete_results] = await db.query(`DELETE FROM business WHERE id = ?`, [id]);
 
 		if (delete_results.affectedRows < 1) {
 			return res.send({
