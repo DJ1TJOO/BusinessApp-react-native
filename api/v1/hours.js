@@ -88,6 +88,8 @@ const addProjectHours = async (hours) => {
 	}
 };
 
+// TODO: authorization
+// TODO: test all
 hours.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	return objectToResponse(res, await getHours({ id }));
@@ -116,5 +118,7 @@ hours.get("/business/:businessId/:year?/:week?", async (req, res) => {
 	// Week fist is faster
 	return objectToResponse(res, await getHours(params));
 });
+
+// TODO: post, patch, delete
 
 module.exports = hours;
