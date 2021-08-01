@@ -119,18 +119,15 @@ hours.get("/business/:businessId/:year?/:week?", async (req, res) => {
 	return objectToResponse(res, await getHours(params));
 });
 
-hours.post("/", async (req, res) => {
-	const { userId, businessId, week, year } = req.body;
+const createHours = async (body) => {
+	const { userId, businessId, week, year } = body;
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = '${businessId}'`);
 
 		// Busines does not exists
 		if (business_result[0]["count(*)"] < 1) {
 			// Return status 404 (not found) business not found
-			return res.status(404).send({
-				success: false,
-				error: "business_not_found",
-			});
+			return { status: 404, success: false, error: "business_not_found" };
 		}
 
 		const [user_result] = await db.query(`SELECT count(*) FROM users WHERE id = '${userId}'`);
@@ -138,110 +135,115 @@ hours.post("/", async (req, res) => {
 		// User does not exists
 		if (user_result[0]["count(*)"] < 1) {
 			// Return status 404 (not found) user not found
-			return res.status(404).send({
-				success: false,
-				error: "user_not_found",
-			});
+			return { status: 404, success: false, error: "user_not_found" };
 		}
 
 		// Check year
 		// Year is empty
 		if (!year) {
 			// Return status 422 (unprocessable entity) empty
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "empty",
 				data: {
 					field: "year",
 				},
-			});
+			};
 		}
 
 		// Invalid year
 		if (!isNaN(year)) {
 			// Return status 422 (unprocessable entity) incorrect
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "incorrect",
 				data: {
 					field: "year",
 				},
-			});
+			};
 		}
 
 		// Invalid year
 		if (!Number.isInteger(year)) {
 			// Return status 422 (unprocessable entity) incorrect
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "incorrect",
 				data: {
 					field: "year",
 				},
-			});
+			};
 		}
 
 		// Check week
 		// Week is empty
 		if (!week) {
 			// Return status 422 (unprocessable entity) empty
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "empty",
 				data: {
 					field: "week",
 				},
-			});
+			};
 		}
 
 		// Invalid week
 		if (!isNaN(week)) {
 			// Return status 422 (unprocessable entity) incorrect
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "incorrect",
 				data: {
 					field: "week",
 				},
-			});
+			};
 		}
 
 		// Invalid week
 		if (!Number.isInteger(week)) {
 			// Return status 422 (unprocessable entity) incorrect
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "incorrect",
 				data: {
 					field: "week",
 				},
-			});
+			};
 		}
 
 		// Week too low
 		if (week < 1) {
 			// Return status 422 (unprocessable entity) too low
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "too_low",
 				data: {
 					field: "week",
 					min: 1,
 				},
-			});
+			};
 		}
 
 		// Week too high
 		if (week > 53) {
 			// Return status 422 (unprocessable entity) too high
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "too_high",
 				data: {
 					field: "week",
 					max: 53,
 				},
-			});
+			};
 		}
 
 		// Generate id
@@ -257,10 +259,7 @@ hours.post("/", async (req, res) => {
 		const [results] = await db.query(`SELECT * FROM hours WHERE id = '${id}'`);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
-			return res.status(500).send({
-				success: false,
-				error: "internal",
-			});
+			return { status: 500, success: false, error: "internal" };
 		}
 		return res.send({
 			success: true,
@@ -270,11 +269,12 @@ hours.post("/", async (req, res) => {
 		// Mysql error
 		console.log(error);
 		// Return status 500 (internal server error) mysql
-		return res.status(500).send({
-			success: false,
-			error: "mysql",
-		});
+		return { status: 500, success: false, error: "mysql" };
 	}
+};
+
+hours.post("/", async (req, res) => {
+	return objectToResponse(res, await createHours(req.body));
 });
 
 const validateNumber = (field, value, min, max) => {
@@ -502,15 +502,25 @@ hours.post("/:userId/:year/:week", async (req, res) => {
 	const { userId, week, year } = req.params;
 
 	try {
+		// Get id
+		let id = null;
 		const [hours_result] = await db.query(`SELECT id FROM hours WHERE user_id = '${userId}' AND week = '${week}' AND year = '${year}'`);
 
 		// Hours does not exists
 		if (hours_result.length < 1) {
-			// Return status 404 (not found) hours not found
-			return res.status(404).send({ success: false, error: "hours_not_found" });
+			const hours = await createHours(req.body);
+
+			if (!hours.success) {
+				// Return error creating hours
+				return objectToResponse(res, hours);
+			}
+
+			id = hours.data.id;
+		} else {
+			id = hours_result[0].id;
 		}
 
-		return objectToResponse(res, await createProjectHours(hours_result[0].id, req.body));
+		return objectToResponse(res, await createProjectHours(id, req.body));
 	} catch (error) {
 		// Mysql error
 		console.log(error);
