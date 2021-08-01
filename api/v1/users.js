@@ -948,7 +948,7 @@ users.patch("/:id", async (req, res) => {
 		if (hasFunctionDescription) update.push({ name: "function_descr", value: functionDescription });
 		if (hasPassword) update.push({ name: "pwd", value: pwd });
 
-		// Insert user into db
+		// Update user
 		await db.query(
 			`UPDATE 
 					users

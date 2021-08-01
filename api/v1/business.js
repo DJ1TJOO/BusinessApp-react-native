@@ -395,7 +395,7 @@ business.patch("/:id", async (req, res) => {
 		if (hasName) update.push({ name: "name", value: name });
 		if (hasImage) update.push({ name: "logo", value: imageInfo.id });
 
-		// Insert user into db
+		// Update business
 		await db.query(
 			`UPDATE 
 					business

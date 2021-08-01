@@ -277,10 +277,10 @@ hours.post("/", async (req, res) => {
 	return objectToResponse(res, await createHours(req.body));
 });
 
-const validateNumber = (field, value, min, max) => {
+const validateNumber = (field, value, min, max, checkEmpty = true) => {
 	// Check value
 	// Value is empty
-	if (!value) {
+	if (!value && checkEmpty) {
 		// Return status 422 (unprocessable entity) empty
 		return {
 			status: 422,
@@ -289,6 +289,11 @@ const validateNumber = (field, value, min, max) => {
 			data: {
 				field,
 			},
+		};
+	} else if (!value && !checkEmpty) {
+		return {
+			success: true,
+			data: null,
 		};
 	}
 
@@ -375,7 +380,7 @@ const createProjectHours = async (hoursId, body) => {
 		const sundayValidation = validateNumber("sunday", sunday, 0, 24);
 		if (!sundayValidation.success) return objectToResponse(res, sundayValidation);
 
-		// Check if last name is correct
+		// Check if project is correct
 		// Project is empty
 		if (!project) {
 			// Return status 422 (unprocessable entity) empty
@@ -529,6 +534,149 @@ hours.post("/:userId/:year/:week", async (req, res) => {
 	}
 });
 
-// TODO: patch, delete
+hours.patch("/:projectHoursId", async (req, res) => {
+	const { projectHoursId } = req.params;
+	const { project, projectId, description, monday, tueseday, wednesday, thursday, friday, saturday, sunday } = req.body;
+	try {
+		const [get_results] = await db.query(`SELECT count(*) FROM project_hours WHERE id = '${projectHoursId}'`);
+		if (get_results[0]["count(*)"] < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "project_hours_not_found",
+			});
+		}
+
+		// Check monday
+		const mondayValidation = validateNumber("monday", monday, 0, 24, false);
+		if (!mondayValidation.success) return objectToResponse(res, mondayValidation);
+
+		// Check tueseday
+		const tuesedayValidation = validateNumber("tueseday", tueseday, 0, 24, false);
+		if (!tuesedayValidation.success) return objectToResponse(res, tuesedayValidation);
+
+		// Check wednesday
+		const wednesdayValidation = validateNumber("wednesday", wednesday, 0, 24, false);
+		if (!wednesdayValidation.success) return objectToResponse(res, wednesdayValidation);
+
+		// Check thursday
+		const thursdayValidation = validateNumber("thursday", thursday, 0, 24, false);
+		if (!thursdayValidation.success) return objectToResponse(res, thursdayValidation);
+
+		// Check friday
+		const fridayValidation = validateNumber("friday", friday, 0, 24, false);
+		if (!fridayValidation.success) return objectToResponse(res, fridayValidation);
+
+		// Check saturday
+		const saturdayValidation = validateNumber("saturday", saturday, 0, 24, false);
+		if (!saturdayValidation.success) return objectToResponse(res, saturdayValidation);
+
+		// Check sunday
+		const sundayValidation = validateNumber("sunday", sunday, 0, 24, false);
+		if (!sundayValidation.success) return objectToResponse(res, sundayValidation);
+
+		// Check if project is correct
+		let hasProject = false;
+		if (project) {
+			// Project too long
+			if (project.length > 255) {
+				// Return status 422 (unprocessable entity) too long
+				return res.status(422).send({
+					success: false,
+					error: "too_long",
+					data: {
+						field: "project",
+						maxLength: 255,
+					},
+				});
+			}
+
+			// Project too short
+			if (project.length < 3) {
+				// Return status 422 (unprocessable entity) too short
+				return res.status(422).send({
+					success: false,
+					error: "too_short",
+					data: {
+						field: "project",
+						minLength: 3,
+					},
+				});
+			}
+			hasProject = true;
+		}
+
+		let hasDescription = false;
+		if (description) {
+			// Description too long
+			if (lastName.length > 255) {
+				// Return status 422 (unprocessable entity) too long
+				return res.status(422).send({
+					success: false,
+					error: "too_long",
+					data: {
+						field: "description",
+						maxLength: 255,
+					},
+				});
+			}
+			hasDescription = true;
+		}
+
+		let hasProjectId = false;
+		if (projectId) {
+			const [project_result] = await db.query(`SELECT count(*) FROM projects WHERE id = '${projectId}'`);
+
+			// Project does not exists
+			if (project_result[0]["count(*)"] < 1) {
+				// Return status 404 (not found) project not found
+				return res.status(404).send({ success: false, error: "project_not_found" });
+			}
+			hasProjectId = true;
+		}
+
+		const update = [];
+
+		if (mondayValidation.success && mondayValidation.data) update.push({ name: "monday", value: mondayValidation.data });
+		if (tuesedayValidation.success && tuesedayValidation.data) update.push({ name: "tueseday", value: tuesedayValidation.data });
+		if (wednesdayValidation.success && wednesdayValidation.data) update.push({ name: "wednesday", value: wednesdayValidation.data });
+		if (thursdayValidation.success && thursdayValidation.data) update.push({ name: "thursday", value: thursdayValidation.data });
+		if (fridayValidation.success && fridayValidation.data) update.push({ name: "friday", value: fridayValidation.data });
+		if (saturdayValidation.success && saturdayValidation.data) update.push({ name: "saturday", value: saturdayValidation.data });
+		if (sundayValidation.success && sundayValidation.data) update.push({ name: "sunday", value: sundayValidation.data });
+
+		if (hasProject) update.push({ name: "project", value: project });
+		if (hasProjectId) update.push({ name: "project_id", value: projectId });
+		if (hasDescription) update.push({ name: "description", value: description });
+
+		// Update project_hours
+		await db.query(
+			`UPDATE 
+					project_hours
+					SET ${update.map((x) => `${x.name} = '${x.value}'`).join(",")}
+					WHERE id = '${projectHoursId}'`
+		);
+
+		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = '${projectHoursId}'`);
+		if (results.length < 1) {
+			// Return status 500 (internal server error) internal
+			return res.status(500).send({
+				success: false,
+				error: "internal",
+			});
+		}
+
+		return {
+			success: true,
+			data: results[0],
+		};
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({ success: false, error: "mysql" });
+	}
+});
+
+// TODO: delete
 
 module.exports = hours;
