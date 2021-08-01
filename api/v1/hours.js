@@ -339,21 +339,14 @@ const validateNumber = (field, value, min, max) => {
 	};
 };
 
-hours.post("/:hoursId", async (req, res) => {
-	const { hoursId } = req.params;
-	const { project, projectId, description, monday, tueseday, wednesday, thursday, friday, saturday, sunday } = req.body;
+/**
+ * @param {{
+ *  [key]: String,
+ * }} params
+ */
+const createProjectHours = async (hoursId, body) => {
+	const { project, projectId, description, monday, tueseday, wednesday, thursday, friday, saturday, sunday } = body;
 	try {
-		const [hours_result] = await db.query(`SELECT count(*) FROM hours WHERE id = '${hoursId}'`);
-
-		// Hours does not exists
-		if (hours_result[0]["count(*)"] < 1) {
-			// Return status 404 (not found) hours not found
-			return res.status(404).send({
-				success: false,
-				error: "hours_not_found",
-			});
-		}
-
 		// Check monday
 		const mondayValidation = validateNumber("monday", monday, 0, 24);
 		if (!mondayValidation.success) return objectToResponse(res, mondayValidation);
@@ -386,39 +379,42 @@ hours.post("/:hoursId", async (req, res) => {
 		// Project is empty
 		if (!project) {
 			// Return status 422 (unprocessable entity) empty
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "empty",
 				data: {
 					field: "project",
 				},
-			});
+			};
 		}
 
 		// Project too long
 		if (project.length > 255) {
 			// Return status 422 (unprocessable entity) too long
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "too_long",
 				data: {
 					field: "project",
 					maxLength: 255,
 				},
-			});
+			};
 		}
 
 		// Project too short
 		if (project.length < 3) {
 			// Return status 422 (unprocessable entity) too short
-			return res.status(422).send({
+			return {
+				status: 422,
 				success: false,
 				error: "too_short",
 				data: {
 					field: "project",
 					minLength: 3,
 				},
-			});
+			};
 		}
 
 		let hasDescription = false;
@@ -426,14 +422,15 @@ hours.post("/:hoursId", async (req, res) => {
 			// Description too long
 			if (lastName.length > 255) {
 				// Return status 422 (unprocessable entity) too long
-				return res.status(422).send({
+				return {
+					status: 422,
 					success: false,
 					error: "too_long",
 					data: {
 						field: "description",
 						maxLength: 255,
 					},
-				});
+				};
 			}
 			hasDescription = true;
 		}
@@ -445,10 +442,7 @@ hours.post("/:hoursId", async (req, res) => {
 			// Project does not exists
 			if (project_result[0]["count(*)"] < 1) {
 				// Return status 404 (not found) project not found
-				return res.status(404).send({
-					success: false,
-					error: "project_not_found",
-				});
+				return { status: 404, success: false, error: "project_not_found" };
 			}
 			hasProjectId = true;
 		}
@@ -468,85 +462,63 @@ hours.post("/:hoursId", async (req, res) => {
 		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = '${id}'`);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
-			return res.status(500).send({
-				success: false,
-				error: "internal",
-			});
+			return { status: 500, success: false, error: "internal" };
 		}
 
-		return res.send({
+		return {
 			success: true,
 			data: results[0],
-		});
+		};
 	} catch (error) {
 		// Mysql error
 		console.log(error);
 		// Return status 500 (internal server error) mysql
-		return res.status(500).send({
-			success: false,
-			error: "mysql",
-		});
+		return { status: 500, success: false, error: "mysql" };
+	}
+};
+
+hours.post("/:hoursId", async (req, res) => {
+	const { hoursId } = req.params;
+
+	try {
+		const [hours_result] = await db.query(`SELECT count(*) FROM hours WHERE id = '${hoursId}'`);
+
+		// Hours does not exists
+		if (hours_result[0]["count(*)"] < 1) {
+			// Return status 404 (not found) hours not found
+			return res.status(404).send({ success: false, error: "hours_not_found" });
+		}
+
+		return objectToResponse(res, await createProjectHours(hoursId, req.body));
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({ success: false, error: "mysql" });
 	}
 });
 
-// TODO: post, patch, delete
-// hours.post("/:userId/:year/:week", async (req, res) => {
-// 	const { userId, week, year } = req.params;
-// 	const {} = req.body;
-// 	try {
-// 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = '${businessId}'`);
+hours.post("/:userId/:year/:week", async (req, res) => {
+	const { userId, week, year } = req.params;
 
-// 		// Busines does not exists
-// 		if (business_result[0]["count(*)"] < 1) {
-// 			// Return status 404 (not found) business not found
-// 			return res.status(404).send({
-// 				success: false,
-// 				error: "business_not_found",
-// 			});
-// 		}
+	try {
+		const [hours_result] = await db.query(`SELECT id FROM hours WHERE user_id = '${userId}' AND week = '${week}' AND year = '${year}'`);
 
-// 		const [user_result] = await db.query(`SELECT count(*) FROM users WHERE id = '${userId}'`);
+		// Hours does not exists
+		if (hours_result.length < 1) {
+			// Return status 404 (not found) hours not found
+			return res.status(404).send({ success: false, error: "hours_not_found" });
+		}
 
-// 		// User does not exists
-// 		if (user_result[0]["count(*)"] < 1) {
-// 			// Return status 404 (not found) user not found
-// 			return res.status(404).send({
-// 				success: false,
-// 				error: "user_not_found",
-// 			});
-// 		}
+		return objectToResponse(res, await createProjectHours(hours_result[0].id, req.body));
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({ success: false, error: "mysql" });
+	}
+});
 
-// 		// Generate id
-// 		const id = await dbGenerateUniqueId("hours", "id");
-
-// 		// Insert hours into db
-// 		await db.query(
-// 			`INSERT INTO
-// 					hours (id, user_id, business_id, year, week)
-// 					VALUES ('${id}', '${userId}','${businessId}','${year}','${week}')`
-// 		);
-
-// 		const [results] = await db.query(`SELECT * FROM hours WHERE id = '${id}'`);
-// 		if (results.length < 1) {
-// 			// Return status 500 (internal server error) internal
-// 			return res.status(500).send({
-// 				success: false,
-// 				error: "internal",
-// 			});
-// 		}
-// 		return res.send({
-// 			success: true,
-// 			data: results[0],
-// 		});
-// 	} catch (error) {
-// 		// Mysql error
-// 		console.log(error);
-// 		// Return status 500 (internal server error) mysql
-// 		return res.status(500).send({
-// 			success: false,
-// 			error: "mysql",
-// 		});
-// 	}
-// });
+// TODO: patch, delete
 
 module.exports = hours;
