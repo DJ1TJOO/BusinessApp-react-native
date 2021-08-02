@@ -63,6 +63,20 @@ business.post("/", async (req, res) => {
 			});
 		}
 
+		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE name = ?`, [name]);
+
+		// Busines name taken
+		if (business_result[0]["count(*)"] > 0) {
+			// Return status 409 (conflict) taken
+			return res.status(409).send({
+				success: false,
+				error: "taken",
+				data: {
+					field: "name",
+				},
+			});
+		}
+
 		// Name too long
 		if (name.length > 255) {
 			// Return status 422 (unprocessable entity) too long
@@ -306,6 +320,20 @@ business.patch("/:id", async (req, res) => {
 		// Check if name is specified
 		let hasName = false;
 		if (name) {
+			const [business_result] = await db.query(`SELECT count(*) FROM business WHERE name = ?`, [name]);
+
+			// Busines name taken
+			if (business_result[0]["count(*)"] > 0) {
+				// Return status 409 (conflict) taken
+				return res.status(409).send({
+					success: false,
+					error: "taken",
+					data: {
+						field: "name",
+					},
+				});
+			}
+
 			// Name too long
 			if (name.length > 255) {
 				// Return status 422 (unprocessable entity) too long
