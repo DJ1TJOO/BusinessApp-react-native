@@ -749,8 +749,39 @@ hours.delete("/:userId/:year/:week", async (req, res) => {
 });
 
 // Delete projectHours
-hours.delete("/:projectHoursId", async (req, res) => {});
+hours.delete("/:projectHoursId", async (req, res) => {
+	const id = req.params.projectHoursId;
+	try {
+		const [get_results] = await db.query(`SELECT * FROM project_hours WHERE id = ?`, [id]);
+		if (get_results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "project_hours_not_found",
+			});
+		}
 
-// TODO: delete
+		const [delete_results] = await db.query(`DELETE FROM project_hours WHERE id = ?`, [id]);
+
+		if (delete_results.affectedRows < 1) {
+			return res.send({
+				success: false,
+				error: "failed_to_delete",
+			});
+		}
+
+		return res.send({
+			success: true,
+			data: get_results[0],
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
 
 module.exports = hours;
