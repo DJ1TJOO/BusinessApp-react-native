@@ -125,14 +125,25 @@ business.post("/", async (req, res) => {
 
 		// Validate Image
 		// Check size
-		if (imageInfo.size.width > 100 || imageInfo.size.height > 100) {
+		if (imageInfo.size.width !== imageInfo.size.height) {
+			deleteImage("business_logos", imageInfo.id);
+			return res.status(422).send({
+				success: false,
+				error: "image_not_rect",
+				data: {
+					field: "image",
+				},
+			});
+		}
+
+		if (imageInfo.size.width > 300 || imageInfo.size.height > 300) {
 			deleteImage("business_logos", imageInfo.id);
 			return res.status(422).send({
 				success: false,
 				error: "image_too_big",
 				data: {
 					field: "image",
-					maxSize: 100,
+					maxSize: 300,
 				},
 			});
 		}
@@ -351,14 +362,25 @@ business.patch("/:id", async (req, res) => {
 
 			// Validate Image
 			// Check size
-			if (imageInfo.size.width > 100 || imageInfo.size.height > 100) {
+			if (imageInfo.size.width !== imageInfo.size.height) {
+				deleteImage("business_logos", imageInfo.id);
+				return res.status(422).send({
+					success: false,
+					error: "image_not_rect",
+					data: {
+						field: "image",
+					},
+				});
+			}
+
+			if (imageInfo.size.width > 300 || imageInfo.size.height > 300) {
 				deleteImage("business_logos", imageInfo.id);
 				return res.status(422).send({
 					success: false,
 					error: "image_too_big",
 					data: {
 						field: "image",
-						maxSize: 100,
+						maxSize: 300,
 					},
 				});
 			}
