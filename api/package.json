@@ -7,7 +7,8 @@
 	"private": true,
 	"scripts": {
 		"start": "node server",
-		"dev": "nodemon server"
+		"dev": "nodemon server",
+		"secret": "node generateSecret 500"
 	},
 	"dependencies": {
 		"bcrypt": "^5.0.1",
@@ -15,6 +16,7 @@
 		"express": "^4.17.1",
 		"googleapis": "^81.0.0",
 		"image-size": "^1.0.0",
+		"jsonwebtoken": "^8.5.1",
 		"mysql2": "^2.2.5",
 		"nodemailer": "^6.6.3",
 		"uuid": "^8.3.2"

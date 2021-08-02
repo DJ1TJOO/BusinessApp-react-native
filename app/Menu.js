@@ -1,5 +1,5 @@
 import { DrawerContentScrollView } from "@react-navigation/drawer";
-import React from "react";
+import React, { useContext } from "react";
 import { StyleSheet, Text, useWindowDimensions, View, Image, TouchableOpacity } from "react-native";
 
 import { IconArrowBack } from "./components/Icons";
@@ -8,7 +8,10 @@ import MenuCard from "./components/menu/MenuCard";
 import Colors from "./config/Colors";
 import FontSizes from "./config/FontSizes";
 
+import dataContext from "../contexts/dataContext";
+
 const Menu = ({ navigation }) => {
+	const [data, setData] = useContext(dataContext);
 	return (
 		<DrawerContentScrollView style={[styles.container, { width: useWindowDimensions().width }]}>
 			<TouchableOpacity
@@ -81,6 +84,7 @@ const Menu = ({ navigation }) => {
 				style={{ backgroundColor: Colors.red }}
 				color={Colors.white}
 				onPress={() => {
+					setData({ ...data, token: null, user: null });
 					navigation.navigate("Login");
 				}}
 			/>

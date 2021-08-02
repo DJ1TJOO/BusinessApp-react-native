@@ -1,11 +1,9 @@
 const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId } = require("./helpers/utils");
 const { saveImage, deleteImage } = require("./helpers/images");
+const { authBusinessOwner } = require("./helpers/auth");
 
 const business = require("express").Router();
-
-// TODO: authorization
-// TODO: test all
 
 business.get("/names", async (req, res) => {
 	try {
@@ -269,7 +267,7 @@ business.post("/", async (req, res) => {
 	}
 });
 
-business.patch("/:id", async (req, res) => {
+business.patch("/:id", authBusinessOwner, async (req, res) => {
 	const { id } = req.params;
 	const { name, image, owner, ownerCode } = req.body;
 	try {
@@ -504,7 +502,7 @@ business.patch("/:id", async (req, res) => {
 	}
 });
 
-business.delete("/:id", async (req, res) => {
+business.delete("/:id", authBusinessOwner, async (req, res) => {
 	const id = req.params.id;
 	try {
 		const [get_results] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);

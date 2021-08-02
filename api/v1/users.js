@@ -327,7 +327,7 @@ users.post("/", async (req, res) => {
 					users (id, business_id, ${hasRight ? "right_id," : ""} first_name, last_name,
 						email, pwd, born${hasFunctionDescription ? ", function_descr" : ""})
 					VALUES ('${escape(id)}', '${escape(businessId)}',${hasRight ? `'${escape(rightId)}',` : ""}'${escape(firstName)}','${escape(lastName)}',
-						'${escape(email)}', '${escape(pwd)}', '${escape(bornDate.toISOString())}'${hasFunctionDescription ? `,'${escape(functionDescription)}'` : ""})`
+						'${escape(email)}', '${pwd}', '${escape(bornDate.toISOString())}'${hasFunctionDescription ? `,'${escape(functionDescription)}'` : ""})`
 		);
 
 		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
@@ -956,7 +956,7 @@ users.patch("/:id", async (req, res) => {
 		if (hasEmail) update.push({ name: "email", value: escape(email) });
 		if (hasBorn) update.push({ name: "born", value: escape(born) });
 		if (hasFunctionDescription) update.push({ name: "function_descr", value: escape(functionDescription) });
-		if (hasPassword) update.push({ name: "pwd", value: escape(pwd) });
+		if (hasPassword) update.push({ name: "pwd", value: pwd });
 
 		// Update user
 		await db.query(

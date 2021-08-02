@@ -1,6 +1,8 @@
 const convertError = (language, res, body, type, fields) => {
 	let errorMessage = language.errors[res.error];
-	errorMessage = errorMessage.replace("<type>", type);
+	if (type) {
+		errorMessage = errorMessage.replace("<type>", type);
+	}
 	if (res.data) {
 		errorMessage = errorMessage.replace("<field>", fields[res.data.field] || res.data.field);
 		errorMessage = errorMessage.replace("<value>", body[res.data.field]);

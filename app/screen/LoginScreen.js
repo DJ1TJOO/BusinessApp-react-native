@@ -11,6 +11,8 @@ import dataContext from "../contexts/dataContext";
 
 import config from "../config/config";
 
+import languagesUtils from "../languages/utils";
+
 const defaultFormData = [
 	["business_name", "email", "password"],
 	[],
@@ -37,6 +39,13 @@ const defaultFormData = [
 					return "Het email address is incorrect";
 
 				if (text.length > 255) return "Het email address mag niet langer zijn dan 255 karakters";
+				return true;
+			},
+		},
+		{
+			key: "password",
+			validator: (formData, data, text) => {
+				if (!text) return "Het wachtwoord mag niet leeg zijn";
 				return true;
 			},
 		},
@@ -80,17 +89,45 @@ const LoginScreen = ({ navigation }) => {
 					{...getFormProps("password")}
 				/>
 				<FormButton
-					onPress={() => {
-						//TODO: check login
+					onPress={async () => {
 						const valid = validate();
 						if (valid !== true) {
 							setCurrentError(valid.error);
 							return;
 						}
-						setCurrentError(null);
-						//Het email address of wachtwoord is incorrect
-						// setIsInvalidUser(true);
-						// navigation.navigate("Account");
+
+						try {
+							const res = await fetch(config.api + "login", {
+								method: "POST",
+								headers: {
+									Accept: "application/json",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									business: formData.business_name.value,
+									email: formData.email.value,
+									password: formData.password.value,
+								}),
+							}).then((res) => res.json());
+							if (res.success) {
+								setData({
+									...data,
+									token: res.data.token,
+									user: res.data.user,
+								});
+								navigation.navigate("Account");
+							} else {
+								if (res.error === "business_not_found") {
+									// Display error
+									setCurrentError(languagesUtils.convertError(data.language, res));
+								} else {
+									setCurrentError("Het email address of wachtwoord is incorrect");
+									setIsInvalidUser(true);
+								}
+							}
+						} catch (error) {
+							throw error;
+						}
 					}}
 				>
 					Login
