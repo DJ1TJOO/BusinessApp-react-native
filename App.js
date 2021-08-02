@@ -17,14 +17,14 @@ import ChangePasswordScreen from "./app/screen/passwords/ChangePasswordScreen";
 
 import Account from "./app/Account";
 
+import dataContext from "./app/contexts/dataContext";
+
 const prefix = Linking.makeUrl("/");
 
 const Stack = createStackNavigator();
 
 export default function App() {
 	const [data, setData] = useState(null);
-
-	console.log(prefix);
 
 	const linking = {
 		prefixes: [prefix],
@@ -89,23 +89,25 @@ export default function App() {
 		return <AppLoading />;
 	} else {
 		return (
-			<NavigationContainer linking={linking}>
-				<Stack.Navigator mode="modal" headerMode="none">
-					<Stack.Screen name="Welcome" component={WelcomeScreen} />
-					<Stack.Screen name="Login" component={LoginScreen} />
-					<Stack.Screen name="Register" component={RegisterScreen} />
-					<Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-					<Stack.Screen name="VerifyCode" component={VerifyCodeScreen} options={{ animationEnabled: false }} />
-					<Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ animationEnabled: false }} />
-					<Stack.Screen
-						name="Account"
-						component={Account}
-						options={{
-							gestureEnabled: false,
-						}}
-					/>
-				</Stack.Navigator>
-			</NavigationContainer>
+			<dataContext.Provider value={{}}>
+				<NavigationContainer linking={linking}>
+					<Stack.Navigator mode="modal" headerMode="none">
+						<Stack.Screen name="Welcome" component={WelcomeScreen} />
+						<Stack.Screen name="Login" component={LoginScreen} />
+						<Stack.Screen name="Register" component={RegisterScreen} />
+						<Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+						<Stack.Screen name="VerifyCode" component={VerifyCodeScreen} options={{ animationEnabled: false }} />
+						<Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ animationEnabled: false }} />
+						<Stack.Screen
+							name="Account"
+							component={Account}
+							options={{
+								gestureEnabled: false,
+							}}
+						/>
+					</Stack.Navigator>
+				</NavigationContainer>
+			</dataContext.Provider>
 		);
 	}
 }
