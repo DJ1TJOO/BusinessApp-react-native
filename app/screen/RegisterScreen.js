@@ -14,7 +14,10 @@ import Colors from "../config/Colors";
 import useFormData from "../hooks/useFormData";
 
 import dataContext from "../contexts/dataContext";
+
 import config from "../config/config";
+
+import languagesUtils from "../languages/utils";
 
 const defaultFormData = [
 	["business_name", "account_firstname", "account_lastname", "account_born", "account_email", "account_password", "account_confirm_password", "account_function", "image"],
@@ -127,7 +130,7 @@ const RegisterScreen = ({ navigation }) => {
 	const [currentError, setCurrentError] = useState(null);
 	const [isLogoSet, setIsLogoSet] = useState(false);
 
-	const data = useContext(dataContext);
+	const [data, setData] = useContext(dataContext);
 
 	const pickImage = async () => {
 		setIsLogoSet(true);
@@ -270,20 +273,89 @@ const RegisterScreen = ({ navigation }) => {
 							return;
 						}
 						try {
+							const body = {
+								name: formData.business_name.value,
+								image: "data:image/png;base64," + formData.image.value.base64,
+							};
 							const res = await fetch(config.api + "business/", {
 								method: "POST",
 								headers: {
 									Accept: "application/json",
 									"Content-Type": "application/json",
 								},
-								body: JSON.stringify({
-									name: formData.business_name.value,
-									image: "data:image/png;base64," + formData.image.value.base64,
-								}),
+								body: JSON.stringify(body),
 							}).then((res) => res.json());
-							console.log(res);
+							// Business created
+							if (res.success) {
+								setCurrentError(null);
+
+								// Create user
+								const bodyUser = {
+									businessId: res.data.business.id,
+									firstName: formData.account_firstname.value,
+									lastName: formData.account_lastname.value,
+									email: formData.account_email.value,
+									password: formData.account_password.value,
+									born: formData.account_born.value,
+									sendCreateCode: false,
+								};
+
+								if (formData.account_function.value) bodyUser.functionDescription = formData.account_function.value;
+
+								const resUser = await fetch(config.api + "users/", {
+									method: "POST",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(bodyUser),
+								}).then((res) => res.json());
+								if (resUser.success) {
+									// Make user owner of business
+									const bodyBusiness = { ownerCode: res.data.ownerCode, owner: resUser.data.id };
+									const resBusiness = await fetch(config.api + "business/" + res.data.business.id, {
+										method: "PATCH",
+										headers: {
+											Accept: "application/json",
+											"Content-Type": "application/json",
+										},
+										body: JSON.stringify(bodyBusiness),
+									}).then((res) => res.json());
+									if (resBusiness.success) {
+										navigation.navigate("Login");
+									} else {
+										// Display error
+										setCurrentError(
+											languagesUtils.convertError(data.language, resBusiness, bodyBusiness, "gebruiker", {
+												ownerCode: "hoofdaccount code",
+												owner: "hoofdaccount",
+											})
+										);
+									}
+								} else {
+									// Display error
+									setCurrentError(
+										languagesUtils.convertError(data.language, resUser, bodyUser, "gebruiker", {
+											firstName: "de voornaam",
+											lastName: "de achternaam",
+											email: "de email",
+											password: "het wachtwoord",
+											born: "de geboorte datum",
+											functionDescription: "de functie omschrijving",
+										})
+									);
+								}
+							} else {
+								// Display error
+								setCurrentError(
+									languagesUtils.convertError(data.language, res, body, "bedrijf", {
+										name: "de bedrijfsnaam",
+										image: "de afbeelding",
+									})
+								);
+							}
 						} catch (error) {
-							console.log(error);
+							throw error;
 						}
 					}}
 				>
