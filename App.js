@@ -19,12 +19,17 @@ import Account from "./app/Account";
 
 import dataContext from "./app/contexts/dataContext";
 
+import dutch from "./app/languages/dutch";
+
 const prefix = Linking.makeUrl("/");
 
 const Stack = createStackNavigator();
 
 export default function App() {
-	const [data, setData] = useState(null);
+	const [data, setData] = useState({
+		language: dutch,
+	});
+	const [linkData, setLinkData] = useState(null);
 
 	const linking = {
 		prefixes: [prefix],
@@ -54,17 +59,17 @@ export default function App() {
 	};
 
 	const handleDeepLink = (e) => {
-		setData(Linking.parse(e.url));
+		setLinkData(Linking.parse(e.url));
 	};
 
 	useEffect(() => {
 		const getInitialURL = async () => {
 			const initialUrl = await Linking.getInitialURL();
-			if (initialUrl) setData(Linking.parse(initialUrl));
+			if (initialUrl) setLinkData(Linking.parse(initialUrl));
 		};
 
 		Linking.addEventListener("url", handleDeepLink);
-		if (!data) {
+		if (!linkData) {
 			getInitialURL();
 		}
 
@@ -89,7 +94,7 @@ export default function App() {
 		return <AppLoading />;
 	} else {
 		return (
-			<dataContext.Provider value={{}}>
+			<dataContext.Provider value={[data, setData]}>
 				<NavigationContainer linking={linking}>
 					<Stack.Navigator mode="modal" headerMode="none">
 						<Stack.Screen name="Welcome" component={WelcomeScreen} />
