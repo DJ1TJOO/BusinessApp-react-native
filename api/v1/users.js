@@ -100,7 +100,10 @@ users.post("/", async (req, res) => {
 			// Return status 409 (conflict) already exists
 			return res.status(409).send({
 				success: false,
-				error: "user_exists",
+				error: "taken",
+				data: {
+					field: "email",
+				},
 			});
 		}
 
@@ -612,6 +615,9 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 		return res.status(498).send({
 			success: false,
 			error: "expired",
+			data: {
+				field: "code",
+			},
 		});
 	}
 
@@ -780,7 +786,10 @@ users.patch("/:id", async (req, res) => {
 				// Return status 409 (conflict) already exists
 				return res.status(409).send({
 					success: false,
-					error: "user_exists",
+					error: "taken",
+					data: {
+						field: "email",
+					},
 				});
 			}
 

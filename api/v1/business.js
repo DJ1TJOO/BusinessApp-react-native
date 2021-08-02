@@ -291,6 +291,9 @@ business.patch("/:id", async (req, res) => {
 				return res.status(498).send({
 					success: false,
 					error: "expired",
+					data: {
+						field: "ownerCode",
+					},
 				});
 			}
 
@@ -442,18 +445,20 @@ business.patch("/:id", async (req, res) => {
 		}
 
 		const update = [];
-		if (hasOwnerId) update.push({ name: "owner_id", value: escape(owner) });
-		if (hasName) update.push({ name: "name", value: escape(name) });
-		if (hasImage) update.push({ name: "logo", value: escape(imageInfo.id) });
+		if (hasOwnerId) update.push({ name: "owner_id", value: owner });
+		if (hasName) update.push({ name: "name", value: name });
+		if (hasImage) update.push({ name: "logo", value: imageInfo.id });
 
 		// Update business
 		await db.query(
 			`UPDATE 
 					business
-					SET ${update.map((x) => `${x.name} = '${x.value}'`).join(",")}
+					SET ${update.map((x) => `${x.name} = ${escape(x.value)}`).join(",")}
 					WHERE id = ?`,
 			[id]
 		);
+
+		if (hasImage) deleteImage("business_logos", getResults[0].logo);
 
 		const [results] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
 		if (results.length < 1) {
@@ -466,10 +471,7 @@ business.patch("/:id", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: {
-				ownerCode: code,
-				business: results[0],
-			},
+			data: results[0],
 		});
 	} catch (error) {
 		// Mysql error
