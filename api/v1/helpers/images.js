@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const sizeOf = require("image-size");
+const { fileGenerateUniqueId } = require("./utils");
 
 const images = require("express").Router();
 
