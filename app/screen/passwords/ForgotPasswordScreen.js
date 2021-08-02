@@ -61,7 +61,7 @@ const ForgotPasswordScreen = ({ navigation, route }) => {
 	}, [route.params]);
 
 	const [currentErrorLabel, setCurrentErrorLabel] = useState(null);
-	const [formData, setFormValue, getFormProps, validate] = useFormData(...defaultFormData);
+	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 
 	return (
 		<Wrapper showHeader={true}>

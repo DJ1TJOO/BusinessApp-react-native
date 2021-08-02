@@ -19,6 +19,7 @@ import dataContext from "../contexts/dataContext";
  * 	validator: (value) => String|Boolean | null
  * }},
  * (key) => (value, valid) => void,
+ * (keys, values, valids) => void,
  * (key) => {
  * 	onChange: (value, valid) => void,
  * 	validator?: (value) => String|Boolean
@@ -62,6 +63,25 @@ const useFormData = (keys, values, validators) => {
 		};
 	};
 
+	const setFormValues = (keys, values, valids = []) => {
+		const toUpdate = {};
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+			const validator = formData[key].validator;
+			if (typeof valids[i] === "undefined" || valids[i] === null) {
+				if (validator) valids[i] = validator(formData, data, values[i]) === true ? true : false;
+				else valids[i] = null;
+			}
+			toUpdate[key] = {
+				value: values[i],
+				valid: valids[i],
+				validator: validator,
+			};
+		}
+
+		setFormData({ ...formData, ...toUpdate });
+	};
+
 	const getFormProps = (key) => {
 		const props = { onChange: setFormValue(key) };
 
@@ -69,7 +89,7 @@ const useFormData = (keys, values, validators) => {
 			props.validator = formData[key].validator.bind(undefined, formData, data);
 		}
 
-		if (formData[key].value) {
+		if (formData[key].value !== undefined) {
 			props.value = formData[key].value;
 		}
 
@@ -101,7 +121,7 @@ const useFormData = (keys, values, validators) => {
 		return true;
 	};
 
-	return [formData, setFormValue, getFormProps, validate, setFormData];
+	return [formData, setFormValue, setFormValues, getFormProps, validate, setFormData];
 };
 
 export default useFormData;

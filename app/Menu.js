@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
 import React, { useContext } from "react";
 import { StyleSheet, Text, useWindowDimensions, View, Image, TouchableOpacity } from "react-native";
@@ -8,7 +9,7 @@ import MenuCard from "./components/menu/MenuCard";
 import Colors from "./config/Colors";
 import FontSizes from "./config/FontSizes";
 
-import dataContext from "../contexts/dataContext";
+import dataContext from "./contexts/dataContext";
 
 const Menu = ({ navigation }) => {
 	const [data, setData] = useContext(dataContext);
@@ -83,8 +84,10 @@ const Menu = ({ navigation }) => {
 				title="Logout"
 				style={{ backgroundColor: Colors.red }}
 				color={Colors.white}
-				onPress={() => {
+				onPress={async () => {
 					setData({ ...data, token: null, user: null });
+					// Token invalid reset storage
+					await AsyncStorage.removeItem("token");
 					navigation.navigate("Login");
 				}}
 			/>

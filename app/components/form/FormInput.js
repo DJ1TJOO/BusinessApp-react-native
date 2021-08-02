@@ -35,6 +35,10 @@ const FormInput = ({
 		setCurrentErrorLabel(errorLabel);
 	}, [errorLabel]);
 
+	useEffect(() => {
+		if (currentValue !== value) checkValue(value);
+	}, [value]);
+
 	const checkValue = (text) => {
 		setCurrentValue(text);
 		const valid = validate(true, text);

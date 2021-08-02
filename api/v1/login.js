@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const authToken = require("./helpers/auth");
 
 const { promisePool: db } = require("./helpers/db");
 
@@ -52,6 +53,12 @@ login.post("/", async (req, res) => {
 			error: "mysql",
 		});
 	}
+});
+
+login.post("/validate", authToken, async (req, res) => {
+	res.json({
+		success: true,
+	});
 });
 
 module.exports = login;

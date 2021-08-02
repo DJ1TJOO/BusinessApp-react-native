@@ -126,7 +126,7 @@ const defaultFormData = [
 
 const RegisterScreen = ({ navigation }) => {
 	const [formLayout, setFormLayout] = useState(null);
-	const [formData, setFormValue, getFormProps, validate] = useFormData(...defaultFormData);
+	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 	const [currentError, setCurrentError] = useState(null);
 	const [isLogoSet, setIsLogoSet] = useState(false);
 

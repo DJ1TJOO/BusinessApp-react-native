@@ -12,6 +12,7 @@ import dataContext from "../contexts/dataContext";
 import config from "../config/config";
 
 import languagesUtils from "../languages/utils";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const defaultFormData = [
 	["business_name", "email", "password"],
@@ -23,7 +24,8 @@ const defaultFormData = [
 				if (!text) return "De bedrijfsnaam mag niet leeg zijn";
 				if (text.length < 6) return "De bedrijfsnaam mag niet korter zijn dan 5 karakters";
 				if (text.length > 255) return "De bedrijfsnaam mag niet langer zijn dan 255 karakters";
-				if (data.login.businessNames.length > 0 && !data.login.businessNames.includes(text)) return `Het bedrijf '${text}' kan niet gevonden worden`;
+				if (data.login && data.login.businessNames && data.login.businessNames.length > 0 && !data.login.businessNames.includes(text))
+					return `Het bedrijf '${text}' kan niet gevonden worden`;
 				return true;
 			},
 		},
@@ -53,14 +55,14 @@ const defaultFormData = [
 ];
 
 const LoginScreen = ({ navigation }) => {
-	const [isInvalidUser, setIsInvalidUser] = useState(false);
 	const [currentError, setCurrentError] = useState(null);
 
-	const [formData, setFormValue, getFormProps, validate] = useFormData(...defaultFormData);
+	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 
 	const [data, setData] = useContext(dataContext);
 
 	useEffect(() => {
+		// Get business names
 		if (!data.login) data.login = {};
 		if (!data.login.businessNames || data.login.businessNames.length < 1) {
 			(async () => {
@@ -74,6 +76,50 @@ const LoginScreen = ({ navigation }) => {
 			})();
 		}
 		setData({ ...data });
+
+		// Get token and user from storage
+		(async () => {
+			try {
+				const token = await AsyncStorage.getItem("token");
+				const user = JSON.parse(await AsyncStorage.getItem("user"));
+
+				// If user is present
+				if (user) {
+					// Set default business and email
+					setFormValues(["business_name", "email"], [user.business, user.email]);
+				}
+
+				// Token and user present
+				if (token && user) {
+					const res = await fetch(config.api + "login/validate", {
+						method: "POST",
+						headers: {
+							Accept: "application/json",
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							token,
+						}),
+					}).then((res) => res.json());
+
+					// Token valid, login
+					if (res.success) {
+						setData({
+							...data,
+							token,
+							user,
+						});
+
+						navigation.navigate("Account");
+					} else {
+						// Token invalid reset storage
+						await AsyncStorage.removeItem("token");
+					}
+				}
+			} catch (error) {
+				throw error;
+			}
+		})();
 	}, []);
 
 	return (
@@ -115,6 +161,17 @@ const LoginScreen = ({ navigation }) => {
 									token: res.data.token,
 									user: res.data.user,
 								});
+
+								await AsyncStorage.setItem("token", res.data.token);
+								await AsyncStorage.setItem(
+									"user",
+									JSON.stringify({
+										...res.data.user,
+										business: formData.business_name.value,
+										email: formData.email.value,
+									})
+								);
+
 								navigation.navigate("Account");
 							} else {
 								if (res.error === "business_not_found") {
@@ -122,7 +179,6 @@ const LoginScreen = ({ navigation }) => {
 									setCurrentError(languagesUtils.convertError(data.language, res));
 								} else {
 									setCurrentError("Het email address of wachtwoord is incorrect");
-									setIsInvalidUser(true);
 								}
 							}
 						} catch (error) {
