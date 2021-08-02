@@ -678,6 +678,79 @@ hours.patch("/:projectHoursId", async (req, res) => {
 	}
 });
 
+// Delete whole week
+hours.delete("/:id", async (req, res) => {
+	const id = req.params.id;
+	try {
+		const [get_results] = await db.query(`SELECT * FROM hours WHERE id = ?`, [id]);
+		if (get_results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "hours_not_found",
+			});
+		}
+
+		const [delete_results] = await db.query(`DELETE FROM hours WHERE id = ?`, [id]);
+
+		if (delete_results.affectedRows < 1) {
+			return res.send({
+				success: false,
+				error: "failed_to_delete",
+			});
+		}
+
+		return res.send({
+			success: true,
+			data: get_results[0],
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+hours.delete("/:userId/:year/:week", async (req, res) => {
+	const { userId, week, year } = req.params;
+	try {
+		const [get_results] = await db.query(`SELECT * FROM hours WHERE userId = ? AND week = ? AND year = ?`, [userId, week, year]);
+		if (get_results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "hours_not_found",
+			});
+		}
+
+		const [delete_results] = await db.query(`DELETE FROM hours WHERE id = ?`, [get_results[0].id]);
+
+		if (delete_results.affectedRows < 1) {
+			return res.send({
+				success: false,
+				error: "failed_to_delete",
+			});
+		}
+
+		return res.send({
+			success: true,
+			data: get_results[0],
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
+// Delete projectHours
+hours.delete("/:projectHoursId", async (req, res) => {});
+
 // TODO: delete
 
 module.exports = hours;
