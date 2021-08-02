@@ -10,15 +10,20 @@ import { useState } from "react";
  * 	key: String,
  * 	validator: (formData, value) => String|Boolean
  * }>} validators
- * @returns {[{[key]:{
+ * @returns {[
+ * {[key]:{
  * 	value: any,
  * 	valid: boolean | null
  * 	validator: (value) => String|Boolean | null
- * }}, (key) => (value, valid) => void, (key) => {
+ * }},
+ * (key) => (value, valid) => void,
+ * (key) => {
  * 	onChange: (value, valid) => void,
  * 	validator?: (value) => String|Boolean
  * 	value?: any
- * }]}
+ * },
+ * () => Boolean | {key: String, error: String},
+ * React.Dispatch<React.SetStateAction<{}>>]}
  */
 const useFormData = (keys, values, validators) => {
 	const defaultData = keys.reduce(
@@ -72,11 +77,20 @@ const useFormData = (keys, values, validators) => {
 		for (const key in formData) {
 			const set = formData[key];
 
-			if (!set.valid) {
+			if (set.validator) {
 				const error = set.validator(formData, set.value);
+				if (error !== true) {
+					return {
+						key,
+						error,
+					};
+				} else if (!set.valid) {
+					set.valid = true;
+				}
+			} else if (!set.valid) {
 				return {
 					key,
-					error,
+					error: "empty",
 				};
 			}
 		}

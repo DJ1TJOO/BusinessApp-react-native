@@ -1,5 +1,6 @@
-import React, { useRef } from "react";
-import { StyleSheet, ScrollView, Animated, StatusBar, View, Platform } from "react-native";
+import React, { useRef, useState } from "react";
+import { StyleSheet, Animated, StatusBar, View, Platform } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import SafeView from "./SafeView";
 import Header from "./Header";
@@ -17,10 +18,12 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled }) => 
 		<SafeView>
 			{showHeader && <Header navigation={navigation} scrollView={scrollView} animatedValue={offset} />}
 			<wrapperScrollViewContext.Provider value={scrollView}>
-				<ScrollView
+				<KeyboardAwareScrollView
 					nestedScrollEnabled={true}
 					scrollEnabled={scrollEnabled}
-					ref={scrollView}
+					innerRef={(ref) => {
+						scrollView.current = ref;
+					}}
 					showsVerticalScrollIndicator={false}
 					onScroll={(e) => {
 						Animated.event(
@@ -50,7 +53,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled }) => 
 				>
 					{children}
 					<View style={{ height: 50, width: "100%", backgroundColor: Colors.white }} />
-				</ScrollView>
+				</KeyboardAwareScrollView>
 			</wrapperScrollViewContext.Provider>
 		</SafeView>
 	);
