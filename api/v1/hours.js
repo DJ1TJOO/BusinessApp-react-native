@@ -13,7 +13,7 @@ const getHours = async (params) => {
 		const [results] = await db.query(
 			`SELECT * FROM hours WHERE ${params
 				.keys()
-				.map((x) => `${x} = '${escape(params[x])}'`)
+				.map((x) => `${x} = ${escape(params[x])}`)
 				.join(" AND ")}`
 		);
 		if (results.length < 1) {
@@ -460,9 +460,9 @@ const createProjectHours = async (hoursId, body) => {
 		await db.query(
 			`INSERT INTO 
 					project_hours (id, hours_id, project, ${hasProjectId ? "project_id," : ""} ${hasDescription ? "description," : ""} monday, tueseday, wednesday, thursday, friday, saturday, sunday)
-					VALUES ('${escape(id)}', '${escape(hoursId)}','${escape(project)}', ${hasProjectId ? `'${escape(projectId)}',` : ""} ${hasDescription ? `'${escape(description)}',` : ""} '${escape(
+					VALUES (${escape(id)}, ${escape(hoursId)},${escape(project)}, ${hasProjectId ? `${escape(projectId)},` : ""} ${hasDescription ? `${escape(description)},` : ""} '${escape(
 				monday
-			)}', '${escape(tueseday)}', '${escape(wednesday)}', '${escape(thursday)}', '${escape(friday)}', '${escape(saturday)}', '${escape(sunday)}')`
+			)}', ${escape(tueseday)}, ${escape(wednesday)}, ${escape(thursday)}, ${escape(friday)}, ${escape(saturday)}, ${escape(sunday)})`
 		);
 
 		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = ?`, [id]);
