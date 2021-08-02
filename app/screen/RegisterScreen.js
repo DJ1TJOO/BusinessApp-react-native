@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Alert, Image, Linking, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
@@ -12,6 +12,9 @@ import FormDate from "../components/form/FormDate";
 import Colors from "../config/Colors";
 
 import useFormData from "../hooks/useFormData";
+
+import dataContext from "../contexts/dataContext";
+import config from "../config/config";
 
 const defaultFormData = [
 	["business_name", "account_firstname", "account_lastname", "account_born", "account_email", "account_password", "account_confirm_password", "account_function", "image"],
@@ -98,7 +101,20 @@ const defaultFormData = [
 		{
 			key: "account_function",
 			validator: (formData, text) => {
+				if (!text) return true;
+
 				if (text.length > 255) return "De functie omschrijving mag niet langer zijn dan 255 karakters";
+				return true;
+			},
+		},
+		{
+			key: "image",
+			validator: (formData, image) => {
+				if (!image) return "Selecteer een bedrijfs logo";
+				if (image.size.width !== image.size.height) return "Het bedrijfs logo moet vierkant zijn";
+				if (image.size.width > 300 || image.size.height > 300) return "Het bedrijfs logo is te groot, maximaal 300 pixels";
+				if (image.size.width < 50 || image.size.height < 50) return "Het bedrijfs logo is te klein, minimaal 50 pixels";
+
 				return true;
 			},
 		},
@@ -110,6 +126,8 @@ const RegisterScreen = ({ navigation }) => {
 	const [formData, setFormValue, getFormProps, validate] = useFormData(...defaultFormData);
 	const [currentError, setCurrentError] = useState(null);
 	const [isLogoSet, setIsLogoSet] = useState(false);
+
+	const data = useContext(dataContext);
 
 	const pickImage = async () => {
 		setIsLogoSet(true);
@@ -161,6 +179,9 @@ const RegisterScreen = ({ navigation }) => {
 			allowsEditing: true,
 			aspect: [1, 1],
 			quality: 1,
+			maxWidth: 100,
+			maxHeight: 100,
+			base64: true,
 		});
 
 		if (!result.cancelled) {
@@ -171,7 +192,7 @@ const RegisterScreen = ({ navigation }) => {
 					(error) => reject(error)
 				);
 			});
-			setFormValue("image")({ uri: result.uri, size: size }, true);
+			setFormValue("image")({ uri: result.uri, size: size, base64: result.base64 }, true);
 		} else {
 			setFormValue("image")(null, false);
 		}
@@ -241,15 +262,29 @@ const RegisterScreen = ({ navigation }) => {
 				</FormButton>
 
 				<FormButton
-					onPress={() => {
+					onPress={async () => {
 						//TODO: Registeren
 						const valid = validate();
 						if (valid !== true) {
 							setCurrentError(valid.error);
 							return;
 						}
-
-						console.log("image check");
+						try {
+							const res = await fetch(config.api + "business/", {
+								method: "POST",
+								headers: {
+									Accept: "application/json",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									name: formData.business_name.value,
+									image: "data:image/png;base64," + formData.image.value.base64,
+								}),
+							}).then((res) => res.json());
+							console.log(res);
+						} catch (error) {
+							console.log(error);
+						}
 					}}
 				>
 					Registeren
