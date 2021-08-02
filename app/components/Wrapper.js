@@ -10,9 +10,10 @@ import interpolate from "color-interpolate";
 import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
 
 const interpolation = interpolate([Colors.white, Colors.primary]);
-const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled }) => {
+const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom }) => {
 	const offset = useRef(new Animated.Value(0)).current;
 	const scrollView = useRef();
+	let hasHitBottom = false;
 
 	return (
 		<SafeView>
@@ -46,6 +47,17 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled }) => 
 							const procent = (Math.min(Math.max(offset._value, 5), 55) - 5) / 50;
 							StatusBar.setBackgroundColor(interpolation(procent));
 						}
+
+						if (hitBottom && typeof hitBottom === "function") {
+							if (e.nativeEvent.layoutMeasurement.height + e.nativeEvent.contentOffset.y >= e.nativeEvent.contentSize.height - 20) {
+								hasHitBottom = true;
+							}
+						}
+					}}
+					onScrollEndDrag={() => {
+						if (!hasHitBottom) return;
+						hasHitBottom = false;
+						hitBottom();
 					}}
 					scrollEventThrottle={1}
 					keyboardDismissMode="interactive"
