@@ -6,6 +6,26 @@ const business = require("express").Router();
 
 // TODO: authorization
 // TODO: test all
+
+business.get("/names", async (req, res) => {
+	try {
+		const [results] = await db.query(`SELECT name FROM business ORDER BY name`);
+
+		return res.send({
+			success: true,
+			data: results.map((x) => x.name),
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
 business.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	try {

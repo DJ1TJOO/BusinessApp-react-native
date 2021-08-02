@@ -30,7 +30,7 @@ const defaultFormData = [
 	[
 		{
 			key: "business_name",
-			validator: (formData, text) => {
+			validator: (formData, data, text) => {
 				if (!text) return "De bedrijfsnaam mag niet leeg zijn";
 				if (text.length < 6) return "De bedrijfsnaam mag niet korter zijn dan 5 karakters";
 				if (text.length > 255) return "De bedrijfsnaam mag niet langer zijn dan 255 karakters";
@@ -39,7 +39,7 @@ const defaultFormData = [
 		},
 		{
 			key: "account_firstname",
-			validator: (formData, text) => {
+			validator: (formData, data, text) => {
 				if (!text) return "De voornaam mag niet leeg zijn";
 				if (text.length < 3) return "De voornaam mag niet korter zijn dan 5 karakters";
 				if (text.length > 255) return "De voornaam mag niet langer zijn dan 255 karakters";
@@ -48,7 +48,7 @@ const defaultFormData = [
 		},
 		{
 			key: "account_lastname",
-			validator: (formData, text) => {
+			validator: (formData, data, text) => {
 				if (!text) return "De achternaam mag niet leeg zijn";
 				if (text.length < 3) return "De achternaam mag niet korter zijn dan 5 karakters";
 				if (text.length > 255) return "De achternaam mag niet langer zijn dan 255 karakters";
@@ -57,7 +57,7 @@ const defaultFormData = [
 		},
 		{
 			key: "account_email",
-			validator: (formData, text) => {
+			validator: (formData, data, text) => {
 				if (!text) return "Het email address mag niet leeg zijn";
 				if (
 					!/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/.test(
@@ -72,7 +72,7 @@ const defaultFormData = [
 		},
 		{
 			key: "account_password",
-			validator: (formData, text) => {
+			validator: (formData, data, text) => {
 				if (!text) return "Het wachtwoord mag niet leeg zijn";
 				if (text.length < 8) return "Het wachtwoord mag niet korter zijn dan 8 karakters";
 				if (text.length > 255) return "Het wachtwoord mag niet langer zijn dan 255 karakters";
@@ -83,7 +83,7 @@ const defaultFormData = [
 		},
 		{
 			key: "account_confirm_password",
-			validator: (formData, text) => {
+			validator: (formData, data, text) => {
 				if (!text) return "Het wachtwoord mag niet leeg zijn";
 				if (text !== formData.account_password.value) return "Het wachtwoord moet het zelfde zijn ";
 				return true;
@@ -91,7 +91,7 @@ const defaultFormData = [
 		},
 		{
 			key: "account_born",
-			validator: (formData, currentDate) => {
+			validator: (formData, data, currentDate) => {
 				if (!currentDate) return "De geboorte datum mag niet leeg zijn";
 				const ageDiffMilliseconds = Date.now() - currentDate.getTime();
 				const ageDate = new Date(ageDiffMilliseconds);
@@ -103,7 +103,7 @@ const defaultFormData = [
 		},
 		{
 			key: "account_function",
-			validator: (formData, text) => {
+			validator: (formData, data, text) => {
 				if (!text) return true;
 
 				if (text.length > 255) return "De functie omschrijving mag niet langer zijn dan 255 karakters";
@@ -112,7 +112,7 @@ const defaultFormData = [
 		},
 		{
 			key: "image",
-			validator: (formData, image) => {
+			validator: (formData, data, image) => {
 				if (!image) return "Selecteer een bedrijfs logo";
 				if (image.size.width !== image.size.height) return "Het bedrijfs logo moet vierkant zijn";
 				if (image.size.width > 300 || image.size.height > 300) return "Het bedrijfs logo is te groot, maximaal 300 pixels";
@@ -266,7 +266,6 @@ const RegisterScreen = ({ navigation }) => {
 
 				<FormButton
 					onPress={async () => {
-						//TODO: Registeren
 						const valid = validate();
 						if (valid !== true) {
 							setCurrentError(valid.error);

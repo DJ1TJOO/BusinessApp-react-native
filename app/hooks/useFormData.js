@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+
+import dataContext from "../contexts/dataContext";
 
 /**
  * @param {Array<String>} keys
@@ -8,7 +10,7 @@ import { useState } from "react";
  * }>} values
  * @param {Array<{
  * 	key: String,
- * 	validator: (formData, value) => String|Boolean
+ * 	validator: (formData, data, value) => String|Boolean
  * }>} validators
  * @returns {[
  * {[key]:{
@@ -39,12 +41,13 @@ const useFormData = (keys, values, validators) => {
 	);
 
 	const [formData, setFormData] = useState(defaultData);
+	const [data] = useContext(dataContext);
 
 	const setFormValue = (key) => {
 		const validator = formData[key].validator;
 		return (value, valid = undefined) => {
 			if (typeof valid === "undefined") {
-				if (validator) valid = validator(formData, value) === true ? true : false;
+				if (validator) valid = validator(formData, data, value) === true ? true : false;
 				else valid = null;
 			}
 
@@ -63,7 +66,7 @@ const useFormData = (keys, values, validators) => {
 		const props = { onChange: setFormValue(key) };
 
 		if (formData[key].validator) {
-			props.validator = formData[key].validator.bind(undefined, formData);
+			props.validator = formData[key].validator.bind(undefined, formData, data);
 		}
 
 		if (formData[key].value) {
@@ -78,7 +81,7 @@ const useFormData = (keys, values, validators) => {
 			const set = formData[key];
 
 			if (set.validator) {
-				const error = set.validator(formData, set.value);
+				const error = set.validator(formData, data, set.value);
 				if (error !== true) {
 					return {
 						key,
