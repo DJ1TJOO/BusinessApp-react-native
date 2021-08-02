@@ -100,6 +100,9 @@ const FormInput = ({
 						setIsFocused(false);
 						onBlur && onBlur(e);
 					}}
+					onEndEditing={(e) => {
+						setCurrentValue(currentValue.trim());
+					}}
 					textContentType={textContentType}
 					onChangeText={(text) => checkValue(text)}
 					value={currentValue}
