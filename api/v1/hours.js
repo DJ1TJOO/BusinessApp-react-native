@@ -63,14 +63,18 @@ const getHours = async (params) => {
  */
 const addProjectHours = async (hours) => {
 	try {
-		const [hoursResults] = await db.query(`SELECT * FROM project_hours WHERE hours_id = ?`, [hours.id]);
+		const [hoursResults] = await db.query(
+			`SELECT project_hours.*, projects.name FROM project_hours INNER JOIN projects ON project_hours.project_id = projects.id WHERE hours_id = ?`,
+			[hours.id]
+		);
 
 		return {
 			success: true,
 			data: {
 				...hours,
 				hours: hoursResults.map((x) => {
-					const { hours_id, ...hours } = x;
+					const { hours_id, name, ...hours } = x;
+					hours.projectName = name;
 					return hours;
 				}),
 			},
