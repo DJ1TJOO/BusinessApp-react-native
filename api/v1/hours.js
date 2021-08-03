@@ -350,7 +350,7 @@ const validateNumber = (field, value, min, max, checkEmpty = true) => {
  * }} params
  */
 const createProjectHours = async (hoursId, body) => {
-	const { project, projectId, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = body;
+	const { project, projectName, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = body;
 	try {
 		// Check monday
 		const mondayValidation = validateNumber("monday", monday, 0, 24);
@@ -441,15 +441,17 @@ const createProjectHours = async (hoursId, body) => {
 		}
 
 		let hasProjectId = false;
-		if (projectId) {
-			const [project_result] = await db.query(`SELECT count(*) FROM projects WHERE id = ?`, [projectId]);
+		let projectId = null;
+		if (projectName) {
+			const [project_result] = await db.query(`SELECT id FROM projects WHERE name = ?`, [projectName]);
 
 			// Project does not exists
-			if (project_result[0]["count(*)"] < 1) {
+			if (project_result.length < 1) {
 				// Return status 404 (not found) project not found
 				return { status: 404, success: false, error: "project_not_found" };
 			}
-			hasProjectId = true;
+			projectId = project_result[0].id;
+			hasProjectName = true;
 		}
 
 		// Generate id
@@ -606,7 +608,7 @@ hours.patch("/:id", async (req, res) => {
 
 hours.patch("/project/:projectHoursId", async (req, res) => {
 	const { projectHoursId } = req.params;
-	const { project, projectId, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
+	const { project, projectName, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
 	try {
 		const [get_results] = await db.query(`SELECT count(*) FROM project_hours WHERE id = ?`, [projectHoursId]);
 		if (get_results[0]["count(*)"] < 1) {
@@ -693,14 +695,17 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 		}
 
 		let hasProjectId = false;
-		if (projectId) {
-			const [project_result] = await db.query(`SELECT count(*) FROM projects WHERE id = ?`, [projectId]);
+		let projectId = null;
+		if (projectName) {
+			const [project_result] = await db.query(`SELECT id FROM projects WHERE name = ?`, [projectName]);
 
 			// Project does not exists
-			if (project_result[0]["count(*)"] < 1) {
+			if (project_result.length < 1) {
 				// Return status 404 (not found) project not found
 				return res.status(404).send({ success: false, error: "project_not_found" });
 			}
+
+			projectId = project_result[0].id;
 			hasProjectId = true;
 		}
 
@@ -715,7 +720,11 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 		if (sundayValidation.success && sundayValidation.data) update.push({ name: "sunday", value: escape(sundayValidation.data) });
 
 		if (hasProject) update.push({ name: "project", value: escape(project) });
-		if (hasProjectId) update.push({ name: "project_id", value: escape(projectId) });
+		if (hasProjectId)
+			update.push({
+				name: "project_id",
+				value: escape(projectId),
+			});
 		if (hasDescription) update.push({ name: "description", value: escape(description) });
 
 		// Update project_hours
