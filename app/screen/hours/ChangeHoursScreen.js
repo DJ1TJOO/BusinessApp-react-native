@@ -1,14 +1,16 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useContext } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
 
 import Heading from "../../components/Heading";
-import { IconAdd, IconCross, IconDown, IconRemove, IconArrowBack } from "../../components/Icons";
+import { IconAdd, IconCross, IconDown, IconRemove, IconArrowBack, IconCheck } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 import FormInput from "../../components/form/FormInput";
 import FormButton from "../../components/form/FormButton";
 import FormSelect from "../../components/form/FormSelect";
+
+import dataContext from "../../contexts/dataContext";
 
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	return (
@@ -19,12 +21,22 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 				<FormInput
 					editable={canSelect}
 					onChange={(text) => {
-						hours[index].hours[hoursIndex] = text;
+						let currentText = text || "0";
+						currentText = currentText.replace(/,/g, ".");
+						currentText = currentText.replace(/^([^.]*\.)(.*)$/, function (a, b, c) {
+							return b + c.replace(/\./g, "");
+						});
+						hours[index].hours[hoursIndex] = currentText;
 						setHours([...hours]);
 					}}
 					onEndEditing={(e) => {
 						try {
-							hours[index].hours[hoursIndex] = Number(e.nativeEvent.text || "0").toString();
+							let currentText = e.nativeEvent.text || "0";
+							currentText = currentText.replace(/,/g, ".");
+							currentText = currentText.replace(/^([^.]*\.)(.*)$/, function (a, b, c) {
+								return b + c.replace(/\./g, "");
+							});
+							hours[index].hours[hoursIndex] = Number(currentText).toString();
 							setHours([...hours]);
 						} catch (error) {}
 					}}
@@ -46,7 +58,18 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	);
 };
 
+const convertDataToHours = (currentHours) => {
+	return currentHours.hours.map((x) => ({
+		id: x.id,
+		project: x.project + (x.project_id ? " - " + x.project_id : ""),
+		description: x.description,
+		hours: [x.monday.toString(), x.tuesday.toString(), x.wednesday.toString(), x.thursday.toString(), x.friday.toString(), x.saturday.toString(), x.sunday.toString()],
+	}));
+};
+
 const ChangeHoursScreen = ({ navigation, route }) => {
+	const [data, setData] = useContext(dataContext);
+
 	const projects = [
 		"Huizen - 113133",
 		"Maarsen - 123431",
@@ -58,7 +81,10 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 		"Rotterdam - 2636575",
 	];
 
-	const [hours, setHours] = useState([{ project: "Project", description: "", hours: ["0", "0", "0", "0", "0", "0", "0"] }]);
+	const { year, week } = route.params;
+	const currentHours = data.hours.find((x) => x.year === year && x.week === week);
+
+	const [hours, setHours] = useState(currentHours ? convertDataToHours(currentHours) : [{ project: "Project", description: "", hours: ["0", "0", "0", "0", "0", "0", "0"] }]);
 	const [currentProjectSelector, setCurrentProjectSelector] = useState(-1);
 	const [canSelect, setCanSelect] = useState(true);
 
@@ -71,8 +97,8 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 	return (
 		<Wrapper showHeader={true} navigation={navigation}>
 			<View style={styles.header}>
-				<Heading title="Uren week 9" />
-				<IconCross style={styles.icon} />
+				<Heading title={`Uren week ${currentHours.week} (${currentHours.year})`} />
+				{hours.valid === true ? <IconCheck style={styles.icon} /> : hours.valid === false ? <IconCross style={styles.icon} /> : null}
 			</View>
 			{hours.length > 0 && (
 				<ScrollView

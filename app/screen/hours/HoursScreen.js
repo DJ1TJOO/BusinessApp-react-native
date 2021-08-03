@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import { StyleSheet } from "react-native";
 
 import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
 import Card from "../../components/Card";
 import FormButton from "../../components/form/FormButton";
-import { IconCross, IconCheck } from "../../components/Icons";
-import Colors from "../../config/Colors";
+import { IconCross, IconCheck, IconLoading } from "../../components/Icons";
+
+import config from "../../config/config";
+
+import dataContext from "../../contexts/dataContext";
 
 const getWeekNumber = (d) => {
 	// Copy date so don't modify original
@@ -42,75 +45,170 @@ const HoursScreen = ({ navigation }) => {
 	const [cards, setCards] = useState([]);
 	const [latestYear, setLatestYear] = useState(new Date().getFullYear());
 
-	// TODO: get data
-	useEffect(() => {
-		for (let i = getWeekNumber(new Date())[1] + 1; i > 0; i--) {
-			cards.push(
-				<Card
-					key={latestYear + " " + i}
-					title={"Uren week " + i}
-					description={"Vul uw uren in voor week " + i}
-					onPress={() => {
-						//TODO: data
-						navigation.navigate("ChangeHours");
-					}}
-				/>
-			);
+	const [data, setData] = useContext(dataContext);
+	const [loading, setLoading] = useState(false);
+
+	const getData = async (year) => {
+		try {
+			// Set hours
+			if (!data.hours) data.hours = [];
+
+			// Remove hours from current year
+			data.hours = data.hours.filter((x) => x.year !== year);
+
+			// Get hours from current year
+			const res = await fetch(`${config.api}hours/users/${data.user.id}/${year}`).then((res) => res.json());
+
+			// Add to data
+			if (res.success) {
+				if (Array.isArray(res.data)) {
+					data.hours.push(...res.data);
+				} else {
+					data.hours.push(res.data);
+				}
+			}
+
+			// Update data
+			setData({ ...data });
+		} catch (error) {
+			throw error;
 		}
-		setCards([...cards]);
+	};
+
+	useEffect(() => {
+		// Get hours data
+		getData(latestYear)
+			.then(() => {
+				for (let i = getWeekNumber(new Date())[1] + 1; i > 0; i--) {
+					if (cards.find((x) => x.key === latestYear + " " + i)) continue;
+
+					let hours = data.hours.find((x) => x.year === latestYear && x.week === i);
+
+					// Create new hours
+					if (!hours) {
+						hours = {
+							user_id: data.user.id,
+							business_id: data.user.businessId,
+							hours: [],
+							year: latestYear,
+							week: i,
+							valid: null,
+						};
+
+						// Add to data
+						data.hours.push(hours);
+					}
+
+					// Add card to list
+					cards.push(
+						<Card
+							key={latestYear + " " + i}
+							title={"Uren week " + i}
+							description={
+								hours.valid === true
+									? "De uren die u had ingevuld voor week 10 zijn goedgekeurd."
+									: hours.valid === false
+									? "De uren die u had ingevuld voor week 9 zijn afgekeurd. Pas deze aan."
+									: "Vul uw uren in voor week " + i
+							}
+							onPress={() => {
+								if (hours.valid === true) {
+									// TODO: ViewHours
+									navigation.navigate("ViewHours");
+								} else {
+									navigation.navigate("ChangeHours", { year: hours.year, week: hours.week });
+								}
+							}}
+							icon={hours.valid === true ? IconCheck : hours.valid === false ? IconCross : null}
+						>
+							{hours.valid !== true && hours.hours.length > 0 && <FormButton>Inleveren</FormButton>}
+						</Card>
+					);
+				}
+				setData({ ...data });
+				setCards([...cards]);
+			})
+			.catch((err) => console.log(err));
 	}, []);
 
 	const addNewWeeks = () => {
+		setLoading(true);
+
+		// Update latest year
 		setLatestYear(latestYear - 1);
-		cards.push(<Heading key={latestYear - 1} title={latestYear - 1} style={styles.heading} />);
-		for (let i = weeksInYear(latestYear - 1); i > 0; i--) {
-			cards.push(
-				<Card
-					key={latestYear - 1 + " " + i}
-					title={"Uren week " + i}
-					description={"Vul uw uren in voor week " + i}
-					onPress={() => {
-						//TODO: data
-						navigation.navigate("ChangeHours");
-					}}
-				/>
-			);
-		}
-		setCards([...cards]);
+
+		// Get new data
+		getData(latestYear - 1)
+			.then(() => {
+				// Add year heading
+				cards.push(<Heading key={latestYear - 1} title={latestYear - 1} style={styles.heading} />);
+
+				// Add cards
+				for (let i = weeksInYear(latestYear - 1); i > 0; i--) {
+					if (cards.find((x) => x.key === latestYear - 1 + " " + i)) continue;
+
+					let hours = data.hours.find((x) => x.year === latestYear - 1 && x.week === i);
+
+					// Create new hours
+					if (!hours) {
+						hours = {
+							user_id: data.user.id,
+							business_id: data.user.businessId,
+							hours: [],
+							year: latestYear - 1,
+							week: i,
+							valid: null,
+						};
+
+						// Add to data
+						data.hours.push(hours);
+					}
+
+					// Add card to list
+					cards.push(
+						<Card
+							key={latestYear - 1 + " " + i}
+							title={"Uren week " + i}
+							description={
+								hours.valid === true
+									? "De uren die u had ingevuld voor week 10 zijn goedgekeurd."
+									: hours.valid === false
+									? "De uren die u had ingevuld voor week 9 zijn afgekeurd. Pas deze aan."
+									: "Vul uw uren in voor week " + i
+							}
+							onPress={() => {
+								if (hours.valid === true) {
+									// TODO: ViewHours
+									navigation.navigate("ViewHours");
+								} else {
+									navigation.navigate("ChangeHours", { year: hours.year, week: hours.week });
+								}
+							}}
+							icon={hours.valid === true ? IconCheck : hours.valid === false ? IconCross : null}
+						>
+							{hours.valid !== true && hours.hours.length > 0 && <FormButton>Inleveren</FormButton>}
+						</Card>
+					);
+				}
+				setLoading(false);
+
+				setData({ ...data });
+				setCards([...cards]);
+			})
+			.catch((err) => console.log(err));
 	};
 
 	return (
-		<Wrapper navigation={navigation} showHeader={true} hitBottom={addNewWeeks}>
+		<Wrapper
+			navigation={navigation}
+			showHeader={true}
+			hitBottom={addNewWeeks}
+			loading={cards.length < 1}
+			refresh={async () => new Promise((res, rej) => setTimeout(res, 1000))}
+		>
 			<Heading title={"Uren - " + new Date().getFullYear()} style={styles.heading} />
 			{cards}
-			{/* <Card
-				title="Uren week 10"
-				description="De uren die u had ingevuld voor week 10 zijn goedgekeurd."
-				onPress={() => {
-					//TODO: data
-					navigation.navigate("ChangeHours");
-				}}
-			>
-				<FormButton>Inleveren</FormButton>
-			</Card>
-			<Card
-				title="Uren week 9"
-				description="De uren die u had ingevuld voor week 9 zijn afgekeurd. Pas deze aan."
-				onPress={() => {
-					//TODO: data
-					navigation.navigate("ChangeHours");
-				}}
-				icon={IconCross}
-			/>
-			<Card
-				title="Uren week 8"
-				description="De uren die u had ingevuld voor week 8 zijn goedgekeurd."
-				onPress={() => {
-					//TODO: data
-					navigation.navigate("ViewHours");
-				}}
-				icon={IconCheck}
-			/> */}
+			{loading && <IconLoading style={{ width: 70, height: 70, alignSelf: "center" }} />}
 		</Wrapper>
 	);
 };
