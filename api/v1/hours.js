@@ -455,7 +455,7 @@ const createProjectHours = async (hoursId, body) => {
 				return { status: 404, success: false, error: "project_not_found" };
 			}
 			projectId = project_result[0].id;
-			hasProjectName = true;
+			hasProjectId = true;
 		}
 
 		// Generate id
