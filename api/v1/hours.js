@@ -542,7 +542,7 @@ hours.post("/:userId/:year/:week", async (req, res) => {
 
 hours.patch("/:id", async (req, res) => {
 	const { id } = req.params;
-	const { valid } = req.body;
+	const { valid, submitted } = req.body;
 	try {
 		// Check if hours exists
 		const [getResults] = await db.query(`SELECT count(*) FROM hours WHERE id = ?`, [id]);
@@ -553,37 +553,53 @@ hours.patch("/:id", async (req, res) => {
 			});
 		}
 
-		// Not specified
-		if (typeof valid === "undefined") {
-			// Return status 422 (unprocessable entity) empty
-			return res.status(422).send({
-				success: false,
-				error: "empty",
-				data: {
-					field: "valid",
-				},
-			});
+		// Submitted specified
+		let hasSubmitted = false;
+		if (typeof submitted !== "undefined") {
+			// Not boolean
+			if (typeof submitted !== "boolean") {
+				// Return status 422 (unprocessable entity) incorrect
+				return res.status(422).send({
+					success: false,
+					error: "invalid",
+					data: {
+						field: "submitted",
+					},
+				});
+			}
+
+			hasSubmitted = true;
 		}
 
-		// Not boolean
-		if (typeof valid !== "boolean") {
-			// Return status 422 (unprocessable entity) incorrect
-			return res.status(422).send({
-				success: false,
-				error: "invalid",
-				data: {
-					field: "valid",
-				},
-			});
+		// Valid specified
+		let hasValid = false;
+		if (typeof valid === "undefined") {
+			// Not boolean
+			if (typeof valid !== "boolean") {
+				// Return status 422 (unprocessable entity) incorrect
+				return res.status(422).send({
+					success: false,
+					error: "invalid",
+					data: {
+						field: "valid",
+					},
+				});
+			}
+
+			hasValid = true;
 		}
+
+		const update = [];
+		if (hasSubmitted) update.push({ name: "submitted", value: submitted });
+		if (hasValid) update.push({ name: "valid", value: valid });
 
 		// Update hours
 		await db.query(
 			`UPDATE 
 					hours
-					SET valid = ?
+					SET ${update.map((x) => `${x.name} = ${x.value}`).join(",")}
 					WHERE id = ?`,
-			[valid, id]
+			[id]
 		);
 
 		const [results] = await db.query(`SELECT * FROM hours WHERE id = ?`, [id]);
