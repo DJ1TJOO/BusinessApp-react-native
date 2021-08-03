@@ -30,6 +30,7 @@ const weeksInYear = (year) => {
 	const month = 11;
 	let day = 31;
 	let week;
+	let d;
 
 	// Find week that 31 Dec is in. If is first week, reduce date until
 	// get previous week.
@@ -42,8 +43,9 @@ const weeksInYear = (year) => {
 };
 
 const HoursScreen = ({ navigation }) => {
+	const currentYear = new Date().getFullYear();
 	const [cards, setCards] = useState([]);
-	const [latestYear, setLatestYear] = useState(new Date().getFullYear());
+	const [latestYear, setLatestYear] = useState(currentYear);
 
 	const [data, setData] = useContext(dataContext);
 	const [loading, setLoading] = useState(false);
@@ -75,79 +77,17 @@ const HoursScreen = ({ navigation }) => {
 		}
 	};
 
-	useEffect(() => {
+	const getYear = (year) => {
 		// Get hours data
-		getData(latestYear)
-			.then(() => {
-				for (let i = getWeekNumber(new Date())[1] + 1; i > 0; i--) {
-					if (cards.find((x) => x.key === latestYear + " " + i)) continue;
-
-					let hours = data.hours.find((x) => x.year === latestYear && x.week === i);
-
-					// Create new hours
-					if (!hours) {
-						hours = {
-							user_id: data.user.id,
-							business_id: data.user.businessId,
-							hours: [],
-							year: latestYear,
-							week: i,
-							valid: null,
-						};
-
-						// Add to data
-						data.hours.push(hours);
-					}
-
-					// Add card to list
-					cards.push(
-						<Card
-							key={latestYear + " " + i}
-							title={"Uren week " + i}
-							description={
-								hours.valid === true
-									? "De uren die u had ingevuld voor week 10 zijn goedgekeurd."
-									: hours.valid === false
-									? "De uren die u had ingevuld voor week 9 zijn afgekeurd. Pas deze aan."
-									: "Vul uw uren in voor week " + i
-							}
-							onPress={() => {
-								if (hours.valid === true) {
-									// TODO: ViewHours
-									navigation.navigate("ViewHours");
-								} else {
-									navigation.navigate("ChangeHours", { year: hours.year, week: hours.week });
-								}
-							}}
-							icon={hours.valid === true ? IconCheck : hours.valid === false ? IconCross : null}
-						>
-							{hours.valid !== true && hours.hours.length > 0 && <FormButton>Inleveren</FormButton>}
-						</Card>
-					);
-				}
-				setData({ ...data });
-				setCards([...cards]);
-			})
-			.catch((err) => console.log(err));
-	}, []);
-
-	const addNewWeeks = () => {
-		setLoading(true);
-
-		// Update latest year
-		setLatestYear(latestYear - 1);
-
-		// Get new data
-		getData(latestYear - 1)
+		return getData(year)
 			.then(() => {
 				// Add year heading
-				cards.push(<Heading key={latestYear - 1} title={latestYear - 1} style={styles.heading} />);
+				if (year !== currentYear && cards.findIndex((x) => x.key === year + " 54") < 0) cards.push(<Heading key={year + " 54"} title={year} style={styles.heading} />);
 
-				// Add cards
-				for (let i = weeksInYear(latestYear - 1); i > 0; i--) {
-					if (cards.find((x) => x.key === latestYear - 1 + " " + i)) continue;
+				for (let i = year === currentYear ? getWeekNumber(new Date())[1] + 1 : weeksInYear(year); i > 0; i--) {
+					const index = cards.findIndex((x) => x.key === year + " " + i);
 
-					let hours = data.hours.find((x) => x.year === latestYear - 1 && x.week === i);
+					let hours = data.hours.find((x) => x.year === year && x.week === i);
 
 					// Create new hours
 					if (!hours) {
@@ -155,7 +95,7 @@ const HoursScreen = ({ navigation }) => {
 							user_id: data.user.id,
 							business_id: data.user.businessId,
 							hours: [],
-							year: latestYear - 1,
+							year: year,
 							week: i,
 							valid: null,
 						};
@@ -164,10 +104,10 @@ const HoursScreen = ({ navigation }) => {
 						data.hours.push(hours);
 					}
 
-					// Add card to list
-					cards.push(
+					// Create card
+					const card = (
 						<Card
-							key={latestYear - 1 + " " + i}
+							key={year + " " + i}
 							title={"Uren week " + i}
 							description={
 								hours.valid === true
@@ -189,24 +129,69 @@ const HoursScreen = ({ navigation }) => {
 							{hours.valid !== true && hours.hours.length > 0 && <FormButton>Inleveren</FormButton>}
 						</Card>
 					);
-				}
-				setLoading(false);
 
+					// Add card to list
+					if (index > -1) {
+						cards.splice(index, 1);
+					}
+					cards.push(card);
+				}
+
+				// Update data
 				setData({ ...data });
+
+				// Sort cards
+				cards.sort((a, b) => {
+					const [aYear, aWeek] = a.key.split(" ").map(Number);
+					const [bYear, bWeek] = b.key.split(" ").map(Number);
+					return aYear < bYear ? 1 : aYear > bYear ? -1 : aWeek < bWeek ? 1 : aWeek > bWeek ? -1 : 0;
+				});
+
+				// Update cards
 				setCards([...cards]);
+
+				if (loading) setLoading(false);
 			})
 			.catch((err) => console.log(err));
 	};
+
+	// Update cards
+	useEffect(() => {
+		getYear(latestYear);
+	}, []);
 
 	return (
 		<Wrapper
 			navigation={navigation}
 			showHeader={true}
-			hitBottom={addNewWeeks}
-			loading={cards.length < 1}
-			refresh={async () => new Promise((res, rej) => setTimeout(res, 1000))}
+			hitBottom={() => {
+				setLoading(true);
+
+				// Get new data
+				getYear(latestYear - 1);
+
+				// Update latest year
+				setLatestYear(latestYear - 1);
+			}}
+			loading={!data.hours}
+			refresh={async () =>
+				new Promise((res, rej) => {
+					// Reset hours
+					data.hours = [];
+					setData({ ...data });
+					const promise = Promise.resolve();
+
+					for (let i = latestYear; i <= currentYear; i++) {
+						promise.then(() => getYear(i));
+					}
+
+					promise.then(() => {
+						res();
+					});
+				})
+			}
 		>
-			<Heading title={"Uren - " + new Date().getFullYear()} style={styles.heading} />
+			<Heading title={"Uren - " + currentYear} style={styles.heading} />
 			{cards}
 			{loading && <IconLoading style={{ width: 70, height: 70, alignSelf: "center" }} />}
 		</Wrapper>
