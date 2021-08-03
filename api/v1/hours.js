@@ -429,7 +429,7 @@ const createProjectHours = async (hoursId, body) => {
 		let hasDescription = false;
 		if (description) {
 			// Description too long
-			if (lastName.length > 255) {
+			if (description.length > 255) {
 				// Return status 422 (unprocessable entity) too long
 				return {
 					status: 422,
@@ -700,7 +700,7 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 		let hasDescription = false;
 		if (description) {
 			// Description too long
-			if (lastName.length > 255) {
+			if (description.length > 255) {
 				// Return status 422 (unprocessable entity) too long
 				return res.status(422).send({
 					success: false,
@@ -849,7 +849,7 @@ hours.delete("/:userId/:year/:week", async (req, res) => {
 });
 
 // Delete projectHours
-hours.delete("/:projectHoursId", async (req, res) => {
+hours.delete("/project/:projectHoursId", async (req, res) => {
 	const id = req.params.projectHoursId;
 	try {
 		const [get_results] = await db.query(`SELECT * FROM project_hours WHERE id = ?`, [id]);
