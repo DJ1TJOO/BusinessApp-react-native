@@ -571,7 +571,7 @@ hours.patch("/:id", async (res, res) => {
 			});
 		}
 
-		// Update business
+		// Update hours
 		await db.query(
 			`UPDATE 
 					hours
