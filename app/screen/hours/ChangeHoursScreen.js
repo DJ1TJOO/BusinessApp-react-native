@@ -101,6 +101,98 @@ const convertHoursToData = (hours) => {
 		});
 };
 
+const update = async (data, currentHours, hours) => {
+	try {
+		// Get hours data
+		const hoursData = convertHoursToData(hours);
+
+		// Check if hours exists
+		if (!currentHours.id) {
+			// Create hours
+			const res = await fetch(`${config.api}hours/`, {
+				method: "POST",
+				headers: {
+					Accept: "application/json",
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					userId: data.user.id,
+					businessId: data.user.businessId,
+					week: currentHours.week,
+					year: currentHours.year,
+				}),
+			}).then((res) => res.json());
+			if (res.success) {
+				currentHours.id = res.data.id;
+			} else {
+				//TODO: error message
+				console.log(res);
+				return false;
+			}
+		}
+
+		// Get updated
+		for (let i = 0; i < hoursData.length; i++) {
+			const update = hoursData[i];
+			const current = currentHours.hours.find((x) => x.id === update.id);
+			if (!current || !update.id) {
+				// Create
+				const res = await fetch(`${config.api}hours/${currentHours.id}`, {
+					method: "POST",
+					headers: {
+						Accept: "application/json",
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(update),
+				}).then((res) => res.json());
+				if (res.success) {
+					update.id = res.data.id;
+				} else {
+					//TODO: error message
+					console.log(res);
+					return false;
+				}
+			} else if (update !== current) {
+				// Update existing
+				const res = await fetch(`${config.api}hours/project/${update.id}`, {
+					method: "PATCH",
+					headers: {
+						Accept: "application/json",
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(update),
+				}).then((res) => res.json());
+				if (!res.success) {
+					//TODO: error message
+					console.log(res);
+					return false;
+				}
+			}
+		}
+
+		// Remove existing project hours
+		const toRemove = currentHours.hours.filter((x) => !hoursData.some((y) => y.id === x.id));
+		for (let i = 0; i < toRemove.length; i++) {
+			const res = await fetch(`${config.api}hours/project/${toRemove[i].id}`, {
+				method: "DELETE",
+			}).then((res) => res.json());
+			if (!res.success) {
+				//TODO: error message
+				console.log(res);
+				return false;
+			}
+		}
+
+		// Set hours
+		currentHours.hours = hoursData;
+
+		return true;
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
+};
+
 const ChangeHoursScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 
@@ -254,6 +346,9 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 								style={styles.remove}
 								onPress={() => {
 									if (!canSelect) return;
+
+									// TODO: fix project name on delete
+
 									hours.splice(index, 1);
 									setHours([...hours]);
 								}}
@@ -276,76 +371,8 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 			<FormButton
 				invert={true}
 				onPress={async () => {
-					try {
-						// Get hours data
-						const hoursData = convertHoursToData(hours);
-
-						// Check if hours exists
-						if (!currentHours.id) {
-							// Create hours
-							const res = await fetch(`${config.api}hours/`, {
-								method: "POST",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify({
-									userId: data.user.id,
-									businessId: data.user.businessId,
-									week: currentHours.week,
-									year: currentHours.year,
-								}),
-							}).then((res) => res.json());
-							if (res.success) {
-								currentHours.id = res.data.id;
-							} else {
-								//TODO: error message
-							}
-						}
-
-						// Get updated
-						for (let i = 0; i < hoursData.length; i++) {
-							const update = hoursData[i];
-							const current = currentHours.hours.find((x) => x.id === update.id);
-							if (!current) {
-								// Create
-								const res = await fetch(`${config.api}hours/${currentHours.id}`, {
-									method: "POST",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(update),
-								}).then((res) => res.json());
-								if (!res.success) {
-									//TODO: error message
-								}
-							} else if (update !== current) {
-								// Update existing
-								const res = await fetch(`${config.api}hours/project/${update.id}`, {
-									method: "PATCH",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(update),
-								}).then((res) => res.json());
-								if (!res.success) {
-									//TODO: error message
-								}
-							}
-						}
-
-						// Set hours
-						currentHours.hours = hoursData;
-
-						// Update data
-						setData({ ...data });
-
-						navigation.navigate("Hours");
-					} catch (error) {
-						console.log(error);
-					}
+					if (!(await update(data, currentHours, hours))) return;
+					navigation.navigate("Hours");
 				}}
 			>
 				Aanpassen
@@ -353,67 +380,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 			<FormButton
 				onPress={async () => {
 					try {
-						// Get hours data
-						const hoursData = convertHoursToData(hours);
-
-						// Check if hours exists
-						if (!currentHours.id) {
-							// Create hours
-							const res = await fetch(`${config.api}hours/`, {
-								method: "POST",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify({
-									userId: data.user.id,
-									businessId: data.user.businessId,
-									week: currentHours.week,
-									year: currentHours.year,
-								}),
-							}).then((res) => res.json());
-							if (res.success) {
-								currentHours.id = res.data.id;
-							} else {
-								//TODO: error message
-							}
-						}
-
-						// Get updated
-						for (let i = 0; i < hoursData.length; i++) {
-							const update = hoursData[i];
-							const current = currentHours.hours.find((x) => x.id === update.id);
-							if (!current) {
-								// Create
-								const res = await fetch(`${config.api}hours/${currentHours.id}`, {
-									method: "POST",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(update),
-								}).then((res) => res.json());
-								if (!res.success) {
-									//TODO: error message
-								}
-							} else if (update !== current) {
-								// Update existing
-								const res = await fetch(`${config.api}hours/project/${update.id}`, {
-									method: "PATCH",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(update),
-								}).then((res) => res.json());
-								if (!res.success) {
-									//TODO: error message
-								}
-							}
-						}
-
-						// Set hours
-						currentHours.hours = hoursData;
+						if (!(await update(data, currentHours, hours))) return;
 
 						// Submit hours
 						const res = await fetch(`${config.api}hours/${currentHours.id}`, {
@@ -428,6 +395,8 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 						}).then((res) => res.json());
 						if (!res.success) {
 							//TODO: error message
+							console.log(res);
+							return;
 						}
 
 						// Set submitted
@@ -436,7 +405,8 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 						// Update data
 						setData({ ...data });
 
-						navigation.navigate("Hours", { update: [currentHours.year] });
+						// Update hours
+						navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
 					} catch (error) {
 						console.log(error);
 					}
