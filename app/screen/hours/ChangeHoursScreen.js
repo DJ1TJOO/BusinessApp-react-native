@@ -12,6 +12,8 @@ import FormSelect from "../../components/form/FormSelect";
 
 import dataContext from "../../contexts/dataContext";
 
+import config from "../../config/config";
+
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	return (
 		<View style={styles.column}>
@@ -58,13 +60,45 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	);
 };
 
+const emptyProject = { project: "Project", description: "", hours: ["0", "0", "0", "0", "0", "0", "0"] };
+
 const convertDataToHours = (currentHours) => {
 	return currentHours.hours.map((x) => ({
 		id: x.id,
-		project: x.project + (x.project_id ? " - " + x.project_id : ""),
+		hours_id: x.hours_id,
+		project: x.project + (x.projectName ? " - " + x.projectName : ""),
 		description: x.description,
 		hours: [x.monday.toString(), x.tuesday.toString(), x.wednesday.toString(), x.thursday.toString(), x.friday.toString(), x.saturday.toString(), x.sunday.toString()],
 	}));
+};
+
+const convertHoursToData = (hours) => {
+	return hours
+		.filter((x) => x.project !== emptyProject.project || x.description !== emptyProject.description || x.hours !== emptyProject.hours)
+		.map((x) => {
+			const projectInfo = x.project.split("-");
+			const project = projectInfo[0].trim();
+
+			let projectName = null;
+			if (projectInfo.length > 1) {
+				projectName = projectInfo[projectInfo.length - 1].trim();
+			}
+
+			return {
+				id: x.id,
+				hours_id: x.hours_id,
+				project,
+				projectName,
+				description: x.description,
+				monday: Number(x.hours[0]),
+				tuesday: Number(x.hours[1]),
+				wednesday: Number(x.hours[2]),
+				thursday: Number(x.hours[3]),
+				friday: Number(x.hours[4]),
+				saturday: Number(x.hours[5]),
+				sunday: Number(x.hours[6]),
+			};
+		});
 };
 
 const ChangeHoursScreen = ({ navigation, route }) => {
@@ -84,7 +118,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 	const { year, week } = route.params;
 	const currentHours = data.hours.find((x) => x.year === year && x.week === week);
 
-	const [hours, setHours] = useState(currentHours ? convertDataToHours(currentHours) : [{ project: "Project", description: "", hours: ["0", "0", "0", "0", "0", "0", "0"] }]);
+	const [hours, setHours] = useState(currentHours ? convertDataToHours(currentHours) : [{ ...emptyProject }]);
 	const [currentProjectSelector, setCurrentProjectSelector] = useState(-1);
 	const [canSelect, setCanSelect] = useState(true);
 
@@ -233,11 +267,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 			<TouchableOpacity
 				style={styles.add}
 				onPress={() => {
-					hours.push({
-						project: "Project",
-						description: "",
-						hours: ["0", "0", "0", "0", "0", "0", "0"],
-					});
+					hours.push({ ...emptyProject });
 					setHours([...hours]);
 				}}
 			>
@@ -245,17 +275,169 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 			</TouchableOpacity>
 			<FormButton
 				invert={true}
-				onPress={() => {
-					//TODO: save
-					navigation.navigate("Hours");
+				onPress={async () => {
+					try {
+						// Get hours data
+						const hoursData = convertHoursToData(hours);
+
+						// Check if hours exists
+						if (!currentHours.id) {
+							// Create hours
+							const res = await fetch(`${config.api}hours/`, {
+								method: "POST",
+								headers: {
+									Accept: "application/json",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									userId: data.user.id,
+									businessId: data.user.businessId,
+									week: currentHours.week,
+									year: currentHours.year,
+								}),
+							}).then((res) => res.json());
+							if (res.success) {
+								currentHours.id = res.data.id;
+							} else {
+								//TODO: error message
+							}
+						}
+
+						// Get updated
+						for (let i = 0; i < hoursData.length; i++) {
+							const update = hoursData[i];
+							const current = currentHours.hours.find((x) => x.id === update.id);
+							if (!current) {
+								// Create
+								const res = await fetch(`${config.api}hours/${currentHours.id}`, {
+									method: "POST",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(update),
+								}).then((res) => res.json());
+								if (!res.success) {
+									//TODO: error message
+								}
+							} else if (update !== current) {
+								// Update existing
+								const res = await fetch(`${config.api}hours/project/${update.id}`, {
+									method: "PATCH",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(update),
+								}).then((res) => res.json());
+								if (!res.success) {
+									//TODO: error message
+								}
+							}
+						}
+
+						// Set hours
+						currentHours.hours = hoursData;
+
+						// Update data
+						setData({ ...data });
+
+						navigation.navigate("Hours");
+					} catch (error) {
+						console.log(error);
+					}
 				}}
 			>
 				Aanpassen
 			</FormButton>
 			<FormButton
-				onPress={() => {
-					//TODO: save and submit
-					navigation.navigate("Hours");
+				onPress={async () => {
+					try {
+						// Get hours data
+						const hoursData = convertHoursToData(hours);
+
+						// Check if hours exists
+						if (!currentHours.id) {
+							// Create hours
+							const res = await fetch(`${config.api}hours/`, {
+								method: "POST",
+								headers: {
+									Accept: "application/json",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									userId: data.user.id,
+									businessId: data.user.businessId,
+									week: currentHours.week,
+									year: currentHours.year,
+								}),
+							}).then((res) => res.json());
+							if (res.success) {
+								currentHours.id = res.data.id;
+							} else {
+								//TODO: error message
+							}
+						}
+
+						// Get updated
+						for (let i = 0; i < hoursData.length; i++) {
+							const update = hoursData[i];
+							const current = currentHours.hours.find((x) => x.id === update.id);
+							if (!current) {
+								// Create
+								const res = await fetch(`${config.api}hours/${currentHours.id}`, {
+									method: "POST",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(update),
+								}).then((res) => res.json());
+								if (!res.success) {
+									//TODO: error message
+								}
+							} else if (update !== current) {
+								// Update existing
+								const res = await fetch(`${config.api}hours/project/${update.id}`, {
+									method: "PATCH",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(update),
+								}).then((res) => res.json());
+								if (!res.success) {
+									//TODO: error message
+								}
+							}
+						}
+
+						// Set hours
+						currentHours.hours = hoursData;
+
+						// Update data
+						setData({ ...data });
+
+						// Submit hours
+						const res = await fetch(`${config.api}hours/${currentHours.id}`, {
+							method: "PATCH",
+							headers: {
+								Accept: "application/json",
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								submitted: true,
+							}),
+						}).then((res) => res.json());
+						console.log(res);
+						if (!res.success) {
+							//TODO: error message
+						}
+
+						navigation.navigate("Hours");
+					} catch (error) {
+						console.log(error);
+					}
 				}}
 			>
 				Inleveren
