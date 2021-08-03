@@ -280,7 +280,7 @@ hours.post("/", async (req, res) => {
 const validateNumber = (field, value, min, max, checkEmpty = true) => {
 	// Check value
 	// Value is empty
-	if (!value && checkEmpty) {
+	if ((typeof value === "undefined" || value === null) && checkEmpty) {
 		// Return status 422 (unprocessable entity) empty
 		return {
 			status: 422,
@@ -290,7 +290,7 @@ const validateNumber = (field, value, min, max, checkEmpty = true) => {
 				field,
 			},
 		};
-	} else if (!value && !checkEmpty) {
+	} else if ((typeof value === "undefined" || value === null) && !checkEmpty) {
 		return {
 			success: true,
 			data: null,
@@ -350,35 +350,35 @@ const validateNumber = (field, value, min, max, checkEmpty = true) => {
  * }} params
  */
 const createProjectHours = async (hoursId, body) => {
-	const { project, projectId, description, monday, tueseday, wednesday, thursday, friday, saturday, sunday } = body;
+	const { project, projectId, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = body;
 	try {
 		// Check monday
 		const mondayValidation = validateNumber("monday", monday, 0, 24);
-		if (!mondayValidation.success) return objectToResponse(res, mondayValidation);
+		if (!mondayValidation.success) return mondayValidation;
 
-		// Check tueseday
-		const tuesedayValidation = validateNumber("tueseday", tueseday, 0, 24);
-		if (!tuesedayValidation.success) return objectToResponse(res, tuesedayValidation);
+		// Check tuesday
+		const tuesdayValidation = validateNumber("tuesday", tuesday, 0, 24);
+		if (!tuesdayValidation.success) return tuesdayValidation;
 
 		// Check wednesday
 		const wednesdayValidation = validateNumber("wednesday", wednesday, 0, 24);
-		if (!wednesdayValidation.success) return objectToResponse(res, wednesdayValidation);
+		if (!wednesdayValidation.success) return wednesdayValidation;
 
 		// Check thursday
 		const thursdayValidation = validateNumber("thursday", thursday, 0, 24);
-		if (!thursdayValidation.success) return objectToResponse(res, thursdayValidation);
+		if (!thursdayValidation.success) return thursdayValidation;
 
 		// Check friday
 		const fridayValidation = validateNumber("friday", friday, 0, 24);
-		if (!fridayValidation.success) return objectToResponse(res, fridayValidation);
+		if (!fridayValidation.success) return fridayValidation;
 
 		// Check saturday
 		const saturdayValidation = validateNumber("saturday", saturday, 0, 24);
-		if (!saturdayValidation.success) return objectToResponse(res, saturdayValidation);
+		if (!saturdayValidation.success) return saturdayValidation;
 
 		// Check sunday
 		const sundayValidation = validateNumber("sunday", sunday, 0, 24);
-		if (!sundayValidation.success) return objectToResponse(res, sundayValidation);
+		if (!sundayValidation.success) return sundayValidation;
 
 		// Check if project is correct
 		// Project is empty
@@ -458,10 +458,10 @@ const createProjectHours = async (hoursId, body) => {
 		// Insert hours into db
 		await db.query(
 			`INSERT INTO 
-					project_hours (id, hours_id, project, ${hasProjectId ? "project_id," : ""} ${hasDescription ? "description," : ""} monday, tueseday, wednesday, thursday, friday, saturday, sunday)
+					project_hours (id, hours_id, project, ${hasProjectId ? "project_id," : ""} ${hasDescription ? "description," : ""} monday, tuesday, wednesday, thursday, friday, saturday, sunday)
 					VALUES (${escape(id)}, ${escape(hoursId)},${escape(project)}, ${hasProjectId ? `${escape(projectId)},` : ""} ${hasDescription ? `${escape(description)},` : ""} '${escape(
 				monday
-			)}', ${escape(tueseday)}, ${escape(wednesday)}, ${escape(thursday)}, ${escape(friday)}, ${escape(saturday)}, ${escape(sunday)})`
+			)}', ${escape(tuesday)}, ${escape(wednesday)}, ${escape(thursday)}, ${escape(friday)}, ${escape(saturday)}, ${escape(sunday)})`
 		);
 
 		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = ?`, [id]);
@@ -606,7 +606,7 @@ hours.patch("/:id", async (req, res) => {
 
 hours.patch("/project/:projectHoursId", async (req, res) => {
 	const { projectHoursId } = req.params;
-	const { project, projectId, description, monday, tueseday, wednesday, thursday, friday, saturday, sunday } = req.body;
+	const { project, projectId, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
 	try {
 		const [get_results] = await db.query(`SELECT count(*) FROM project_hours WHERE id = ?`, [projectHoursId]);
 		if (get_results[0]["count(*)"] < 1) {
@@ -620,9 +620,9 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 		const mondayValidation = validateNumber("monday", monday, 0, 24, false);
 		if (!mondayValidation.success) return objectToResponse(res, mondayValidation);
 
-		// Check tueseday
-		const tuesedayValidation = validateNumber("tueseday", tueseday, 0, 24, false);
-		if (!tuesedayValidation.success) return objectToResponse(res, tuesedayValidation);
+		// Check tuesday
+		const tuesdayValidation = validateNumber("tuesday", tuesday, 0, 24, false);
+		if (!tuesdayValidation.success) return objectToResponse(res, tuesdayValidation);
 
 		// Check wednesday
 		const wednesdayValidation = validateNumber("wednesday", wednesday, 0, 24, false);
@@ -707,7 +707,7 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 		const update = [];
 
 		if (mondayValidation.success && mondayValidation.data) update.push({ name: "monday", value: escape(mondayValidation.data) });
-		if (tuesedayValidation.success && tuesedayValidation.data) update.push({ name: "tueseday", value: escape(tuesedayValidation.data) });
+		if (tuesdayValidation.success && tuesdayValidation.data) update.push({ name: "tuesday", value: escape(tuesdayValidation.data) });
 		if (wednesdayValidation.success && wednesdayValidation.data) update.push({ name: "wednesday", value: escape(wednesdayValidation.data) });
 		if (thursdayValidation.success && thursdayValidation.data) update.push({ name: "thursday", value: escape(thursdayValidation.data) });
 		if (fridayValidation.success && fridayValidation.data) update.push({ name: "friday", value: escape(fridayValidation.data) });
