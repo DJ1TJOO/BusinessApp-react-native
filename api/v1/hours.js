@@ -573,7 +573,7 @@ hours.patch("/:id", async (req, res) => {
 
 		// Valid specified
 		let hasValid = false;
-		if (typeof valid === "undefined") {
+		if (typeof valid !== "undefined") {
 			// Not boolean
 			if (typeof valid !== "boolean") {
 				// Return status 422 (unprocessable entity) incorrect
@@ -747,13 +747,15 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 			});
 		if (hasDescription) update.push({ name: "description", value: escape(description) });
 
-		// Update project_hours
-		await db.query(
-			`UPDATE 
+		if (update.length > 0) {
+			// Update project_hours
+			await db.query(
+				`UPDATE 
 					project_hours
 					SET ${update.map((x) => `${x.name} = ${x.value}`).join(",")}
 					WHERE id = '${projectHoursId}'`
-		);
+			);
+		}
 
 		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = ?`, [projectHoursId]);
 		if (results.length < 1) {
@@ -764,10 +766,10 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 			});
 		}
 
-		return {
+		return res.send({
 			success: true,
 			data: results[0],
-		};
+		});
 	} catch (error) {
 		// Mysql error
 		console.log(error);

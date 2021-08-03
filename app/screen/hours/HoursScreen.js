@@ -111,13 +111,15 @@ const HoursScreen = ({ navigation }) => {
 							title={"Uren week " + i}
 							description={
 								hours.valid === true
-									? "De uren die u had ingevuld voor week " + i + " zijn goedgekeurd."
+									? "De uren die u had ingevuld voor week " + i + " zijn goedgekeurd"
 									: hours.valid === false
-									? "De uren die u had ingevuld voor week " + i + " zijn afgekeurd. Pas deze aan."
+									? "De uren die u had ingevuld voor week " + i + " zijn afgekeurd. Pas deze aan"
+									: hours.submitted
+									? "De uren voor week " + i + " zijn ingevuld"
 									: "Vul uw uren in voor week " + i
 							}
 							onPress={() => {
-								if (hours.valid === true) {
+								if (hours.valid === true || hours.submitted) {
 									// TODO: ViewHours
 									navigation.navigate("ViewHours");
 								} else {
@@ -126,7 +128,7 @@ const HoursScreen = ({ navigation }) => {
 							}}
 							icon={hours.valid === true ? IconCheck : hours.valid === false ? IconCross : null}
 						>
-							{(hours.valid !== true || !hours.submitted) && hours.hours.length > 0 && <FormButton>Inleveren</FormButton>}
+							{hours.valid !== true && !hours.submitted && hours.hours.length > 0 && <FormButton>Inleveren</FormButton>}
 						</Card>
 					);
 
