@@ -33,7 +33,7 @@ login.post("/", async (req, res) => {
 			});
 		}
 
-		const token = jwt.sign({ id: user.id, email: email, business: business_results[0].id }, process.env.JWT_SECRET, {
+		const token = jwt.sign({ id: user.id, email: email, businessId: business_results[0].id }, process.env.JWT_SECRET, {
 			expiresIn: "1d",
 		});
 
@@ -41,7 +41,7 @@ login.post("/", async (req, res) => {
 			success: true,
 			data: {
 				token,
-				user: { id: user.id, email: email, business: business_results[0].id },
+				user: { id: user.id, email: email, businessId: business_results[0].id },
 			},
 		});
 	} catch (error) {
