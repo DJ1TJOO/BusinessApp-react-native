@@ -64,7 +64,7 @@ const getHours = async (params) => {
 const addProjectHours = async (hours) => {
 	try {
 		const [hoursResults] = await db.query(
-			`SELECT project_hours.*, projects.name FROM project_hours INNER JOIN projects ON project_hours.project_id = projects.id WHERE hours_id = ?`,
+			`SELECT project_hours.*, projects.name FROM project_hours LEFT JOIN projects ON project_hours.project_id = projects.id WHERE hours_id = ?`,
 			[hours.id]
 		);
 
@@ -735,7 +735,7 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 		await db.query(
 			`UPDATE 
 					project_hours
-					SET ${update.map((x) => `${x.name} = '${x.value}'`).join(",")}
+					SET ${update.map((x) => `${x.name} = ${x.value}`).join(",")}
 					WHERE id = '${projectHoursId}'`
 		);
 
