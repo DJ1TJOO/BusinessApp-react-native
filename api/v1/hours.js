@@ -534,7 +534,77 @@ hours.post("/:userId/:year/:week", async (req, res) => {
 	}
 });
 
-hours.patch("/:projectHoursId", async (req, res) => {
+hours.patch("/:id", async (res, res) => {
+	const { id } = req.params;
+	const { valid } = req.body;
+	try {
+		// Check if hours exists
+		const [getResults] = await db.query(`SELECT count(*) FROM hours WHERE id = ?`, [id]);
+		if (getResults[0]["count(*)"] < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "hours_not_found",
+			});
+		}
+
+		// Not specified
+		if (typeof valid === "undefined") {
+			// Return status 422 (unprocessable entity) empty
+			return res.status(422).send({
+				success: false,
+				error: "empty",
+				data: {
+					field: "valid",
+				},
+			});
+		}
+
+		// Not boolean
+		if (typeof valid !== "boolean") {
+			// Return status 422 (unprocessable entity) incorrect
+			return res.status(422).send({
+				success: false,
+				error: "invalid",
+				data: {
+					field: "valid",
+				},
+			});
+		}
+
+		// Update business
+		await db.query(
+			`UPDATE 
+					hours
+					SET valid = ?
+					WHERE id = ?`,
+			[valid, id]
+		);
+
+		const [results] = await db.query(`SELECT * FROM hours WHERE id = ?`, [id]);
+		if (results.length < 1) {
+			// Return status 500 (internal server error) internal
+			return res.status(500).send({
+				success: false,
+				error: "internal",
+			});
+		}
+
+		return res.send({
+			success: true,
+			data: results[0],
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
+hours.patch("/project/:projectHoursId", async (req, res) => {
 	const { projectHoursId } = req.params;
 	const { project, projectId, description, monday, tueseday, wednesday, thursday, friday, saturday, sunday } = req.body;
 	try {
