@@ -11,8 +11,7 @@ const hours = require("express").Router();
 const getHours = async (params) => {
 	try {
 		const [results] = await db.query(
-			`SELECT * FROM hours WHERE ${params
-				.keys()
+			`SELECT * FROM hours WHERE ${Object.keys(params)
 				.map((x) => `${x} = ${escape(params[x])}`)
 				.join(" AND ")}`
 		);
