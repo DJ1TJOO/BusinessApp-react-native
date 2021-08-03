@@ -199,9 +199,12 @@ const ViewHoursScreen = ({ navigation, route }) => {
 						}).then((res) => res.json());
 						if (!res.success) {
 							//TODO: error message
+							console.log(res);
+							return;
 						}
 
-						navigation.navigate("Hours", { update: [currentHours.year] });
+						// Update hours
+						navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
 					} catch (error) {
 						console.log(error);
 					}

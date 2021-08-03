@@ -144,6 +144,8 @@ const HoursScreen = ({ navigation, route }) => {
 											}).then((res) => res.json());
 											if (!res.success) {
 												//TODO: error message
+												console.log(res);
+												return;
 											}
 
 											// Update data
