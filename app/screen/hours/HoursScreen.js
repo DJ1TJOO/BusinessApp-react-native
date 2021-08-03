@@ -42,7 +42,7 @@ const weeksInYear = (year) => {
 	return week;
 };
 
-const HoursScreen = ({ navigation }) => {
+const HoursScreen = ({ navigation, route }) => {
 	const currentYear = new Date().getFullYear();
 	const [cards, setCards] = useState([]);
 	const [latestYear, setLatestYear] = useState(currentYear);
@@ -120,15 +120,48 @@ const HoursScreen = ({ navigation }) => {
 							}
 							onPress={() => {
 								if (hours.valid === true || hours.submitted) {
-									// TODO: ViewHours
-									navigation.navigate("ViewHours");
+									navigation.navigate("ViewHours", { year: hours.year, week: hours.week });
 								} else {
 									navigation.navigate("ChangeHours", { year: hours.year, week: hours.week });
 								}
 							}}
 							icon={hours.valid === true ? IconCheck : hours.valid === false ? IconCross : null}
 						>
-							{hours.valid !== true && !hours.submitted && hours.hours.length > 0 && <FormButton>Inleveren</FormButton>}
+							{hours.valid !== true && !hours.submitted && hours.hours.length > 0 && (
+								<FormButton
+									onPress={async () => {
+										try {
+											// Submit hours
+											const res = await fetch(`${config.api}hours/${hours.id}`, {
+												method: "PATCH",
+												headers: {
+													Accept: "application/json",
+													"Content-Type": "application/json",
+												},
+												body: JSON.stringify({
+													submitted: true,
+												}),
+											}).then((res) => res.json());
+											if (!res.success) {
+												//TODO: error message
+											}
+
+											// Update data
+											data.hours.find((x) => x.year === year && x.week === i).submitted = true;
+											setData({ ...data });
+
+											// Rerender
+											getYear(hours.year);
+
+											navigation.navigate("Hours");
+										} catch (error) {
+											console.log(error);
+										}
+									}}
+								>
+									Inleveren
+								</FormButton>
+							)}
 						</Card>
 					);
 
@@ -157,10 +190,18 @@ const HoursScreen = ({ navigation }) => {
 			.catch((err) => console.log(err));
 	};
 
-	// Update cards
+	// Add cards
 	useEffect(() => {
 		getYear(latestYear);
 	}, []);
+
+	useEffect(() => {
+		if (!route.params) return;
+		if (!route.params.update) return;
+		route.params.update.forEach((year) => {
+			getYear(year);
+		});
+	}, [route]);
 
 	return (
 		<Wrapper

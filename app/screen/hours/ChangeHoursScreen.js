@@ -415,9 +415,6 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 						// Set hours
 						currentHours.hours = hoursData;
 
-						// Update data
-						setData({ ...data });
-
 						// Submit hours
 						const res = await fetch(`${config.api}hours/${currentHours.id}`, {
 							method: "PATCH",
@@ -429,12 +426,17 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 								submitted: true,
 							}),
 						}).then((res) => res.json());
-						console.log(res);
 						if (!res.success) {
 							//TODO: error message
 						}
 
-						navigation.navigate("Hours");
+						// Set submitted
+						currentHours.submitted = true;
+
+						// Update data
+						setData({ ...data });
+
+						navigation.navigate("Hours", { update: [currentHours.year] });
 					} catch (error) {
 						console.log(error);
 					}
