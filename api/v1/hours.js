@@ -534,7 +534,7 @@ hours.post("/:userId/:year/:week", async (req, res) => {
 	}
 });
 
-hours.patch("/:id", async (res, res) => {
+hours.patch("/:id", async (req, res) => {
 	const { id } = req.params;
 	const { valid } = req.body;
 	try {
