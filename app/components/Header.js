@@ -4,7 +4,7 @@ import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
 import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";
 
-const Header = ({ animatedValue, navigation, scrollView }) => {
+const Header = ({ animatedValue, navigation, scrollView, onLayout }) => {
 	const [headerLayout, setHeaderLayout] = useState({ x: 0, y: 0, height: 0, width: 0 });
 
 	const colorWhiteToPrimary = animatedValue.interpolate({
@@ -45,6 +45,7 @@ const Header = ({ animatedValue, navigation, scrollView }) => {
 				style={styles.header}
 				onLayout={(e) => {
 					setHeaderLayout(e.nativeEvent.layout);
+					if (onLayout) onLayout(e);
 				}}
 			>
 				<TouchableOpacity

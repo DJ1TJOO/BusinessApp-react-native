@@ -1,6 +1,50 @@
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import Svg, { G, Path } from "react-native-svg";
+import React, { useMemo } from "react";
+import { Animated, Easing, StyleSheet, View } from "react-native";
+import Svg, { Circle, G, Path } from "react-native-svg";
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+function animateTransform({ type, from, to, dur, repeatCount }) {
+	const duration = parseFloat(dur.slice(0, -1)) * 1000;
+	const [fromAngle, fromCX, fromCY] = from.split(" ").map(Number);
+	const [toAngle, toCX, toCY] = to.split(" ").map(Number);
+
+	const t = new Animated.Value(0);
+	const animateTransform = [
+		Animated.timing(t, {
+			duration,
+			toValue: 1,
+			useNativeDriver: false,
+			easing: Easing.linear,
+		}),
+	];
+	const animation = Animated.loop(Animated.sequence(animateTransform), {
+		iterations: -1,
+	}).start();
+	const rotateAngle = t.interpolate({
+		inputRange: [0, 1],
+		outputRange: [fromAngle + "deg", toAngle + "deg"],
+	});
+	const cx = t.interpolate({
+		inputRange: [0, 1],
+		outputRange: [fromCX, toCX],
+	});
+	const cy = t.interpolate({
+		inputRange: [0, 1],
+		outputRange: [fromCY, toCY],
+	});
+	const icx = t.interpolate({
+		inputRange: [0, 1],
+		outputRange: [-fromCX, -toCX],
+	});
+	const icy = t.interpolate({
+		inputRange: [0, 1],
+		outputRange: [-fromCY, -toCY],
+	});
+	const style = {
+		transform: [{ translateX: cx }, { translateY: cy }, { rotateZ: rotateAngle }, { translateX: icx }, { translateY: icy }],
+	};
+	return { t, animation, style, rotateAngle, cx, cy, icx, icy };
+}
 
 const styles = StyleSheet.create({
 	icon: {
@@ -9,6 +53,64 @@ const styles = StyleSheet.create({
 		height: 20,
 	},
 });
+
+const IconLoading = ({ style, color, secondColor }) => {
+	const { style: anitmateStyle } = animateTransform({
+		type: "rotate",
+		from: "0 50 50",
+		to: "360 50 50",
+		dur: "1s",
+		repeatCount: "indefinite",
+	});
+	const { style: anitmateReverseStyle } = animateTransform({
+		type: "rotate",
+		from: "0 50 50",
+		to: "-360 50 50",
+		dur: "1s",
+		repeatCount: "indefinite",
+	});
+
+	return (
+		<View style={[styles.icon, style]}>
+			<Svg
+				xmlns="http://www.w3.org/2000/svg"
+				style={{
+					margin: "auto",
+					background: "0 0",
+				}}
+				width={"100%"}
+				height={"100%"}
+				viewBox="0 0 100 100"
+				preserveAspectRatio="xMidYMid"
+				display="block"
+			>
+				<AnimatedCircle
+					cx={50}
+					cy={50}
+					r={34}
+					strokeWidth={4}
+					stroke={color || "#108bdd"}
+					strokeDasharray="53.40707511102649 53.40707511102649"
+					fill="none"
+					strokeLinecap="round"
+					style={anitmateStyle}
+				></AnimatedCircle>
+				<AnimatedCircle
+					cx={50}
+					cy={50}
+					r={29}
+					strokeWidth={4}
+					stroke={secondColor || "#dde3f3"}
+					strokeDasharray="45.553093477052 45.553093477052"
+					strokeDashoffset={45.553}
+					fill="none"
+					strokeLinecap="round"
+					style={anitmateReverseStyle}
+				></AnimatedCircle>
+			</Svg>
+		</View>
+	);
+};
 
 const IconArrowBack = ({ style, color }) => (
 	<View style={[styles.icon, style]}>
@@ -143,4 +245,4 @@ const IconAdd = ({ style, color }) => (
 	</View>
 );
 
-export { IconArrowBack, IconArrowForward, IconArrowUp, IconArrowDown, IconUp, IconDown, IconAgenda, IconAgendaSelected, IconCheck, IconCross, IconRemove, IconAdd };
+export { IconLoading, IconArrowBack, IconArrowForward, IconArrowUp, IconArrowDown, IconUp, IconDown, IconAgenda, IconAgendaSelected, IconCheck, IconCross, IconRemove, IconAdd };

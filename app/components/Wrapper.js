@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { StyleSheet, Animated, StatusBar, View, Platform } from "react-native";
+import React, { useRef, useState, useEffect } from "react";
+import { StyleSheet, Animated, StatusBar, View, Platform, RefreshControl, Dimensions } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import SafeView from "./SafeView";
@@ -8,64 +8,127 @@ import Colors from "../config/Colors";
 
 import interpolate from "color-interpolate";
 import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
+import Loading from "./Loading";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { IconLoading } from "./Icons";
 
 const interpolation = interpolate([Colors.white, Colors.primary]);
-const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom }) => {
+const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading }) => {
 	const offset = useRef(new Animated.Value(0)).current;
 	const scrollView = useRef();
 	let hasHitBottom = false;
 
+	const [headerLayout, setHeaderLayout] = useState({ x: 0, y: 0, height: 0, width: 0 });
+
+	const [refreshing, setRefreshing] = useState(false);
+	const doRefresh = () => {
+		setRefreshing(true);
+		const res = refresh();
+		if (res instanceof Promise) {
+			res.then(() => setRefreshing(false));
+		} else {
+			setRefreshing(false);
+		}
+	};
+
+	const refreshControl = {};
+	if (typeof refresh === "function") {
+		refreshControl.refreshControl = (
+			<RefreshControl refreshing={refreshing} onRefresh={doRefresh} tintColor="transparent" colors={["transparent"]} style={{ backgroundColor: "transparent" }} />
+		);
+	}
+
+	const [isLoading, setIsLoading] = useState(loading);
+	useEffect(() => {
+		if (loading !== isLoading) setIsLoading(loading);
+	}, [loading]);
+
 	return (
 		<SafeView>
-			{showHeader && <Header navigation={navigation} scrollView={scrollView} animatedValue={offset} />}
-			<wrapperScrollViewContext.Provider value={scrollView}>
-				<KeyboardAwareScrollView
-					nestedScrollEnabled={true}
-					scrollEnabled={scrollEnabled}
-					innerRef={(ref) => {
-						scrollView.current = ref;
+			{showHeader && (
+				<Header
+					navigation={navigation}
+					scrollView={scrollView}
+					animatedValue={offset}
+					onLayout={(e) => {
+						setHeaderLayout(e.nativeEvent.layout);
 					}}
-					showsVerticalScrollIndicator={false}
-					onScroll={(e) => {
-						Animated.event(
-							[
-								{
-									nativeEvent: {
-										contentOffset: {
-											y: offset,
+				/>
+			)}
+			<wrapperScrollViewContext.Provider value={scrollView}>
+				{isLoading && (
+					<Loading
+						size={100}
+						isActive={true}
+						style={{
+							marginTop: headerLayout.height + useSafeAreaInsets().top,
+							height: Dimensions.get("screen").height - headerLayout.height * 2 - useSafeAreaInsets().top * 2,
+						}}
+					/>
+				)}
+				{!isLoading && refreshControl.refreshControl && refreshing && (
+					<IconLoading
+						style={{
+							position: "absolute",
+							width: 60,
+							height: 60,
+							alignSelf: "center",
+							alignItems: "center",
+							justifyContent: "center",
+							top: headerLayout.height + useSafeAreaInsets().top,
+						}}
+					/>
+				)}
+				{!isLoading && (
+					<KeyboardAwareScrollView
+						nestedScrollEnabled={true}
+						scrollEnabled={scrollEnabled}
+						innerRef={(ref) => {
+							scrollView.current = ref;
+						}}
+						showsVerticalScrollIndicator={false}
+						onScroll={(e) => {
+							Animated.event(
+								[
+									{
+										nativeEvent: {
+											contentOffset: {
+												y: offset,
+											},
 										},
 									},
-								},
-							],
-							{ useNativeDriver: false }
-						)(e);
+								],
+								{ useNativeDriver: false }
+							)(e);
 
-						if (e.nativeEvent.contentOffset.y > 20) StatusBar.setBarStyle("light-content");
-						else StatusBar.setBarStyle("dark-content");
+							if (e.nativeEvent.contentOffset.y > 20) StatusBar.setBarStyle("light-content");
+							else StatusBar.setBarStyle("dark-content");
 
-						if (Platform.OS === "android") {
-							const procent = (Math.min(Math.max(offset._value, 5), 55) - 5) / 50;
-							StatusBar.setBackgroundColor(interpolation(procent));
-						}
-
-						if (hitBottom && typeof hitBottom === "function") {
-							if (e.nativeEvent.layoutMeasurement.height + e.nativeEvent.contentOffset.y >= e.nativeEvent.contentSize.height - 20) {
-								hasHitBottom = true;
+							if (Platform.OS === "android") {
+								const procent = (Math.min(Math.max(offset._value, 5), 55) - 5) / 50;
+								StatusBar.setBackgroundColor(interpolation(procent));
 							}
-						}
-					}}
-					onScrollEndDrag={() => {
-						if (!hasHitBottom) return;
-						hasHitBottom = false;
-						hitBottom();
-					}}
-					scrollEventThrottle={1}
-					keyboardDismissMode="interactive"
-					style={[styles.wrapper, style]}
-				>
-					{children}
-					<View style={{ height: 50, width: "100%", backgroundColor: Colors.white }} />
-				</KeyboardAwareScrollView>
+
+							if (typeof hitBottom === "function") {
+								if (e.nativeEvent.layoutMeasurement.height + e.nativeEvent.contentOffset.y >= e.nativeEvent.contentSize.height - 20) {
+									hasHitBottom = true;
+								}
+							}
+						}}
+						onScrollEndDrag={() => {
+							if (!hasHitBottom) return;
+							hasHitBottom = false;
+							hitBottom();
+						}}
+						scrollEventThrottle={1}
+						keyboardDismissMode="interactive"
+						style={[styles.wrapper, style]}
+						{...refreshControl}
+					>
+						{children}
+						<View style={{ height: 50, width: "100%", backgroundColor: Colors.white }} />
+					</KeyboardAwareScrollView>
+				)}
 			</wrapperScrollViewContext.Provider>
 		</SafeView>
 	);
