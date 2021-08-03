@@ -21,13 +21,18 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 	const [headerLayout, setHeaderLayout] = useState({ x: 0, y: 0, height: 0, width: 0 });
 
 	const [refreshing, setRefreshing] = useState(false);
+	const endRefresh = () => {
+		setTimeout(() => {
+			setRefreshing(false);
+		}, 500);
+	};
 	const doRefresh = () => {
 		setRefreshing(true);
 		const res = refresh();
 		if (res instanceof Promise) {
-			res.then(() => setRefreshing(false));
+			res.then(endRefresh);
 		} else {
-			setRefreshing(false);
+			endRefresh();
 		}
 	};
 
