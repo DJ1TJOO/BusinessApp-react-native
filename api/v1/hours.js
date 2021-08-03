@@ -152,7 +152,7 @@ const createHours = async (body) => {
 		}
 
 		// Invalid year
-		if (!isNaN(year)) {
+		if (isNaN(year)) {
 			// Return status 422 (unprocessable entity) incorrect
 			return {
 				status: 422,
@@ -192,7 +192,7 @@ const createHours = async (body) => {
 		}
 
 		// Invalid week
-		if (!isNaN(week)) {
+		if (isNaN(week)) {
 			// Return status 422 (unprocessable entity) incorrect
 			return {
 				status: 422,
@@ -261,10 +261,10 @@ const createHours = async (body) => {
 			// Return status 500 (internal server error) internal
 			return { status: 500, success: false, error: "internal" };
 		}
-		return res.send({
+		return {
 			success: true,
 			data: results[0],
-		});
+		};
 	} catch (error) {
 		// Mysql error
 		console.log(error);
@@ -298,7 +298,7 @@ const validateNumber = (field, value, min, max, checkEmpty = true) => {
 	}
 
 	// Invalid value
-	if (!isNaN(value)) {
+	if (isNaN(value)) {
 		// Return status 422 (unprocessable entity) incorrect
 		return {
 			status: 422,
