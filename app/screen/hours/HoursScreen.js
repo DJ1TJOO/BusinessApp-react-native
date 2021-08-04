@@ -119,7 +119,7 @@ const HoursScreen = ({ navigation, route }) => {
 									: hours.valid === false
 									? "De uren die u had ingevuld voor week " + i + " zijn afgekeurd. Pas deze aan"
 									: hours.submitted
-									? "De uren voor week " + i + " zijn ingevuld"
+									? "De uren voor week " + i + " zijn ingeleverd"
 									: "Vul uw uren in voor week " + i
 							}
 							onPress={() => {
@@ -144,12 +144,14 @@ const HoursScreen = ({ navigation, route }) => {
 												},
 												body: JSON.stringify({
 													submitted: true,
+													valid: null,
 												}),
 											}).then((res) => res.json());
 											if (!res.success) {
 												setCurrentError(
-													languagesUtils.convertError(data.language, res, { submitted: true }, "uren", {
+													languagesUtils.convertError(data.language, res, { submitted: true, valid: null }, "uren", {
 														submitted: "ingediend",
+														valid: "valide",
 													})
 												);
 
