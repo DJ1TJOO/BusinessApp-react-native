@@ -39,7 +39,7 @@ users.get("/:id", async (req, res) => {
 users.get("/business/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
-		const [results] = await db.query(`SELECT * FROM users WHERE businessId = ?`, [id]);
+		const [results] = await db.query(`SELECT * FROM users WHERE business_id = ?`, [id]);
 		if (results.length < 1) {
 			return res.status(404).send({
 				success: false,
