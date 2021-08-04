@@ -156,40 +156,42 @@ const ViewHoursScreen = ({ navigation, route }) => {
 					</View>
 				</ScrollView>
 			)}
-			<FormButton
-				bad={true}
-				onPress={async () => {
-					try {
-						// Submit hours
-						const res = await fetch(`${config.api}hours/${currentHours.id}`, {
-							method: "PATCH",
-							headers: {
-								Accept: "application/json",
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify({
-								submitted: false,
-							}),
-						}).then((res) => res.json());
-						if (!res.success) {
-							setCurrentError(
-								languagesUtils.convertError(data.language, res, { submitted: false }, "uren", {
-									submitted: "ingediend",
-								})
-							);
-							return;
-						}
+			{currentHours.valid !== true && (
+				<FormButton
+					bad={true}
+					onPress={async () => {
+						try {
+							// Submit hours
+							const res = await fetch(`${config.api}hours/${currentHours.id}`, {
+								method: "PATCH",
+								headers: {
+									Accept: "application/json",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									submitted: false,
+								}),
+							}).then((res) => res.json());
+							if (!res.success) {
+								setCurrentError(
+									languagesUtils.convertError(data.language, res, { submitted: false }, "uren", {
+										submitted: "ingediend",
+									})
+								);
+								return;
+							}
 
-						// Update hours
-						navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
-					} catch (error) {
-						// TODO: send error to server
-						console.log(error);
-					}
-				}}
-			>
-				Inleveren ongedaan maken
-			</FormButton>
+							// Update hours
+							navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
+						} catch (error) {
+							// TODO: send error to server
+							console.log(error);
+						}
+					}}
+				>
+					Inleveren ongedaan maken
+				</FormButton>
+			)}
 			<FormButton
 				onPress={() => {
 					navigation.navigate("Hours");
