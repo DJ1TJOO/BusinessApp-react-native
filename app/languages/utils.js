@@ -1,3 +1,12 @@
+/**
+ *
+ * @param {Object} language
+ * @param {Object} res
+ * @param {{[key]: String | Object}} body
+ * @param {String} type
+ * @param {{[key]: String}} fields
+ * @returns {String}
+ */
 const convertError = (language, res, body, type, fields) => {
 	let errorMessage = language.errors[res.error];
 	if (type) {

@@ -14,6 +14,8 @@ import dataContext from "../../contexts/dataContext";
 
 import config from "../../config/config";
 
+import languagesUtils from "../../languages/utils";
+
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	return (
 		<View style={styles.column}>
@@ -101,7 +103,7 @@ const convertHoursToData = (hours) => {
 		});
 };
 
-const update = async (data, currentHours, hours) => {
+const update = async (data, currentHours, hours, setCurrentError) => {
 	try {
 		// Get hours data
 		const hoursData = convertHoursToData(hours);
@@ -125,7 +127,24 @@ const update = async (data, currentHours, hours) => {
 			if (res.success) {
 				currentHours.id = res.data.id;
 			} else {
-				//TODO: error message
+				setCurrentError(
+					languagesUtils.convertError(
+						data.language,
+						res,
+						{
+							userId: data.user.id,
+							businessId: data.user.businessId,
+							week: currentHours.week,
+							year: currentHours.year,
+						},
+						"uren",
+						{
+							week: "week",
+							year: "jaar",
+						}
+					)
+				);
+				// TODO: log error to server
 				console.log(res);
 				return false;
 			}
@@ -148,7 +167,21 @@ const update = async (data, currentHours, hours) => {
 				if (res.success) {
 					update.id = res.data.id;
 				} else {
-					//TODO: error message
+					setCurrentError(
+						languagesUtils.convertError(data.language, res, update, "project uren", {
+							project: "project",
+							projectName: "project naam",
+							description: "omschrijving",
+							monday: "maandag",
+							tuesday: "disndag",
+							wednesday: "woensdag",
+							thursday: "donderdag",
+							friday: "vrijdag",
+							saturday: "zaterdag",
+							sunday: "zondag",
+						})
+					);
+					// TODO: log error to server
 					console.log(res);
 					return false;
 				}
@@ -163,7 +196,21 @@ const update = async (data, currentHours, hours) => {
 					body: JSON.stringify(update),
 				}).then((res) => res.json());
 				if (!res.success) {
-					//TODO: error message
+					setCurrentError(
+						languagesUtils.convertError(data.language, res, update, "project uren", {
+							project: "project",
+							projectName: "project naam",
+							description: "omschrijving",
+							monday: "maandag",
+							tuesday: "disndag",
+							wednesday: "woensdag",
+							thursday: "donderdag",
+							friday: "vrijdag",
+							saturday: "zaterdag",
+							sunday: "zondag",
+						})
+					);
+					// TODO: log error to server
 					console.log(res);
 					return false;
 				}
@@ -177,7 +224,8 @@ const update = async (data, currentHours, hours) => {
 				method: "DELETE",
 			}).then((res) => res.json());
 			if (!res.success) {
-				//TODO: error message
+				setCurrentError(languagesUtils.convertError(data.language, res, {}, "project uren", {}));
+				// TODO: log error to server
 				console.log(res);
 				return false;
 			}
@@ -195,6 +243,7 @@ const update = async (data, currentHours, hours) => {
 
 const ChangeHoursScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
+	const [currentError, setCurrentError] = useState();
 
 	const projects = [
 		"Huizen - 113133",
@@ -221,7 +270,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 	}
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation}>
+		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
 			<View style={styles.header}>
 				<Heading title={`Uren week ${currentHours.week} (${currentHours.year})`} />
 				{hours.valid === true ? <IconCheck style={styles.icon} /> : hours.valid === false ? <IconCross style={styles.icon} /> : null}
@@ -371,7 +420,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 			<FormButton
 				invert={true}
 				onPress={async () => {
-					if (!(await update(data, currentHours, hours))) return;
+					if (!(await update(data, currentHours, hours, setCurrentError))) return;
 					navigation.navigate("Hours");
 				}}
 			>
@@ -380,7 +429,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 			<FormButton
 				onPress={async () => {
 					try {
-						if (!(await update(data, currentHours, hours))) return;
+						if (!(await update(data, currentHours, hours, setCurrentError))) return;
 
 						// Submit hours
 						const res = await fetch(`${config.api}hours/${currentHours.id}`, {
@@ -394,7 +443,12 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 							}),
 						}).then((res) => res.json());
 						if (!res.success) {
-							//TODO: error message
+							setCurrentError(
+								languagesUtils.convertError(data.language, res, { submitted: true }, "uren", {
+									submitted: "ingediend",
+								})
+							);
+							// TODO: log error to server
 							console.log(res);
 							return;
 						}
