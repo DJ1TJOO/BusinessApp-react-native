@@ -15,7 +15,7 @@ const Loading = ({ size = 50, text, textStyle, direction, isActive, style }) => 
 					position: "absolute",
 					height: "100%",
 					width: "100%",
-					zIndex: 999999,
+					zIndex: 999,
 					elevation: 1,
 				},
 				style,

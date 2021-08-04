@@ -123,6 +123,8 @@ const styles = StyleSheet.create({
 		width: "100%",
 		top: 0,
 		bottom: 0,
+		zIndex: 9999,
+		elevation: 2,
 	},
 	safeView: {
 		justifyContent: "center",
