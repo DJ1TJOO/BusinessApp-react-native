@@ -1,49 +1,61 @@
-import React from "react";
-import { StyleSheet } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import { StyleSheet, Text } from "react-native";
 
 import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
-import Card from "../../components/Card";
-import FormButton from "../../components/form/FormButton";
-import { IconCross, IconCheck } from "../../components/Icons";
 import MenuCard from "../../components/menu/MenuCard";
 
-const CheckHoursPersonScreen = ({ navigation }) => {
+import dataContext from "../../contexts/dataContext";
+
+import config from "../../config/config";
+import FontSizes from "../../config/FontSizes";
+import Colors from "../../config/Colors";
+
+const CheckHoursPersonScreen = ({ navigation, route }) => {
+	const [currentError, setCurrentError] = useState(null);
+
+	const [data, setData] = useContext(dataContext);
+
+	const [hours, setHours] = useState([]);
+	useEffect(() => {
+		// Get user hours
+		(async () => {
+			try {
+				const user = data.checkHours.users.find((x) => x.id === route.params.id);
+				const res = await fetch(config.api + "hours/users/" + user.id).then((res) => res.json());
+				if (res.success) user.hours = res.data.filter((x) => x.submitted && !x.valid);
+				else user.hours = [];
+				setHours(user.hours);
+				setData({ ...data });
+			} catch (error) {
+				throw error;
+			}
+		})();
+	}, []);
 	return (
-		<Wrapper navigation={navigation} showHeader={true}>
+		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
 			<Heading title="Uren" style={styles.heading} />
-			<MenuCard
-				title="Uren week 11"
-				onPress={() => {
-					//TODO: data
-					navigation.navigate("CheckHoursWeek");
-				}}
-			/>
-			<MenuCard
-				title="Uren week 10"
-				onPress={() => {
-					//TODO: data
-					navigation.navigate("CheckHoursWeek");
-				}}
-			/>
-			<MenuCard
-				title="Uren week 9"
-				onPress={() => {
-					//TODO: data
-					navigation.navigate("CheckHoursWeek");
-				}}
-			/>
-			<MenuCard
-				title="Uren week 8"
-				onPress={() => {
-					//TODO: data
-					navigation.navigate("ViewHours");
-				}}
-			/>
+			{hours.length > 0 &&
+				hours.map((x, index) => (
+					<MenuCard
+						key={index}
+						title={`Uren week ${x.week} (${x.year})`}
+						onPress={() => {
+							navigation.navigate("CheckHoursWeek", { id: route.params.id, week: x.week, year: x.year });
+						}}
+					/>
+				))}
+			{hours.length < 1 && <Text style={styles.noHours}>Geen uren ingeleverd</Text>}
 		</Wrapper>
 	);
 };
 
-export default CheckHoursPersonScreen;
+const styles = StyleSheet.create({
+	noHours: {
+		color: Colors.textPrimary,
+		fontSize: FontSizes.subtitle,
+		fontFamily: "Segoe-UI",
+	},
+});
 
-const styles = StyleSheet.create({});
+export default CheckHoursPersonScreen;
