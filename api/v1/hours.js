@@ -23,13 +23,18 @@ const getHours = async (params) => {
 			};
 		}
 
+		const mappedResults = results.map((x) => ({
+			...x,
+			valid: x.valid === 1 ? true : x.valid === 0 ? false : null,
+			submitted: x.submitted === 1 ? true : x.submitted === 0 ? false : null,
+		}));
 		if (results.length === 1) {
-			return await addProjectHours(results[0]);
+			return await addProjectHours(mappedResults[0]);
 		}
 
 		const data = [];
 		for (let i = 0; i < results.length; i++) {
-			const { success, ...hours } = await addProjectHours(results[i]);
+			const { success, ...hours } = await addProjectHours(mappedResults[i]);
 
 			if (!success) return { success, ...hours };
 
