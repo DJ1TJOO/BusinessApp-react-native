@@ -4,7 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, Platform } from "react-native";
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 
-const FormButton = ({ children, onPress, invert, bad }) => {
+const FormButton = ({ children, onPress, invert, bad, style }) => {
 	let child;
 	if (typeof children === "string") {
 		child = <Text style={[styles.buttonText, invert && !bad && styles.buttonTextInvert, invert && bad && styles.buttonTextInvertBad]}>{children}</Text>;
@@ -14,7 +14,7 @@ const FormButton = ({ children, onPress, invert, bad }) => {
 
 	return (
 		<TouchableOpacity
-			style={[styles.button, invert && !bad && styles.buttonInvert, !invert && bad && styles.buttonBad, invert && bad && styles.buttonInvertBad]}
+			style={[styles.button, style, invert && !bad && styles.buttonInvert, !invert && bad && styles.buttonBad, invert && bad && styles.buttonInvertBad]}
 			onPress={onPress}
 		>
 			{child}
