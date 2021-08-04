@@ -4,23 +4,46 @@ import FormButton from "../../components/form/FormButton";
 import Form from "../../components/form/Form";
 import FormInput from "../../components/form/FormInput";
 import Wrapper from "../../components/Wrapper";
-
 import { IconArrowBack } from "../../components/Icons";
 
-const verify = async (businessId, userId, code) => {
+import dataContext from "../../contexts/dataContext";
+
+const verify = async (businessId, userId, code, setCurrentError, data) => {
 	try {
 		const res = await fetch(`http://192.168.178.25:8003/v1/users/recover/${businessId}/${userId}/${code}`, {
 			method: "POST",
 		}).then((res) => res.json());
-		if (!res.success) console.log(res);
+		if (!res.success) {
+			setCurrentError(
+				languagesUtils.convertError(
+					data.language,
+					res,
+					{
+						businessId,
+						userId,
+						code,
+					},
+					"gebruiker",
+					{
+						businessId: "bedrijf",
+						userId: "gebruiker",
+						code: "code",
+					}
+				)
+			);
+		}
 		return res.success;
-	} catch (err) {
-		console.error(err);
+	} catch (error) {
+		// TODO: send error to server
+		console.log(error);
 		return false;
 	}
 };
 
 const VerifyCodeScreen = ({ navigation, route }) => {
+	const [data, setData] = useContext(dataContext);
+	const [currentError, setCurrentError] = useState();
+
 	const { code, userId, businessId } = route.params;
 	const isCreating = route.params?.isCreating;
 
@@ -30,7 +53,7 @@ const VerifyCodeScreen = ({ navigation, route }) => {
 	useEffect(() => {
 		if (code) {
 			const validate = async () => {
-				const valid = await verify(businessId, userId, code);
+				const valid = await verify(businessId, userId, code, setCurrentError, data);
 
 				if (valid) {
 					navigation.navigate("ChangePassword", { isCreating, userId, businessId, code });
@@ -42,12 +65,12 @@ const VerifyCodeScreen = ({ navigation, route }) => {
 		}
 	}, [route.params]);
 	return (
-		<Wrapper showHeader={true}>
+		<Wrapper showHeader={true} error={currentError}>
 			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord vergeten?"}>
 				<FormInput label="Verificatie code" onChange={setCurrentCode} errorLabel={currentErrorLabel} />
 				<FormButton
 					onPress={async () => {
-						if (await verify(businessId, userId, currentCode)) {
+						if (await verify(businessId, userId, currentCode, setCurrentError, data)) {
 							navigation.navigate("ChangePassword", { isCreating, userId, businessId, code: currentCode });
 						} else {
 							setCurrentErrorLabel("De code is onjuist");

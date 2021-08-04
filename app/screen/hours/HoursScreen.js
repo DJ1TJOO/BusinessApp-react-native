@@ -9,6 +9,8 @@ import { IconCross, IconCheck, IconLoading } from "../../components/Icons";
 
 import config from "../../config/config";
 
+import languagesUtils from "../../languages/utils";
+
 import dataContext from "../../contexts/dataContext";
 
 const getWeekNumber = (d) => {
@@ -43,6 +45,8 @@ const weeksInYear = (year) => {
 };
 
 const HoursScreen = ({ navigation, route }) => {
+	const [currentError, setCurrentError] = useState();
+
 	const currentYear = new Date().getFullYear();
 	const [cards, setCards] = useState([]);
 	const [latestYear, setLatestYear] = useState(currentYear);
@@ -143,8 +147,12 @@ const HoursScreen = ({ navigation, route }) => {
 												}),
 											}).then((res) => res.json());
 											if (!res.success) {
-												//TODO: error message
-												console.log(res);
+												setCurrentError(
+													languagesUtils.convertError(data.language, res, { submitted: true }, "uren", {
+														submitted: "ingediend",
+													})
+												);
+
 												return;
 											}
 
@@ -157,6 +165,7 @@ const HoursScreen = ({ navigation, route }) => {
 
 											navigation.navigate("Hours");
 										} catch (error) {
+											// TODO: send error to server
 											console.log(error);
 										}
 									}}
@@ -189,7 +198,10 @@ const HoursScreen = ({ navigation, route }) => {
 
 				if (loading) setLoading(false);
 			})
-			.catch((err) => console.log(err));
+			.catch((error) => {
+				// TODO: send error to server
+				console.log(error);
+			});
 	};
 
 	// Add cards
@@ -207,6 +219,7 @@ const HoursScreen = ({ navigation, route }) => {
 
 	return (
 		<Wrapper
+			error={currentError}
 			navigation={navigation}
 			showHeader={true}
 			hitBottom={() => {

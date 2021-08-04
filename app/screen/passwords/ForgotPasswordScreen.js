@@ -4,9 +4,13 @@ import FormButton from "../../components/form/FormButton";
 import Form from "../../components/form/Form";
 import FormInput from "../../components/form/FormInput";
 import Wrapper from "../../components/Wrapper";
-
 import { IconArrowBack } from "../../components/Icons";
+
 import useFormData from "../../hooks/useFormData";
+
+import dataContext from "../../contexts/dataContext";
+
+import languagesUtils from "../../languages/utils";
 
 const defaultFormData = [
 	["business", "email"],
@@ -39,18 +43,24 @@ const defaultFormData = [
 	],
 ];
 
-const createCode = async (business, email) => {
+const createCode = async (business, email, setCurrentError, data) => {
 	try {
 		const res = await fetch(`http://192.168.178.25:8003/v1/users/recover/${business}/${email}`).then((res) => res.json());
-		if (!res.success) console.log(res);
+		if (!res.success) {
+			setCurrentError(languagesUtils.convertError(data.language, res));
+		}
 		return res;
-	} catch (err) {
-		console.error(err);
+	} catch (error) {
+		// TODO: send error to server
+		console.log(error);
 		return { success: false };
 	}
 };
 
 const ForgotPasswordScreen = ({ navigation, route }) => {
+	const [data, setData] = useContext(dataContext);
+	const [currentError, setCurrentError] = useState();
+
 	const { code, userId, businessId } = route.params;
 	const isCreating = route.params?.isCreating;
 
@@ -64,7 +74,7 @@ const ForgotPasswordScreen = ({ navigation, route }) => {
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 
 	return (
-		<Wrapper showHeader={true}>
+		<Wrapper showHeader={true} error={currentError}>
 			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord vergeten?"} errorLabel={currentErrorLabel}>
 				<FormInput label="Bedrijf" textContentType="name" {...getFormProps("business")} />
 				<FormInput label="Email" textContentType="emailAddress" {...getFormProps("email")} />
@@ -77,7 +87,7 @@ const ForgotPasswordScreen = ({ navigation, route }) => {
 						}
 
 						try {
-							const res = await createCode(formData.business.value, formData.email.value);
+							const res = await createCode(formData.business.value, formData.email.value, setCurrentError, data);
 							if (!res.success) {
 								return setCurrentErrorLabel("Account niet gevonden. Controleer de business naam en email address");
 							}

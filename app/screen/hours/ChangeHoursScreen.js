@@ -144,8 +144,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 						}
 					)
 				);
-				// TODO: log error to server
-				console.log(res);
+
 				return false;
 			}
 		}
@@ -181,8 +180,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 							sunday: "zondag",
 						})
 					);
-					// TODO: log error to server
-					console.log(res);
+
 					return false;
 				}
 			} else if (update !== current) {
@@ -210,8 +208,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 							sunday: "zondag",
 						})
 					);
-					// TODO: log error to server
-					console.log(res);
+
 					return false;
 				}
 			}
@@ -225,8 +222,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 			}).then((res) => res.json());
 			if (!res.success) {
 				setCurrentError(languagesUtils.convertError(data.language, res, {}, "project uren", {}));
-				// TODO: log error to server
-				console.log(res);
+
 				return false;
 			}
 		}
@@ -236,7 +232,9 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 
 		return true;
 	} catch (error) {
+		// TODO: send error to server
 		console.log(error);
+
 		return false;
 	}
 };
@@ -448,8 +446,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 									submitted: "ingediend",
 								})
 							);
-							// TODO: log error to server
-							console.log(res);
+
 							return;
 						}
 
@@ -462,6 +459,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 						// Update hours
 						navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
 					} catch (error) {
+						// TODO: send error to server
 						console.log(error);
 					}
 				}}

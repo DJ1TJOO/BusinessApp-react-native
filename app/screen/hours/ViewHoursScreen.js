@@ -10,6 +10,8 @@ import FormButton from "../../components/form/FormButton";
 
 import dataContext from "../../contexts/dataContext";
 
+import languagesUtils from "../../languages/utils";
+
 import config from "../../config/config";
 
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
@@ -46,37 +48,9 @@ const convertDataToHours = (currentHours) => {
 	}));
 };
 
-const convertHoursToData = (hours) => {
-	return hours
-		.filter((x) => x.project !== emptyProject.project || x.description !== emptyProject.description || x.hours !== emptyProject.hours)
-		.map((x) => {
-			const projectInfo = x.project.split("-");
-			const project = projectInfo[0].trim();
-
-			let projectName = null;
-			if (projectInfo.length > 1) {
-				projectName = projectInfo[projectInfo.length - 1].trim();
-			}
-
-			return {
-				id: x.id,
-				hours_id: x.hours_id,
-				project,
-				projectName,
-				description: x.description,
-				monday: Number(x.hours[0]),
-				tuesday: Number(x.hours[1]),
-				wednesday: Number(x.hours[2]),
-				thursday: Number(x.hours[3]),
-				friday: Number(x.hours[4]),
-				saturday: Number(x.hours[5]),
-				sunday: Number(x.hours[6]),
-			};
-		});
-};
-
 const ViewHoursScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
+	const [currentError, setCurrentError] = useState();
 
 	const { year, week } = route.params;
 	const currentHours = data.hours.find((x) => x.year === year && x.week === week);
@@ -92,7 +66,7 @@ const ViewHoursScreen = ({ navigation, route }) => {
 	}
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation}>
+		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
 			<View style={styles.header}>
 				<Heading title={`Uren week ${week} (${year})`} />
 				{hours.valid === true ? <IconCheck style={styles.icon} /> : hours.valid === false ? <IconCross style={styles.icon} /> : null}
@@ -198,14 +172,18 @@ const ViewHoursScreen = ({ navigation, route }) => {
 							}),
 						}).then((res) => res.json());
 						if (!res.success) {
-							//TODO: error message
-							console.log(res);
+							setCurrentError(
+								languagesUtils.convertError(data.language, res, { submitted: false }, "uren", {
+									submitted: "ingediend",
+								})
+							);
 							return;
 						}
 
 						// Update hours
 						navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
 					} catch (error) {
+						// TODO: send error to server
 						console.log(error);
 					}
 				}}
