@@ -438,12 +438,14 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 							},
 							body: JSON.stringify({
 								submitted: true,
+								valid: null,
 							}),
 						}).then((res) => res.json());
 						if (!res.success) {
 							setCurrentError(
-								languagesUtils.convertError(data.language, res, { submitted: true }, "uren", {
+								languagesUtils.convertError(data.language, res, { submitted: true, valid: null }, "uren", {
 									submitted: "ingediend",
+									valid: "valide",
 								})
 							);
 
