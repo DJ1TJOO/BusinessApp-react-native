@@ -18,6 +18,7 @@ const FormInput = ({
 	onChange,
 	validator,
 	textContentType,
+	keyboardType,
 	style,
 	children,
 	value,
@@ -108,6 +109,7 @@ const FormInput = ({
 						if (currentValue) setCurrentValue(currentValue.trim());
 					}}
 					textContentType={textContentType}
+					keyboardType={keyboardType}
 					onChangeText={(text) => checkValue(text)}
 					value={currentValue}
 					returnKeyType="done"
