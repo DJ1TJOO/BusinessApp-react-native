@@ -18,7 +18,7 @@ const defaultFormData = [
 	[
 		{
 			key: "password",
-			validator: (formData, text) => {
+			validator: (formData, data, text) => {
 				if (!text) return "Het wachtwoord mag niet leeg zijn";
 				if (text.length < 8) return "Het wachtwoord mag niet korter zijn dan 8 karakters";
 				if (text.length > 255) return "Het wachtwoord mag niet langer zijn dan 255 karakters";
@@ -29,7 +29,7 @@ const defaultFormData = [
 		},
 		{
 			key: "confirm_password",
-			validator: (formData, text) => {
+			validator: (formData, data, text) => {
 				if (!text) return "Het wachtwoord mag niet leeg zijn";
 				if (text !== formData.password.value) return "Het wachtwoord moet het zelfde zijn ";
 				return true;
