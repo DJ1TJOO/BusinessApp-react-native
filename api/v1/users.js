@@ -36,6 +36,35 @@ users.get("/:id", async (req, res) => {
 	}
 });
 
+users.get("/business/:id", async (req, res) => {
+	const { id } = req.params;
+	try {
+		const [results] = await db.query(`SELECT * FROM users WHERE businessId = ?`, [id]);
+		if (results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "user_not_found",
+			});
+		}
+
+		return res.send({
+			success: true,
+			data: results.map((x) => {
+				const { pwd: hashed, ...user } = x;
+				return user;
+			}),
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
 users.post("/", async (req, res) => {
 	const { businessId, rightId, firstName, lastName, email, password, born, functionDescription, sendCreateCode, prefix } = req.body;
 
