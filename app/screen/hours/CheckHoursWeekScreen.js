@@ -1,13 +1,18 @@
-import React, { useState, useRef } from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
+import React, { useState, useContext } from "react";
+import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import Heading from "../../components/Heading";
-import { IconAdd, IconCross, IconDown, IconRemove, IconArrowBack } from "../../components/Icons";
+import { IconArrowBack, IconCross } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
-import FormInput from "../../components/form/FormInput";
 import FormButton from "../../components/form/FormButton";
+
+import dataContext from "../../contexts/dataContext";
+
+import languagesUtils from "../../languages/utils";
+
+import config from "../../config/config";
 
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	return (
@@ -15,7 +20,7 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 			<Text style={styles.name}>{name}</Text>
 
 			{hours.map((project, index) => (
-				<View style={styles.projectView}>
+				<View style={styles.projectView} key={index}>
 					<Text style={styles.project}>{project.hours[hoursIndex]}</Text>
 				</View>
 			))}
@@ -31,8 +36,27 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	);
 };
 
+const emptyProject = { project: "Project", description: "", hours: ["0", "0", "0", "0", "0", "0", "0"] };
+
+const convertDataToHours = (currentHours) => {
+	return currentHours.hours.map((x) => ({
+		id: x.id,
+		hours_id: x.hours_id,
+		project: x.project + (x.projectName ? " - " + x.projectName : ""),
+		description: x.description,
+		hours: [x.monday.toString(), x.tuesday.toString(), x.wednesday.toString(), x.thursday.toString(), x.friday.toString(), x.saturday.toString(), x.sunday.toString()],
+	}));
+};
+
 const CheckHoursWeekScreen = ({ navigation, route }) => {
-	const [hours, setHours] = useState([{ project: "Project", description: "", hours: ["0", "0", "0", "0", "0", "0", "0"] }]);
+	const [data, setData] = useContext(dataContext);
+	const [currentError, setCurrentError] = useState();
+
+	const { id, year, week } = route.params;
+	const currentHours = data.checkHours.users.find((x) => x.id === id).hours.find((x) => x.year === year && x.week === week);
+
+	const [hours, setHours] = useState(currentHours ? convertDataToHours(currentHours) : [{ ...emptyProject }]);
+
 	const [canSelect, setCanSelect] = useState(true);
 
 	const offsets = [Dimensions.get("window").width - 20 + 5];
@@ -42,10 +66,10 @@ const CheckHoursWeekScreen = ({ navigation, route }) => {
 	}
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation}>
+		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
 			<View style={styles.header}>
-				<Heading title="Uren week 9" />
-				<IconCross style={styles.icon} />
+				<Heading title={`Uren week ${week} (${year})`} />
+				{hours.valid === true ? <IconCheck style={styles.icon} /> : hours.valid === false ? <IconCross style={styles.icon} /> : null}
 			</View>
 			{hours.length > 0 && (
 				<ScrollView
@@ -134,17 +158,69 @@ const CheckHoursWeekScreen = ({ navigation, route }) => {
 			)}
 			<FormButton
 				bad={true}
-				onPress={() => {
-					//TODO: afkeuren
-					navigation.navigate("CheckHours");
+				onPress={async () => {
+					try {
+						// Validate hours
+						const res = await fetch(`${config.api}hours/${currentHours.id}`, {
+							method: "PATCH",
+							headers: {
+								Accept: "application/json",
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								valid: false,
+								submitted: false,
+							}),
+						}).then((res) => res.json());
+						if (!res.success) {
+							setCurrentError(
+								languagesUtils.convertError(data.language, res, { submitted: false, valid: false }, "uren", {
+									submitted: "ingediend",
+									valid: "valide",
+								})
+							);
+							return;
+						}
+
+						// Go back
+						navigation.navigate("CheckHoursPerson", { id: id, date: Date.now() });
+					} catch (error) {
+						// TODO: send error to server
+						console.log(error);
+					}
 				}}
 			>
 				Afkeuren
 			</FormButton>
 			<FormButton
-				onPress={() => {
-					//TODO: goedkeuren
-					navigation.navigate("CheckHours");
+				onPress={async () => {
+					try {
+						// Validate hours
+						const res = await fetch(`${config.api}hours/${currentHours.id}`, {
+							method: "PATCH",
+							headers: {
+								Accept: "application/json",
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								valid: true,
+							}),
+						}).then((res) => res.json());
+						if (!res.success) {
+							setCurrentError(
+								languagesUtils.convertError(data.language, res, { valid: true }, "uren", {
+									valid: "valide",
+								})
+							);
+							return;
+						}
+
+						// Go back
+						navigation.navigate("CheckHoursPerson", { id: id, date: Date.now() });
+					} catch (error) {
+						// TODO: send error to server
+						console.log(error);
+					}
 				}}
 			>
 				Goedkeuren
