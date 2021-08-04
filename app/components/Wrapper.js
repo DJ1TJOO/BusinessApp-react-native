@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { StyleSheet, Animated, StatusBar, View, Platform, RefreshControl, Dimensions } from "react-native";
+import { StyleSheet, Animated, StatusBar, View, Platform, RefreshControl, Dimensions, Text } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import SafeView from "./SafeView";
@@ -11,9 +11,10 @@ import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
 import Loading from "./Loading";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { IconLoading } from "./Icons";
+import useErrorModal from "../hooks/useErrorModal";
 
 const interpolation = interpolate([Colors.white, Colors.primary]);
-const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading }) => {
+const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error }) => {
 	const offset = useRef(new Animated.Value(0)).current;
 	const scrollView = useRef();
 	let hasHitBottom = false;
@@ -47,6 +48,12 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 	useEffect(() => {
 		if (loading !== isLoading) setIsLoading(loading);
 	}, [loading]);
+
+	const [currentError, setCurrentError, ErrorModal] = useErrorModal(error);
+
+	useEffect(() => {
+		if (error !== currentError) setCurrentError(error);
+	}, [error]);
 
 	return (
 		<SafeView>
@@ -135,6 +142,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 					</KeyboardAwareScrollView>
 				)}
 			</wrapperScrollViewContext.Provider>
+			{ErrorModal}
 		</SafeView>
 	);
 };
