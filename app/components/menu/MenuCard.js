@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, Animated } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, Animated, View } from "react-native";
 
 import { IconArrowForward } from "../Icons";
 import Colors from "../../config/Colors";
@@ -7,7 +7,7 @@ import FontSizes from "../../config/FontSizes";
 import MenuCardIcon from "./MenuCardIcon";
 import MenuRoutes from "./MenuRoutes";
 
-const MenuCard = ({ title, onPress, routes, style, color }) => {
+const MenuCard = ({ title, icon, onPress, routes, style, color }) => {
 	const animatedValue = useRef(new Animated.Value(0)).current;
 	const [isOpenend, setIsOpenend] = useState(false);
 
@@ -40,7 +40,11 @@ const MenuCard = ({ title, onPress, routes, style, color }) => {
 			}
 		>
 			<Animated.View style={[styles.card, style, { height: height }]}>
-				<Text style={[styles.text, color && { color: color }]}>{title}</Text>
+				<View style={styles.textContainer}>
+					<Text style={[styles.text, color && { color: color }]}>{title}</Text>
+					{icon}
+				</View>
+
 				{routes && <MenuCardIcon animatedValue={animatedValue} style={styles.icon} />}
 				{!routes && <IconArrowForward color={color || Colors.textPrimary} style={[styles.icon, { top: 10 }]} />}
 				{routes && <MenuRoutes routes={routes} animatedValue={animatedValue} />}
@@ -66,16 +70,18 @@ const styles = StyleSheet.create({
 		top: 3,
 		height: 18,
 	},
+	textContainer: {
+		position: "absolute",
+		left: 10,
+		top: Platform.OS === "android" ? 7 : 5,
+		flexDirection: "row",
+	},
 	text: {
 		color: Colors.textPrimary,
 		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
 
 		textAlignVertical: "center",
-
-		position: "absolute",
-		left: 10,
-		top: Platform.OS === "android" ? 7 : 5,
 	},
 });
 
