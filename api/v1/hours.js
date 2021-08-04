@@ -579,8 +579,8 @@ hours.patch("/:id", async (req, res) => {
 		// Valid specified
 		let hasValid = false;
 		if (typeof valid !== "undefined") {
-			// Not boolean
-			if (typeof valid !== "boolean") {
+			// Not boolean and not null
+			if (typeof valid !== "boolean" && valid !== null) {
 				// Return status 422 (unprocessable entity) incorrect
 				return res.status(422).send({
 					success: false,
