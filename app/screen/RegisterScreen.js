@@ -208,7 +208,7 @@ const RegisterScreen = ({ navigation }) => {
 				<FormHeading title="Hoofdaccount" />
 				<FormInput label="Voornaam" textContentType="name" {...getFormProps("account_firstname")} />
 				<FormInput label="Achternaam" textContentType="name" {...getFormProps("account_lastname")} />
-				<FormInput label="Email" textContentType="emailAddress" {...getFormProps("account_email")} />
+				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("account_email")} />
 				<FormInput label="Wachtwoord" hideText={true} textContentType="password" {...getFormProps("account_password")} />
 				<FormInput label="Bevestig wachtwoord" hideText={true} textContentType="password" {...getFormProps("account_confirm_password")} />
 				<FormDate

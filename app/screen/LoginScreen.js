@@ -126,7 +126,7 @@ const LoginScreen = ({ navigation }) => {
 		<Wrapper navigation={navigation} showHeader={true}>
 			<Form title="Login" errorLabel={currentError}>
 				<FormInput label="Bedrijf" textContentType="name" {...getFormProps("business_name")} />
-				<FormInput label="Email" textContentType="emailAddress" {...getFormProps("email")} />
+				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
 				<FormInput
 					label="Wachtwoord"
 					helpLabel="Wachtwoord vergeten?"
