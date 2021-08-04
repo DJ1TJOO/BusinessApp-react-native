@@ -10,6 +10,7 @@ import dataContext from "../../contexts/dataContext";
 import config from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 import Colors from "../../config/Colors";
+import { IconCheck, IconCross } from "../../components/Icons";
 
 const CheckHoursPersonScreen = ({ navigation, route }) => {
 	const [currentError, setCurrentError] = useState(null);
@@ -23,7 +24,7 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 			try {
 				const user = data.checkHours.users.find((x) => x.id === route.params.id);
 				const res = await fetch(config.api + "hours/users/" + user.id).then((res) => res.json());
-				if (res.success) user.hours = res.data.filter((x) => x.submitted && !x.valid);
+				if (res.success) user.hours = res.data.filter((x) => x.submitted !== null);
 				else user.hours = [];
 				setHours(user.hours);
 				setData({ ...data });
@@ -31,7 +32,7 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 				throw error;
 			}
 		})();
-	}, []);
+	}, [route]);
 	return (
 		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
 			<Heading title="Uren" style={styles.heading} />
@@ -40,6 +41,7 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 					<MenuCard
 						key={index}
 						title={`Uren week ${x.week} (${x.year})`}
+						icon={x.valid === true ? <IconCheck style={styles.icon}></IconCheck> : x.valid === false ? <IconCross style={styles.icon}></IconCross> : null}
 						onPress={() => {
 							navigation.navigate("CheckHoursWeek", { id: route.params.id, week: x.week, year: x.year });
 						}}
@@ -55,6 +57,12 @@ const styles = StyleSheet.create({
 		color: Colors.textPrimary,
 		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
+	},
+	icon: {
+		width: 30,
+		height: 30,
+		marginLeft: 5,
+		marginTop: -2,
 	},
 });
 
