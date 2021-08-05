@@ -20,6 +20,7 @@ import Account from "./app/Account";
 import dataContext from "./app/contexts/dataContext";
 
 import dutch from "./app/languages/dutch";
+import lastStatusBarColorContext from "./app/contexts/lastStatusBarColor";
 
 const prefix = Linking.makeUrl("/");
 
@@ -30,6 +31,7 @@ export default function App() {
 		language: dutch,
 	});
 	const [linkData, setLinkData] = useState(null);
+	const [lastStatusBarColor, setLastStatusBarColor] = useState(null);
 
 	const linking = {
 		prefixes: [prefix],
@@ -95,23 +97,25 @@ export default function App() {
 	} else {
 		return (
 			<dataContext.Provider value={[data, setData]}>
-				<NavigationContainer linking={linking}>
-					<Stack.Navigator mode="modal" headerMode="none">
-						<Stack.Screen name="Welcome" component={WelcomeScreen} />
-						<Stack.Screen name="Login" component={LoginScreen} />
-						<Stack.Screen name="Register" component={RegisterScreen} />
-						<Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-						<Stack.Screen name="VerifyCode" component={VerifyCodeScreen} options={{ animationEnabled: false }} />
-						<Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ animationEnabled: false }} />
-						<Stack.Screen
-							name="Account"
-							component={Account}
-							options={{
-								gestureEnabled: false,
-							}}
-						/>
-					</Stack.Navigator>
-				</NavigationContainer>
+				<lastStatusBarColorContext.Provider value={[lastStatusBarColor, setLastStatusBarColor]}>
+					<NavigationContainer linking={linking}>
+						<Stack.Navigator mode="modal" headerMode="none">
+							<Stack.Screen name="Welcome" component={WelcomeScreen} />
+							<Stack.Screen name="Login" component={LoginScreen} />
+							<Stack.Screen name="Register" component={RegisterScreen} />
+							<Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+							<Stack.Screen name="VerifyCode" component={VerifyCodeScreen} options={{ animationEnabled: false }} />
+							<Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ animationEnabled: false }} />
+							<Stack.Screen
+								name="Account"
+								component={Account}
+								options={{
+									gestureEnabled: false,
+								}}
+							/>
+						</Stack.Navigator>
+					</NavigationContainer>
+				</lastStatusBarColorContext.Provider>
 			</dataContext.Provider>
 		);
 	}

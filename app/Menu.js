@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
-import React, { useContext } from "react";
-import { useEffect } from "react";
-import { StyleSheet, Text, useWindowDimensions, View, Image, TouchableOpacity } from "react-native";
+import React, { useContext, useEffect } from "react";
+import { StyleSheet, Text, useWindowDimensions, View, Image, TouchableOpacity, StatusBar } from "react-native";
+import { useIsDrawerOpen } from "@react-navigation/drawer";
 
 import { IconArrowBack } from "./components/Icons";
 import MenuCard from "./components/menu/MenuCard";
@@ -12,9 +12,23 @@ import config from "./config/config";
 import FontSizes from "./config/FontSizes";
 
 import dataContext from "./contexts/dataContext";
+import lastStatusBarColorContext from "./contexts/lastStatusBarColor";
 
 const Menu = ({ navigation }) => {
 	const [data, setData] = useContext(dataContext);
+	const [lastStatusBarColor, setLastStatusBarColor] = useContext(lastStatusBarColorContext);
+
+	if (Platform.OS === "android") {
+		const isOpen = useIsDrawerOpen();
+		useEffect(() => {
+			if (isOpen) {
+				StatusBar.setBackgroundColor(styles.container.backgroundColor, true);
+			} else if (lastStatusBarColor) {
+				StatusBar.setBackgroundColor(lastStatusBarColor, true);
+			}
+		}, [isOpen]);
+	}
+
 	return (
 		<DrawerContentScrollView style={[styles.container, { width: useWindowDimensions().width }]}>
 			<TouchableOpacity

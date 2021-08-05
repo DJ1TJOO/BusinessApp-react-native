@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from "react";
-import { StyleSheet, Animated, StatusBar, View, Platform, RefreshControl, Dimensions, Text } from "react-native";
+import React, { useRef, useState, useEffect, useContext } from "react";
+import { StyleSheet, Animated, StatusBar, View, Platform, RefreshControl, Dimensions } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import interpolate from "color-interpolate";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,9 +14,12 @@ import Colors from "../config/Colors";
 import useErrorModal from "../hooks/useErrorModal";
 
 import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
+import lastStatusBarColorContext from "../contexts/lastStatusBarColor";
 
 const interpolation = interpolate([Colors.white, Colors.primary]);
 const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError }) => {
+	const [lastStatusBarColor, setLastStatusBarColor] = useContext(lastStatusBarColorContext);
+
 	const insets = useSafeAreaInsets();
 
 	const offset = useRef(new Animated.Value(0)).current;
@@ -129,6 +132,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 							if (Platform.OS === "android") {
 								const procent = (Math.min(Math.max(offset._value, 5), 55) - 5) / 50;
 								StatusBar.setBackgroundColor(interpolation(procent));
+								setLastStatusBarColor(interpolation(procent));
 							}
 
 							if (typeof hitBottom === "function") {
