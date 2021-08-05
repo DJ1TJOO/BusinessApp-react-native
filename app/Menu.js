@@ -1,12 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
 import React, { useContext } from "react";
+import { useEffect } from "react";
 import { StyleSheet, Text, useWindowDimensions, View, Image, TouchableOpacity } from "react-native";
 
 import { IconArrowBack } from "./components/Icons";
 import MenuCard from "./components/menu/MenuCard";
 
 import Colors from "./config/Colors";
+import config from "./config/config";
 import FontSizes from "./config/FontSizes";
 
 import dataContext from "./contexts/dataContext";
@@ -21,7 +23,7 @@ const Menu = ({ navigation }) => {
 					navigation.closeDrawer();
 				}}
 			>
-				<Image source={{ uri: "https://dummyimage.com/400x400/ffffff/fff" }} resizeMode="cover" style={[styles.logo]} />
+				<Image source={{ uri: config.api + "images/business_logos/" + data.business.logo }} resizeMode="cover" style={[styles.logo]} />
 				<View style={styles.info}>
 					<Text style={styles.name}>Full Name</Text>
 					<Text style={styles.function}>Eigenaar</Text>

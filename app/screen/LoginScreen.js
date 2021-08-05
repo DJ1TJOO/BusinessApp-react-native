@@ -104,13 +104,21 @@ const LoginScreen = ({ navigation }) => {
 
 					// Token valid, login
 					if (res.success) {
-						setData({
-							...data,
-							token,
-							user,
-						});
+						const businessRes = await fetch(config.api + "business/" + user.businessId).then((res) => res.json());
 
-						navigation.navigate("Account");
+						if (businessRes.success) {
+							// Store in data
+							setData({
+								...data,
+								token,
+								user,
+								business: businessRes.data,
+							});
+
+							navigation.navigate("Account");
+						} else {
+							setCurrentError(languagesUtils.convertError(data.language, businessRes));
+						}
 					} else {
 						// Token invalid reset storage
 						await AsyncStorage.removeItem("token");
@@ -130,7 +138,14 @@ const LoginScreen = ({ navigation }) => {
 				<FormInput
 					label="Wachtwoord"
 					helpLabel="Wachtwoord vergeten?"
-					helpOnPress={() => navigation.navigate("ForgotPassword", { isCreating: false, businessId: null, userId: null, code: null })}
+					helpOnPress={() =>
+						navigation.navigate("ForgotPassword", {
+							isCreating: false,
+							businessId: null,
+							userId: null,
+							code: null,
+						})
+					}
 					hideText={true}
 					{...getFormProps("password")}
 				/>
@@ -156,12 +171,7 @@ const LoginScreen = ({ navigation }) => {
 								}),
 							}).then((res) => res.json());
 							if (res.success) {
-								setData({
-									...data,
-									token: res.data.token,
-									user: res.data.user,
-								});
-
+								// Store in phone
 								await AsyncStorage.setItem("token", res.data.token);
 								await AsyncStorage.setItem(
 									"user",
@@ -172,7 +182,21 @@ const LoginScreen = ({ navigation }) => {
 									})
 								);
 
-								navigation.navigate("Account");
+								const businessRes = await fetch(config.api + "business/" + res.data.user.businessId).then((res) => res.json());
+
+								if (businessRes.success) {
+									// Store in data
+									setData({
+										...data,
+										token: res.data.token,
+										user: res.data.user,
+										business: businessRes.data,
+									});
+
+									navigation.navigate("Account");
+								} else {
+									setCurrentError(languagesUtils.convertError(data.language, businessRes));
+								}
 							} else {
 								if (res.error === "business_not_found") {
 									// Display error
