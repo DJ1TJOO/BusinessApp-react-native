@@ -139,6 +139,73 @@ teams.post("/", async (req, res) => {
 	}
 });
 
+teams.post("/:teamId/", async (req, res) => {
+	const { teamId } = req.params;
+	const { userId } = req.body;
+
+	try {
+		const [get_results] = await db.query(`SELECT * FROM teams WHERE id = ?`, [teamId]);
+		if (get_results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "team_not_found",
+			});
+		}
+
+		if (!userId) {
+			// Return status 422 (unprocessable entity) empty
+			return res.status(422).send({
+				success: false,
+				error: "empty",
+				data: {
+					field: "userId",
+				},
+			});
+		}
+
+		const [user_results] = await db.query(`SELECT count(*) FROM users WHERE id = ?`, [userId]);
+
+		// User does not exists
+		if (user_results[0]["count(*)"] < 1) {
+			// Return status 404 (not found) chat not found
+			return res.status(404).send({
+				success: false,
+				error: "user_not_found",
+			});
+		}
+
+		// Insert user_team into db
+		await db.query(
+			`INSERT INTO 
+					user_teams (user_id, team_id)
+					VALUES (?, ?)`,
+			[userId, teamId]
+		);
+
+		const [results] = await db.query(`SELECT * FROM user_teams WHERE user_id = ? AND team_id = ?`, [userId, teamId]);
+		if (results.length < 1) {
+			// Return status 500 (internal server error) internal
+			return res.status(500).send({
+				success: false,
+				error: "internal",
+			});
+		}
+
+		return res.send({
+			success: true,
+			data: results[0],
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
 teams.patch("/:id", async (req, res) => {
 	const { id } = req.params;
 	const { name, chatId, agendaId } = req.body;
@@ -264,6 +331,42 @@ teams.delete("/:id", async (req, res) => {
 		}
 
 		const [delete_results] = await db.query(`DELETE FROM teams WHERE id = ?`, [id]);
+
+		if (delete_results.affectedRows < 1) {
+			return res.send({
+				success: false,
+				error: "failed_to_delete",
+			});
+		}
+
+		return res.send({
+			success: true,
+			data: get_results[0],
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
+teams.delete("/:teamId/:userId", async (req, res) => {
+	const { userId, teamId } = req.params;
+
+	try {
+		const [get_results] = await db.query(`SELECT * FROM user_teams WHERE user_id = ? AND team_id = ?`, [userId, teamId]);
+		if (get_results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "user_team_not_found",
+			});
+		}
+
+		const [delete_results] = await db.query(`DELETE FROM user_teams WHERE user_id = ? AND team_id = ?`, [userId, teamId]);
 
 		if (delete_results.affectedRows < 1) {
 			return res.send({

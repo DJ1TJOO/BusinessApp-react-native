@@ -22,6 +22,7 @@ export default {
 		team_not_found: "Team <value> niet gevonden",
 		chat_not_found: "Chat <value> niet gevonden",
 		agenda_not_found: "Agenda <value> niet gevonden",
+		user_team_not_found: "Gebruikers team <value> niet gevonden",
 
 		failed_to_delete: "Kon <field> niet verwijderen",
 		failed_image_save: "Kon de afbeelding niet opslaan",
