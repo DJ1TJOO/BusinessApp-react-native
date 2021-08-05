@@ -266,6 +266,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 	const [currentError, setCurrentError] = useState();
 
+	// TODO: get projects
 	const projects = [
 		"Huizen - 113133",
 		"Maarsen - 123431",
