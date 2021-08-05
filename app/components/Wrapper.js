@@ -1,20 +1,25 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
 import { StyleSheet, Animated, StatusBar, View, Platform, RefreshControl, Dimensions, Text } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import interpolate from "color-interpolate";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import SafeView from "./SafeView";
 import Header from "./Header";
+import Loading from "./Loading";
+import { IconLoading } from "./Icons";
+
 import Colors from "../config/Colors";
 
-import interpolate from "color-interpolate";
-import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
-import Loading from "./Loading";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { IconLoading } from "./Icons";
 import useErrorModal from "../hooks/useErrorModal";
+
+import dataContext from "../contexts/dataContext";
+import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
 
 const interpolation = interpolate([Colors.white, Colors.primary]);
 const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error }) => {
+	const [data, setData] = useContext(dataContext);
+
 	const offset = useRef(new Animated.Value(0)).current;
 	const scrollView = useRef();
 	let hasHitBottom = false;
