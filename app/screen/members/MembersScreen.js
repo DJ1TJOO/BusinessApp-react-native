@@ -56,7 +56,7 @@ const MembersScreen = ({ navigation }) => {
 								<Text style={styles.name}>
 									{member.firstname} {member.lastname}
 								</Text>
-								<Text style={styles.born}> - {new Date(member.born).toLocaleDateString()}</Text>
+								<Text style={styles.born}> {new Date(member.born).toLocaleDateString()}</Text>
 							</View>
 							<View style={styles.row}>
 								<Text style={styles.info}>Functie: </Text>
