@@ -568,8 +568,8 @@ hours.patch("/:id", async (req, res) => {
 		// Submitted specified
 		let hasSubmitted = false;
 		if (typeof submitted !== "undefined") {
-			// Not boolean
-			if (typeof submitted !== "boolean") {
+			// Not boolean and not null
+			if (typeof submitted !== "boolean" && submitted !== null) {
 				// Return status 422 (unprocessable entity) incorrect
 				return res.status(422).send({
 					success: false,

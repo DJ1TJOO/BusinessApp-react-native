@@ -169,12 +169,12 @@ const ViewHoursScreen = ({ navigation, route }) => {
 									"Content-Type": "application/json",
 								},
 								body: JSON.stringify({
-									submitted: false,
+									submitted: null,
 								}),
 							}).then((res) => res.json());
 							if (!res.success) {
 								setCurrentError(
-									languagesUtils.convertError(data.language, res, { submitted: false }, "uren", {
+									languagesUtils.convertError(data.language, res, { submitted: null }, "uren", {
 										submitted: "ingediend",
 									})
 								);
