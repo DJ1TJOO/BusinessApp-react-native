@@ -16,7 +16,6 @@ const styles = StyleSheet.create({
 	safeView: {
 		flex: 1,
 		backgroundColor: Colors.white,
-		top: Platform.OS !== "ios" ? StatusBar.currentHeight : 0,
 	},
 });
 
