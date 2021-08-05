@@ -14,7 +14,7 @@ import Colors from "../config/Colors";
  * ]}
  */
 const useErrorModal = (error) => {
-	const [currentError, setCurrentError] = useState(error || null);
+	const [currentError, setCurrentError] = useState(error);
 	const [ErrorModal, setErrorModal] = useState(null);
 
 	useEffect(() => {
