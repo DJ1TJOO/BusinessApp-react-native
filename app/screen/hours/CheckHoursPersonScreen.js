@@ -10,7 +10,8 @@ import dataContext from "../../contexts/dataContext";
 import config from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 import Colors from "../../config/Colors";
-import { IconCheck, IconCross } from "../../components/Icons";
+import { IconArrowBack, IconCheck, IconCross } from "../../components/Icons";
+import FormButton from "../../components/form/FormButton";
 
 const CheckHoursPersonScreen = ({ navigation, route }) => {
 	const [currentError, setCurrentError] = useState(null);
@@ -18,23 +19,41 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 
 	const [hours, setHours] = useState([]);
+	const [userId, setUserId] = useState(route.params.id);
+
+	const getHours = async () => {
+		try {
+			const user = data.checkHours.users.find((x) => x.id === userId);
+			if (!user) return;
+			const res = await fetch(config.api + "hours/users/" + user.id).then((res) => res.json());
+			if (res.success) user.hours = res.data.filter((x) => x.submitted !== null);
+			else user.hours = [];
+			setHours(user.hours);
+			setData({ ...data });
+		} catch (error) {
+			throw error;
+		}
+	};
+
+	// Update user id
+	useEffect(() => {
+		if (route.params.id !== userId) setUserId(route.params.id);
+	}, [route]);
+
 	useEffect(() => {
 		// Get user hours
-		(async () => {
-			try {
-				const user = data.checkHours.users.find((x) => x.id === route.params.id);
-				const res = await fetch(config.api + "hours/users/" + user.id).then((res) => res.json());
-				if (res.success) user.hours = res.data.filter((x) => x.submitted !== null);
-				else user.hours = [];
-				setHours(user.hours);
-				setData({ ...data });
-			} catch (error) {
-				throw error;
-			}
-		})();
-	}, [route]);
+		getHours();
+	}, [userId]);
+
 	return (
-		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
+		<Wrapper
+			navigation={navigation}
+			showHeader={true}
+			error={currentError}
+			refresh={async () => {
+				setUserId(userId);
+			}}
+		>
 			<Heading title="Uren" style={styles.heading} />
 			{hours.length > 0 &&
 				hours.map((x, index) => (
@@ -48,6 +67,13 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 					/>
 				))}
 			{hours.length < 1 && <Text style={styles.noHours}>Geen uren ingeleverd</Text>}
+			<FormButton
+				onPress={() => {
+					navigation.navigate("CheckHours");
+				}}
+			>
+				<IconArrowBack />
+			</FormButton>
 		</Wrapper>
 	);
 };
