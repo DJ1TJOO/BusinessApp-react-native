@@ -16,7 +16,7 @@ import useErrorModal from "../hooks/useErrorModal";
 import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
 
 const interpolation = interpolate([Colors.white, Colors.primary]);
-const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error }) => {
+const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError }) => {
 	const insets = useSafeAreaInsets();
 
 	const offset = useRef(new Animated.Value(0)).current;
@@ -58,6 +58,12 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 	useEffect(() => {
 		if (error !== currentError) setCurrentError(error);
 	}, [error]);
+
+	if (setError) {
+		useEffect(() => {
+			if (currentError !== error) setError(currentError);
+		}, [currentError]);
+	}
 
 	return (
 		<SafeView>
