@@ -457,7 +457,14 @@ const createProjectHours = async (hoursId, body) => {
 			// Project does not exists
 			if (project_result.length < 1) {
 				// Return status 404 (not found) project not found
-				return { status: 404, success: false, error: "project_not_found" };
+				return {
+					status: 404,
+					success: false,
+					error: "project_not_found",
+					data: {
+						field: "projectName",
+					},
+				};
 			}
 			projectId = project_result[0].id;
 			hasProjectId = true;
@@ -727,7 +734,13 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 			// Project does not exists
 			if (project_result.length < 1) {
 				// Return status 404 (not found) project not found
-				return res.status(404).send({ success: false, error: "project_not_found" });
+				return res.status(404).send({
+					success: false,
+					error: "project_not_found",
+					data: {
+						field: "projectName",
+					},
+				});
 			}
 
 			projectId = project_result[0].id;
