@@ -8,7 +8,8 @@
 		"eject": "expo eject",
 		"apiDev": "cd api && yarn dev",
 		"api": "cd api && yarn start",
-		"dev": "concurrently \"expo start\" \"yarn apiDev\""
+		"dev": "concurrently \"expo start\" \"yarn apiDev\"",
+		"devOffline": "concurrently \"expo start --offline\" \"yarn apiDev\""
 	},
 	"dependencies": {
 		"@react-native-async-storage/async-storage": "^1.15.5",
