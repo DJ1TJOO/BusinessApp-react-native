@@ -19,11 +19,10 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 
 	const [hours, setHours] = useState([]);
-	const [userId, setUserId] = useState(route.params.id);
 
 	const getHours = async () => {
 		try {
-			const user = data.checkHours.users.find((x) => x.id === userId);
+			const user = data.checkHours.users.find((x) => x.id === route.params.id);
 			if (!user) return;
 			const res = await fetch(config.api + "hours/users/" + user.id).then((res) => res.json());
 			if (res.success) user.hours = res.data.filter((x) => x.submitted !== null);
@@ -37,23 +36,11 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 
 	// Update user id
 	useEffect(() => {
-		if (route.params.id !== userId) setUserId(route.params.id);
+		getHours();
 	}, [route]);
 
-	useEffect(() => {
-		// Get user hours
-		getHours();
-	}, [userId]);
-
 	return (
-		<Wrapper
-			navigation={navigation}
-			showHeader={true}
-			error={currentError}
-			refresh={async () => {
-				setUserId(userId);
-			}}
-		>
+		<Wrapper navigation={navigation} showHeader={true} error={currentError} refresh={getHours}>
 			<Heading title="Uren" style={styles.heading} />
 			{hours.length > 0 &&
 				hours.map((x, index) => (
