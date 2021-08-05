@@ -74,11 +74,34 @@ const convertDataToHours = (currentHours) => {
 	}));
 };
 
+/**
+ * @param {Array<{
+ * 	id: String,
+ * 	hours_id: String,
+ *	project: String,
+ *	description: String,
+ *	hours: Array<String>
+ * }>} hours
+ * @returns {Array<{
+ * 	id: String,
+ *	hours_id: String,
+ *	project: String,
+ *	projectName: String,
+ *	description: String,
+ *	monday: Number,
+ *	tuesday: Number,
+ *	wednesday: Number,
+ *	thursday: Number,
+ *	friday: Number,
+ *	saturday: Number,
+ *	sunday: Number,
+ * }>}
+ */
 const convertHoursToData = (hours) => {
 	return hours
 		.filter((x) => x.project !== emptyProject.project || x.description !== emptyProject.description || x.hours !== emptyProject.hours)
 		.map((x) => {
-			const projectInfo = x.project.split("-");
+			const projectInfo = x.project?.split("-") || ["no name"];
 			const project = projectInfo[0].trim();
 
 			let projectName = null;
@@ -424,50 +447,52 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 			>
 				Aanpassen
 			</FormButton>
-			<FormButton
-				onPress={async () => {
-					try {
-						if (!(await update(data, currentHours, hours, setCurrentError))) return;
+			{hours.length > 0 && convertHoursToData(hours).length > 0 && (
+				<FormButton
+					onPress={async () => {
+						try {
+							if (!(await update(data, currentHours, hours, setCurrentError))) return;
 
-						// Submit hours
-						const res = await fetch(`${config.api}hours/${currentHours.id}`, {
-							method: "PATCH",
-							headers: {
-								Accept: "application/json",
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify({
-								submitted: true,
-								valid: null,
-							}),
-						}).then((res) => res.json());
-						if (!res.success) {
-							setCurrentError(
-								languagesUtils.convertError(data.language, res, { submitted: true, valid: null }, "uren", {
-									submitted: "ingediend",
-									valid: "valide",
-								})
-							);
+							// Submit hours
+							const res = await fetch(`${config.api}hours/${currentHours.id}`, {
+								method: "PATCH",
+								headers: {
+									Accept: "application/json",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									submitted: true,
+									valid: null,
+								}),
+							}).then((res) => res.json());
+							if (!res.success) {
+								setCurrentError(
+									languagesUtils.convertError(data.language, res, { submitted: true, valid: null }, "uren", {
+										submitted: "ingediend",
+										valid: "valide",
+									})
+								);
 
-							return;
+								return;
+							}
+
+							// Set submitted
+							currentHours.submitted = true;
+
+							// Update data
+							setData({ ...data });
+
+							// Update hours
+							navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
+						} catch (error) {
+							// TODO: send error to server
+							console.log(error);
 						}
-
-						// Set submitted
-						currentHours.submitted = true;
-
-						// Update data
-						setData({ ...data });
-
-						// Update hours
-						navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
-					} catch (error) {
-						// TODO: send error to server
-						console.log(error);
-					}
-				}}
-			>
-				Inleveren
-			</FormButton>
+					}}
+				>
+					Inleveren
+				</FormButton>
+			)}
 		</Wrapper>
 	);
 };
