@@ -8,6 +8,8 @@ import FormDate from "../../components/form/FormDate";
 import FormSelect from "../../components/form/FormSelect";
 
 const ChangeMemberScreen = ({ navigation, route }) => {
+	// TODO: add functionality
+	// TODO: get from api
 	const teams = ["team", "team2", "team3"];
 	const rights = ["Geen rechten", "right", "right2", "right3"];
 
