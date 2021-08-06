@@ -31,7 +31,7 @@ const MembersScreen = ({ navigation }) => {
 
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
-			<Heading title="Alle leden" />
+			<Heading title="Alle gebruikers" />
 			{data.members &&
 				data.members
 					.map((member) => ({

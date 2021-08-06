@@ -71,13 +71,13 @@ const Menu = ({ navigation }) => {
 				title="Leden"
 				routes={[
 					{
-						title: "Alle leden",
+						title: "Alle gebruikers",
 						onPress: () => {
 							navigation.navigate("Members");
 						},
 					},
 					{
-						title: "Lid toevoegen",
+						title: "Gebruiker toevoegen",
 						onPress: () => {
 							navigation.closeDrawer();
 						},
