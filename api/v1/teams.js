@@ -4,6 +4,7 @@ const { dbGenerateUniqueId } = require("./helpers/utils");
 const teams = require("express").Router();
 
 // TODO: authorization
+// TODO: test
 teams.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	try {

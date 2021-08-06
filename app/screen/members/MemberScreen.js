@@ -36,6 +36,7 @@ const MemberScreen = ({ navigation, route }) => {
 			</Text>
 			<Text style={styles.label}>Rechten</Text>
 			<Text style={styles.value}>{route.params?.rights || "Geen rechten"}</Text>
+			{/* TODO: delete member */}
 			<FormButton onPress={() => navigation.navigate("ChangeMember", route.params)}>Aanpassen</FormButton>
 		</Wrapper>
 	);

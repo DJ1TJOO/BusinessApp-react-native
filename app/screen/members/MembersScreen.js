@@ -11,26 +11,29 @@ import config from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
-const MembersScreen = ({ navigation }) => {
+const MembersScreen = ({ navigation, route }) => {
+	// TODO: test
 	const [data, setData] = useContext(dataContext);
 	const [currentError, setCurrentError] = useState();
 
+	const getUsers = async () => {
+		if (!data.members) data.members = [];
+		try {
+			const res = await fetch(config.api + "users/business/" + data.user.businessId).then((res) => res.json());
+			if (res.success) data.members = res.data;
+			setData({ ...data });
+		} catch (error) {
+			throw error;
+		}
+	};
+
 	useEffect(() => {
 		// Get users
-		if (!data.members) data.members = [];
-		(async () => {
-			try {
-				const res = await fetch(config.api + "users/business/" + data.user.businessId).then((res) => res.json());
-				if (res.success) data.members = res.data;
-				setData({ ...data });
-			} catch (error) {
-				throw error;
-			}
-		})();
-	}, []);
+		getUsers();
+	}, [route]);
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
+		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getUsers}>
 			<Heading title="Alle gebruikers" />
 			{data.members &&
 				data.members
