@@ -18,9 +18,11 @@ import ChangePasswordScreen from "./app/screen/passwords/ChangePasswordScreen";
 import Account from "./app/Account";
 
 import dataContext from "./app/contexts/dataContext";
+import lastStatusBarColorContext from "./app/contexts/lastStatusBarColor";
 
 import dutch from "./app/languages/dutch";
-import lastStatusBarColorContext from "./app/contexts/lastStatusBarColor";
+
+import Colors from "./app/config/Colors";
 
 const prefix = Linking.makeUrl("/");
 
@@ -31,7 +33,7 @@ export default function App() {
 		language: dutch,
 	});
 	const [linkData, setLinkData] = useState(null);
-	const [lastStatusBarColor, setLastStatusBarColor] = useState(null);
+	const [lastStatusBarColor, setLastStatusBarColor] = useState(Colors.white);
 
 	const linking = {
 		prefixes: [prefix],
