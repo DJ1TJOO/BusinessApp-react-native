@@ -122,8 +122,8 @@ teams.post("/", async (req, res) => {
 		// Insert team into db
 		await db.query(
 			`INSERT INTO 
-					teams (id, name, ${hasChat ? "chat_id," : ""}${hasAgenda ? ", agenda_id" : ""})
-					VALUES ('${escape(id)}', '${escape(name)}',${hasChat ? `'${escape(chatId)}',` : ""}${hasAgenda ? `,'${escape(agendaId)}'` : ""})`
+					teams (id, name, business_id, ${hasChat ? "chat_id," : ""}${hasAgenda ? ", agenda_id" : ""})
+					VALUES ('${escape(id)}', '${escape(name)}','${escape(businessId)}',${hasChat ? `'${escape(chatId)}',` : ""}${hasAgenda ? `,'${escape(agendaId)}'` : ""})`
 		);
 
 		const [results] = await db.query(`SELECT * FROM teams WHERE id = ?`, [id]);
