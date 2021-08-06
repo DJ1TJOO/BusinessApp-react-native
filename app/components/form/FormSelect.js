@@ -27,18 +27,46 @@ const getValueToSet = (value, defaultValue, multiple) => {
 	}
 };
 
-const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, onSelected, multiple, defaultValue, ...otherProps }) => {
+const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, onSelected, multiple, defaultValue, onChange, validator, ...otherProps }) => {
 	let [currentValue, setCurrentValue] = useState(getValueToSet(value, defaultValue, multiple));
 	const [currentSelected, setCurrentSelected] = useState(!!selected);
+	const [currentErrorLabel, setCurrentErrorLabel] = useState(null);
+	const [isValid, setIsValid] = useState(null);
 
 	useEffect(() => {
 		const newValue = getValueToSet(value, defaultValue, multiple);
-		if (value !== newValue) setCurrentValue(newValue);
+		if (value !== newValue) checkValue(newValue);
 	}, [value]);
 
 	useEffect(() => {
 		setCurrentSelected(selected);
 	}, [selected]);
+
+	const checkValue = (value) => {
+		setCurrentValue(value);
+		const valid = validate(true, value);
+		if (onChange) onChange(value, valid);
+	};
+
+	const validate = (feedback = false, value = null) => {
+		if (validator) {
+			const valid = validator(value || currentValue);
+			if (valid === true) {
+				if (feedback) {
+					setCurrentErrorLabel(null);
+					setIsValid(true);
+				}
+				return true;
+			} else {
+				if (feedback) {
+					setCurrentErrorLabel(valid);
+					setIsValid(false);
+				}
+				return false;
+			}
+		}
+		return true;
+	};
 
 	return (
 		<FormInput
@@ -52,6 +80,9 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 			value={!multiple ? currentValue : format(currentValue)}
 			style={[styles.select]}
 			innerStyle={[currentSelected && styles.selectSelected]}
+			errorLabel={currentErrorLabel}
+			valid={isValid}
+			// TODO: custom values onchange
 			{...otherProps}
 		>
 			<TouchableOpacity
@@ -83,7 +114,7 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 									style={styles.selectSelectorItem}
 									onPress={() => {
 										if (!multiple) {
-											setCurrentValue(item);
+											checkValue(item);
 											if (onSelected) onSelected(false);
 											setCurrentSelected(false);
 										} else {
@@ -99,7 +130,7 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 												}
 											}
 											currentValue.sort((a, b) => data.indexOf(a) - data.indexOf(b));
-											setCurrentValue([...currentValue]);
+											checkValue([...currentValue]);
 										}
 									}}
 								>
