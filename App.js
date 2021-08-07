@@ -18,7 +18,7 @@ import ChangePasswordScreen from "./app/screen/passwords/ChangePasswordScreen";
 import Account from "./app/Account";
 
 import dataContext from "./app/contexts/dataContext";
-import lastStatusBarColorContext from "./app/contexts/lastStatusBarColor";
+import lastStatusBarColorContext from "./app/contexts/lastStatusBarColorContext";
 
 import dutch from "./app/languages/dutch";
 
