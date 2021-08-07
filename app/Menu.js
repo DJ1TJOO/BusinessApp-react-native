@@ -12,7 +12,7 @@ import config from "./config/config";
 import FontSizes from "./config/FontSizes";
 
 import dataContext from "./contexts/dataContext";
-import lastStatusBarColorContext from "./contexts/lastStatusBarColor";
+import lastStatusBarColorContext from "./contexts/lastStatusBarColorContext";
 
 const Menu = ({ navigation }) => {
 	const [data, setData] = useContext(dataContext);
@@ -68,7 +68,7 @@ const Menu = ({ navigation }) => {
 				]}
 			/>
 			<MenuCard
-				title="Leden"
+				title="Gebruikers"
 				routes={[
 					{
 						title: "Alle gebruikers",
@@ -79,7 +79,7 @@ const Menu = ({ navigation }) => {
 					{
 						title: "Gebruiker toevoegen",
 						onPress: () => {
-							navigation.closeDrawer();
+							navigation.navigate("CreateMember");
 						},
 					},
 					{

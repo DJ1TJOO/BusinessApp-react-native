@@ -34,6 +34,7 @@ export default function App() {
 	});
 	const [linkData, setLinkData] = useState(null);
 	const [lastStatusBarColor, setLastStatusBarColor] = useState(Colors.white);
+	StatusBar.setBackgroundColor(lastStatusBarColor);
 
 	const linking = {
 		prefixes: [prefix],
