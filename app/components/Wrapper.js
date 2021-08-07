@@ -14,7 +14,7 @@ import Colors from "../config/Colors";
 import useErrorModal from "../hooks/useErrorModal";
 
 import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
-import lastStatusBarColorContext from "../contexts/lastStatusBarColor";
+import lastStatusBarColorContext from "../contexts/lastStatusBarColorContext";
 
 const interpolation = interpolate([Colors.white, Colors.primary]);
 const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError }) => {
