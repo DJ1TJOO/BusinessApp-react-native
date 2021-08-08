@@ -233,7 +233,8 @@ users.post("/", async (req, res) => {
 
 		// Check password
 		// Password is empty
-		if (!password) {
+		let pwd;
+		if (!password && !sendCreateCode) {
 			// Return status 422 (unprocessable entity) empty
 			return res.status(422).send({
 				success: false,
@@ -242,48 +243,51 @@ users.post("/", async (req, res) => {
 					field: "password",
 				},
 			});
-		}
+		} else if (sendCreateCode) {
+			// Hash temp password
+			pwd = bcrypt.hashSync(process.env.TEMP_USER_PWD, 12);
+		} else {
+			// Password too long
+			if (password.length > 255) {
+				// Return status 422 (unprocessable entity) too long
+				return res.status(422).send({
+					success: false,
+					error: "too_long",
+					data: {
+						field: "password",
+						maxLength: 255,
+					},
+				});
+			}
 
-		// Password too long
-		if (password.length > 255) {
-			// Return status 422 (unprocessable entity) too long
-			return res.status(422).send({
-				success: false,
-				error: "too_long",
-				data: {
-					field: "password",
-					maxLength: 255,
-				},
-			});
-		}
+			// Password too short
+			if (password.length < 8) {
+				// Return status 422 (unprocessable entity) too short
+				return res.status(422).send({
+					success: false,
+					error: "too_short",
+					data: {
+						field: "password",
+						minLength: 8,
+					},
+				});
+			}
 
-		// Password too short
-		if (password.length < 8) {
-			// Return status 422 (unprocessable entity) too short
-			return res.status(422).send({
-				success: false,
-				error: "too_short",
-				data: {
-					field: "password",
-					minLength: 8,
-				},
-			});
-		}
+			// Invalid password
+			if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*_-])(?=.{8,})/.test(password)) {
+				// Return status 422 (unprocessable entity) incorrect
+				return res.status(422).send({
+					success: false,
+					error: "incorrect",
+					data: {
+						field: "password",
+					},
+				});
+			}
 
-		// Invalid password
-		if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*_-])(?=.{8,})/.test(password)) {
-			// Return status 422 (unprocessable entity) incorrect
-			return res.status(422).send({
-				success: false,
-				error: "incorrect",
-				data: {
-					field: "password",
-				},
-			});
+			// Hash password
+			pwd = bcrypt.hashSync(password, 12);
 		}
-
-		// Hash password
-		const pwd = bcrypt.hashSync(password, 12);
 
 		// Check if function description is specified
 		let hasFunctionDescription = false;
