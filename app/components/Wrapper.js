@@ -47,7 +47,15 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 	const refreshControl = {};
 	if (typeof refresh === "function") {
 		refreshControl.refreshControl = (
-			<RefreshControl refreshing={refreshing} onRefresh={doRefresh} tintColor="transparent" colors={["transparent"]} style={{ backgroundColor: "transparent" }} />
+			<RefreshControl
+				refreshing={refreshing}
+				onRefresh={doRefresh}
+				tintColor="transparent"
+				colors={["transparent"]}
+				progressBackgroundColor="transparent"
+				progressViewOffset={-200}
+				style={{ backgroundColor: "transparent" }}
+			/>
 		);
 	}
 

@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
 	},
 });
 
+// TODO: fix on android
 const IconLoading = ({ style, color, secondColor }) => {
 	const { style: anitmateStyle } = animateTransform({
 		type: "rotate",
