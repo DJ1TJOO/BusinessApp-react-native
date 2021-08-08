@@ -71,7 +71,7 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 	return (
 		<FormInput
 			editable={!!allowsCustomValue}
-			onTouchStart={() => {
+			onPress={() => {
 				if (!allowsCustomValue) {
 					if (onSelected) onSelected(!currentSelected);
 					setCurrentSelected(!currentSelected);

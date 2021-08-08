@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TouchableOpacity, StyleSheet, Text, TextInput, View } from "react-native";
+import { TouchableOpacity, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback } from "react-native";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
@@ -66,6 +66,45 @@ const FormInput = ({
 		return true;
 	};
 
+	const input = (
+		<View>
+			{isValid === true && (
+				<IconCheck
+					style={[
+						styles.icon,
+						{
+							marginLeft: -35,
+						},
+					]}
+				/>
+			)}
+			{isValid === false && <IconCross style={[styles.icon]} />}
+			<TextInput
+				ref={innerRef}
+				clearTextOnFocus={false}
+				style={[styles.input, isFocused && styles.inputFocused, isValid === true && styles.inputValid, isValid === false && styles.inputInvalid, innerStyle && innerStyle]}
+				secureTextEntry={!!hideText}
+				onFocus={(e) => {
+					setIsFocused(true);
+					onFocus && onFocus(e);
+				}}
+				onBlur={(e) => {
+					setIsFocused(false);
+					onBlur && onBlur(e);
+				}}
+				onEndEditing={(e) => {
+					if (currentValue) setCurrentValue(currentValue.trim());
+				}}
+				textContentType={textContentType}
+				keyboardType={keyboardType}
+				onChangeText={(text) => checkValue(text)}
+				value={currentValue}
+				returnKeyType="done"
+				{...otherProps}
+			/>
+		</View>
+	);
+
 	return (
 		<View style={[styles.container, style]}>
 			{label && <Text style={styles.label}>{label}</Text>}
@@ -74,48 +113,8 @@ const FormInput = ({
 					<Text style={styles.errorButtonText}>{currentErrorLabel}</Text>
 				</TouchableOpacity>
 			)}
-			<View>
-				{isValid === true && (
-					<IconCheck
-						style={[
-							styles.icon,
-							{
-								marginLeft: -35,
-							},
-						]}
-					/>
-				)}
-				{isValid === false && <IconCross style={[styles.icon]} />}
-				<TextInput
-					ref={innerRef}
-					clearTextOnFocus={false}
-					style={[
-						styles.input,
-						isFocused && styles.inputFocused,
-						isValid === true && styles.inputValid,
-						isValid === false && styles.inputInvalid,
-						innerStyle && innerStyle,
-					]}
-					secureTextEntry={!!hideText}
-					onFocus={(e) => {
-						setIsFocused(true);
-						onFocus && onFocus(e);
-					}}
-					onBlur={(e) => {
-						setIsFocused(false);
-						onBlur && onBlur(e);
-					}}
-					onEndEditing={(e) => {
-						if (currentValue) setCurrentValue(currentValue.trim());
-					}}
-					textContentType={textContentType}
-					keyboardType={keyboardType}
-					onChangeText={(text) => checkValue(text)}
-					value={currentValue}
-					returnKeyType="done"
-					{...otherProps}
-				/>
-			</View>
+			{otherProps.editable === false && <TouchableWithoutFeedback onPress={onPress}>{input}</TouchableWithoutFeedback>}
+			{otherProps.editable !== false && input}
 			{helpLabel && (
 				<TouchableOpacity onPress={helpOnPress}>
 					<Text style={styles.helpButtonText}>{helpLabel}</Text>
