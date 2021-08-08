@@ -110,11 +110,6 @@ const useFormData = (keys, values, validators) => {
 				} else if (!set.valid) {
 					set.valid = true;
 				}
-			} else if (!set.valid) {
-				return {
-					key,
-					error: "empty",
-				};
 			}
 		}
 
