@@ -1,24 +1,21 @@
 import React, { useContext, useState } from "react";
-import { Alert, Image, Linking, StyleSheet } from "react-native";
-import * as ImagePicker from "expo-image-picker";
+import { StyleSheet } from "react-native";
 
-import FormButton from "../components/form/FormButton";
-import Form from "../components/form/Form";
-import FormInput from "../components/form/FormInput";
-import Wrapper from "../components/Wrapper";
-import FormHeading from "../components/form/FormHeading";
-import FormDate from "../components/form/FormDate";
-
-import Colors from "../config/Colors";
-
-import useFormData from "../hooks/useFormData";
-
-import dataContext from "../contexts/dataContext";
-
-import config from "../config/config";
-
-import languagesUtils from "../languages/utils";
+import FormButton from "../../components/form/FormButton";
+import Form from "../../components/form/Form";
+import FormInput from "../../components/form/FormInput";
+import Wrapper from "../../components/Wrapper";
+import FormDate from "../../components/form/FormDate";
 import FormSelect from "../../components/form/FormSelect";
+
+import Colors from "../../config/Colors";
+import config from "../../config/config";
+
+import useFormData from "../../hooks/useFormData";
+
+import dataContext from "../../contexts/dataContext";
+
+import languagesUtils from "../../languages/utils";
 
 const defaultFormData = [
 	["firstname", "lastname", "born", "email", "function", "teams", "rightId"],
@@ -108,9 +105,7 @@ const CreateMemberScreen = ({ navigation }) => {
 
 	return (
 		<Wrapper navigation={navigation} showHeader={true}>
-			<Form title="Registeer bedrijf" errorLabel={currentError}>
-				<FormInput label="Bedrijfsnaam" textContentType="name" {...getFormProps("business_name")} />
-				<FormHeading title="Hoofdaccount" />
+			<Form title="Gebruiker toevoegen" errorLabel={currentError}>
 				<FormInput label="Voornaam" textContentType="name" {...getFormProps("firstname")} />
 				<FormInput label="Achternaam" textContentType="name" {...getFormProps("lastname")} />
 				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
@@ -187,37 +182,41 @@ const CreateMemberScreen = ({ navigation }) => {
 							}).then((res) => res.json());
 							if (resUser.success) {
 								// Add user to teams
-								for (let i = 0; i < formData.teams.value.length; i++) {
-									const team = teams.find((x) => x.name === formData.teams.value[i]);
-									if (!team) continue;
+								if (formData.teams.value) {
+									for (let i = 0; i < formData.teams.value.length; i++) {
+										const team = teams.find((x) => x.name === formData.teams.value[i]);
+										if (!team) continue;
 
-									// Add user to team
-									const resTeam = await fetch(config.api + "teams/" + team.id, {
-										method: "POST",
-										headers: {
-											Accept: "application/json",
-											"Content-Type": "application/json",
-										},
-										body: JSON.stringify({
-											userId: resUser.data.id,
-										}),
-									}).then((res) => res.json());
+										// Add user to team
+										const resTeam = await fetch(config.api + "teams/" + team.id, {
+											method: "POST",
+											headers: {
+												Accept: "application/json",
+												"Content-Type": "application/json",
+											},
+											body: JSON.stringify({
+												userId: resUser.data.id,
+											}),
+										}).then((res) => res.json());
 
-									// Failed to add to team
-									if (!resTeam.success) {
-										// Display error
-										setCurrentError(
-											languagesUtils.convertError(data.language, resTeam, { userId: resUser.data.id }, "teams", {
-												userId: "gebruiker",
-											})
-										);
-										return;
+										// Failed to add to team
+										if (!resTeam.success) {
+											console.log(resTeam);
+											// Display error
+											setCurrentError(
+												languagesUtils.convertError(data.language, resTeam, { userId: resUser.data.id }, "teams", {
+													userId: "gebruiker",
+												})
+											);
+											return;
+										}
 									}
 								}
 
 								// Go to and update members
 								navigation.navigate("Members", { date: Date.now() });
 							} else {
+								console.log(resUser);
 								// Display error
 								setCurrentError(
 									languagesUtils.convertError(data.language, resUser, bodyUser, "gebruiker", {
