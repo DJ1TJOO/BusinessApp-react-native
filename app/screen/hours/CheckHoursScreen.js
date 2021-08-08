@@ -29,6 +29,7 @@ const CheckHoursScreen = ({ navigation }) => {
 		})();
 	}, []);
 
+	// TODO: add loading
 	return (
 		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
 			<Heading title="Uren controleren" style={styles.heading} />

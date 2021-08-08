@@ -39,6 +39,7 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 		getHours();
 	}, [route]);
 
+	// TODO: add loading
 	return (
 		<Wrapper navigation={navigation} showHeader={true} error={currentError} refresh={getHours}>
 			<Heading title="Uren" style={styles.heading} />

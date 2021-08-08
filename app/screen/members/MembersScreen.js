@@ -12,7 +12,6 @@ import config from "../../config/config";
 import dataContext from "../../contexts/dataContext";
 
 const MembersScreen = ({ navigation, route }) => {
-	// TODO: test
 	const [data, setData] = useContext(dataContext);
 	const [currentError, setCurrentError] = useState();
 
@@ -32,6 +31,7 @@ const MembersScreen = ({ navigation, route }) => {
 		getUsers();
 	}, [route]);
 
+	// TODO: add loading
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getUsers}>
 			<Heading title="Alle gebruikers" />
