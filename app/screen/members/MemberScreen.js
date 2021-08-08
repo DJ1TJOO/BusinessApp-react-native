@@ -4,6 +4,7 @@ import { StyleSheet, Text } from "react-native";
 import Wrapper from "../../components/Wrapper";
 import Heading from "../../components/Heading";
 import FormButton from "../../components/form/FormButton";
+import { IconArrowBack } from "../../components/Icons";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
@@ -38,6 +39,13 @@ const MemberScreen = ({ navigation, route }) => {
 			<Text style={styles.value}>{route.params?.rights || "Geen rechten"}</Text>
 			{/* TODO: delete member */}
 			<FormButton onPress={() => navigation.navigate("ChangeMember", route.params)}>Aanpassen</FormButton>
+			<FormButton
+				onPress={() => {
+					navigation.navigate("Members");
+				}}
+			>
+				<IconArrowBack />
+			</FormButton>
 		</Wrapper>
 	);
 };

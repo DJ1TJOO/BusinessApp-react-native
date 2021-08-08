@@ -6,6 +6,7 @@ import FormButton from "../../components/form/FormButton";
 import FormInput from "../../components/form/FormInput";
 import FormDate from "../../components/form/FormDate";
 import FormSelect from "../../components/form/FormSelect";
+import { IconArrowBack } from "../../components/Icons";
 
 const ChangeMemberScreen = ({ navigation, route }) => {
 	// TODO: add functionality
@@ -24,6 +25,13 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 			<FormSelect label="Team(s)" multiple={true} defaultValue={["Geen team"]} data={teams} value={route.params?.teams} />
 			<FormSelect label="Rechten" defaultValue={"Geen rechten"} value={route.params?.rights} data={rights} />
 			<FormButton>Aanpassen</FormButton>
+			<FormButton
+				onPress={() => {
+					navigation.navigate("Members");
+				}}
+			>
+				<IconArrowBack />
+			</FormButton>
 		</Wrapper>
 	);
 };
