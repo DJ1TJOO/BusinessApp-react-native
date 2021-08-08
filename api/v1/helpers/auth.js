@@ -25,7 +25,6 @@ const authToken = (req, res, next) => {
 
 		next();
 	} catch (error) {
-		console.log(error);
 		res.status(401).json({
 			success: false,
 			error: "failed_authentication",
