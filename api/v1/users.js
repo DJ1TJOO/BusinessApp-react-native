@@ -12,6 +12,7 @@ const users = require("express").Router();
 users.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
+		// TODO: fix born date
 		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			return res.status(404).send({
@@ -39,6 +40,7 @@ users.get("/:id", async (req, res) => {
 users.get("/business/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
+		// TODO: fix born date
 		const [results] = await db.query(`SELECT * FROM users WHERE business_id = ?`, [id]);
 		if (results.length < 1) {
 			return res.status(404).send({
