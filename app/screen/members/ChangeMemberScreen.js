@@ -9,6 +9,7 @@ import FormSelect from "../../components/form/FormSelect";
 import { IconArrowBack } from "../../components/Icons";
 
 import config from "../../config/config";
+import Colors from "../../config/Colors";
 
 import dataContext from "../../contexts/dataContext";
 
@@ -108,7 +109,13 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
-			<Heading title={route.params?.firstname + " " + route.params?.lastname} />
+			<Heading
+				icon={<IconArrowBack color={Colors.textPrimary} style={{ marginRight: 10, marginTop: -2 }} />}
+				title={route.params?.firstname + " " + route.params?.lastname}
+				onPress={() => {
+					navigation.navigate("Member", route.params);
+				}}
+			/>
 			<FormInput label="Voornaam" textContentType="name" {...getFormProps("firstname")} />
 			<FormInput label="Achternaam" textContentType="name" {...getFormProps("lastname")} />
 			<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
@@ -151,7 +158,6 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 			<FormInput label="Functie omschrijving" textContentType="jobTitle" {...getFormProps("function")} />
 			<FormSelect label="Team(s)" multiple={true} defaultValue={["Geen team"]} data={teams.map((x) => x.name)} {...getFormProps("teams")} />
 			<FormSelect label="Rechten" defaultValue={"Geen rechten"} data={rights.map((x) => x.name)} {...getFormProps("rightId")} />
-
 			<FormButton
 				onPress={async () => {
 					const valid = validate();
@@ -263,11 +269,12 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 				Aanpassen
 			</FormButton>
 			<FormButton
+				bad={true}
 				onPress={() => {
-					navigation.navigate("Member", route.params);
+					// TODO: delete user
 				}}
 			>
-				<IconArrowBack />
+				Verwijderen
 			</FormButton>
 		</Wrapper>
 	);

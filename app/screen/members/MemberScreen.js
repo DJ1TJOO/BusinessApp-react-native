@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import Wrapper from "../../components/Wrapper";
 import Heading from "../../components/Heading";
@@ -12,7 +12,13 @@ import FontSizes from "../../config/FontSizes";
 const MemberScreen = ({ navigation, route }) => {
 	return (
 		<Wrapper showHeader={true} navigation={navigation}>
-			<Heading title={route.params?.firstname + " " + route.params?.lastname} />
+			<Heading
+				icon={<IconArrowBack color={Colors.textPrimary} style={{ marginRight: 10, marginTop: -2 }} />}
+				title={route.params?.firstname + " " + route.params?.lastname}
+				onPress={() => {
+					navigation.navigate("Members");
+				}}
+			/>
 			<Text style={styles.label}>Voornaam</Text>
 			<Text style={styles.value}>{route.params?.firstname}</Text>
 			<Text style={styles.label}>Achternaam</Text>
@@ -37,14 +43,14 @@ const MemberScreen = ({ navigation, route }) => {
 			</Text>
 			<Text style={styles.label}>Rechten</Text>
 			<Text style={styles.value}>{route.params?.rights || "Geen rechten"}</Text>
-			{/* TODO: delete member */}
 			<FormButton onPress={() => navigation.navigate("ChangeMember", route.params)}>Aanpassen</FormButton>
 			<FormButton
+				bad={true}
 				onPress={() => {
-					navigation.navigate("Members");
+					// TODO: delete user
 				}}
 			>
-				<IconArrowBack />
+				Verwijderen
 			</FormButton>
 		</Wrapper>
 	);
