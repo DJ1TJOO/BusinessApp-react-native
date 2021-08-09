@@ -56,7 +56,7 @@ login.post("/", async (req, res) => {
 });
 
 login.post("/validate", authToken, async (req, res) => {
-	const token = jwt.sign(req.token, process.env.JWT_SECRET, {
+	const token = jwt.sign({ id: req.token.id, email: req.token.email, businessId: req.token.businessId }, process.env.JWT_SECRET, {
 		expiresIn: "1d",
 	});
 

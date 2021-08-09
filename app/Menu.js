@@ -39,8 +39,12 @@ const Menu = ({ navigation }) => {
 			>
 				<Image source={{ uri: config.api + "images/business_logos/" + data.business.logo }} resizeMode="cover" style={[styles.logo]} />
 				<View style={styles.info}>
-					<Text style={styles.name}>Full Name</Text>
-					<Text style={styles.function}>Eigenaar</Text>
+					{data.user && (
+						<Text style={styles.name}>
+							{data.user.first_name} {data.user.last_name}
+						</Text>
+					)}
+					{data.user && data.user.function && <Text style={styles.function}>{data.user.function}</Text>}
 				</View>
 				<IconArrowBack style={styles.back} />
 			</TouchableOpacity>
@@ -102,8 +106,10 @@ const Menu = ({ navigation }) => {
 				color={Colors.white}
 				onPress={async () => {
 					setData({ ...data, token: null, user: null });
+
 					// Token invalid reset storage
 					await AsyncStorage.removeItem("token");
+
 					navigation.navigate("Login");
 				}}
 			/>

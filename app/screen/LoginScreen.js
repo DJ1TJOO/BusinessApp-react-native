@@ -89,7 +89,6 @@ const LoginScreen = ({ navigation }) => {
 					setFormValues(["business_name", "email"], [user.business, user.email]);
 				}
 
-				// Token and user present
 				if (token && user) {
 					const res = await fetch(config.api + "login/validate", {
 						method: "POST",
@@ -104,14 +103,27 @@ const LoginScreen = ({ navigation }) => {
 
 					// Token valid, login
 					if (res.success) {
+						// Update in phone
+						await AsyncStorage.setItem("token", res.data.token);
+						if (res.data.user) {
+							await AsyncStorage.setItem(
+								"user",
+								JSON.stringify({
+									...res.data.user,
+									business: formData.business_name.value,
+								})
+							);
+						}
+
 						const businessRes = await fetch(config.api + "business/" + user.businessId).then((res) => res.json());
 
+						// TODO: update user data from api
 						if (businessRes.success) {
 							// Store in data
 							setData({
 								...data,
-								token,
-								user,
+								token: res.data.token,
+								user: res.data.user || user,
 								business: businessRes.data,
 							});
 
@@ -171,6 +183,8 @@ const LoginScreen = ({ navigation }) => {
 								}),
 							}).then((res) => res.json());
 							if (res.success) {
+								setFormValue("password")("", false);
+
 								// Store in phone
 								await AsyncStorage.setItem("token", res.data.token);
 								await AsyncStorage.setItem(
@@ -178,7 +192,6 @@ const LoginScreen = ({ navigation }) => {
 									JSON.stringify({
 										...res.data.user,
 										business: formData.business_name.value,
-										email: formData.email.value,
 									})
 								);
 
