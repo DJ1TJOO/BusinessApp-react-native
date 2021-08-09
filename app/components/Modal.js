@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View, Animated, Dimensions } from "react-native";
-
-import SafeView from "./SafeView";
-import FormButton from "./form/FormButton";
+import { Animated, Dimensions, StyleSheet, Text, View } from "react-native";
 
 import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";
+
+import FormButton from "./form/FormButton";
+import SafeView from "./SafeView";
 
 export const MODAL_BUTTON_TYPES = {
 	ACCEPT: "accept",

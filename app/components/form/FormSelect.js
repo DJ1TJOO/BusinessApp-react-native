@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, FlatList, ScrollView, Dimensions } from "react-native";
+import React, { useEffect, useState } from "react";
+import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 
-import { IconDown, IconCheck } from "../Icons";
+import { IconCheck, IconDown } from "../Icons";
 import FormInput from "./FormInput";
 
 const format = (valueToFormat) => {

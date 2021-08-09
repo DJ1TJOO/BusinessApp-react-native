@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 
+import FormButton from "../../components/form/FormButton";
 import Heading from "../../components/Heading";
-import Wrapper from "../../components/Wrapper";
+import { IconArrowBack, IconCheck, IconCross } from "../../components/Icons";
 import MenuCard from "../../components/menu/MenuCard";
+import Wrapper from "../../components/Wrapper";
 
-import dataContext from "../../contexts/dataContext";
-
+import Colors from "../../config/Colors";
 import config from "../../config/config";
 import FontSizes from "../../config/FontSizes";
-import Colors from "../../config/Colors";
-import { IconArrowBack, IconCheck, IconCross } from "../../components/Icons";
-import FormButton from "../../components/form/FormButton";
+
+import dataContext from "../../contexts/dataContext";
 
 const CheckHoursPersonScreen = ({ navigation, route }) => {
 	const [currentError, setCurrentError] = useState(null);

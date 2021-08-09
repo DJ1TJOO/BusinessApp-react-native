@@ -1,8 +1,9 @@
 import React from "react";
-import { StyleSheet, Text, Animated, TouchableOpacity, Platform } from "react-native";
+import { Animated, Platform, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
+
 import { IconArrowForward } from "../Icons";
 
 const MenuRoutes = ({ routes, animatedValue }) => {

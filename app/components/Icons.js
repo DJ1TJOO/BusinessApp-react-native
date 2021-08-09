@@ -1,6 +1,7 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { Animated, Easing, StyleSheet, View } from "react-native";
 import Svg, { Circle, G, Path } from "react-native-svg";
+
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 function animateTransform({ type, from, to, dur, repeatCount }) {

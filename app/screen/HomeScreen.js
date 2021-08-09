@@ -1,11 +1,11 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 
-import Heading from "../components/Heading";
-import Wrapper from "../components/Wrapper";
-import MenuCard from "../components/menu/MenuCard";
 import Card from "../components/Card";
+import Heading from "../components/Heading";
 import { IconCheck, IconCross } from "../components/Icons";
+import MenuCard from "../components/menu/MenuCard";
+import Wrapper from "../components/Wrapper";
 
 const HomeScreen = ({ navigation }) => {
 	return (

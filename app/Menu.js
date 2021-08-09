@@ -1,8 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { DrawerContentScrollView } from "@react-navigation/drawer";
+import { DrawerContentScrollView, useIsDrawerOpen } from "@react-navigation/drawer";
 import React, { useContext, useEffect } from "react";
-import { StyleSheet, Text, useWindowDimensions, View, Image, TouchableOpacity, StatusBar } from "react-native";
-import { useIsDrawerOpen } from "@react-navigation/drawer";
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 
 import { IconArrowBack } from "./components/Icons";
 import MenuCard from "./components/menu/MenuCard";

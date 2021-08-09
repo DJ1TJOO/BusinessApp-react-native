@@ -1,5 +1,4 @@
 /**
- *
  * @param {Object} language
  * @param {Object} res
  * @param {{[key]: String | Object}} body

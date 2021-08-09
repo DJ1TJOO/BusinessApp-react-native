@@ -1,10 +1,9 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
 
-import Wrapper from "../../components/Wrapper";
-import Heading from "../../components/Heading";
 import FormButton from "../../components/form/FormButton";
-import { IconArrowBack } from "../../components/Icons";
+import Heading from "../../components/Heading";
+import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { TouchableOpacity, StyleSheet, Text, TextInput, View, TouchableWithoutFeedback } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
+
 import { IconCheck, IconCross } from "../Icons";
 
 const FormInput = ({

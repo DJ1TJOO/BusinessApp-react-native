@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedbackBase, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { IconAgenda, IconAgendaSelected, IconArrowDown, IconArrowUp, IconDown, IconUp } from "../Icons";
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
+
+import { IconAgenda, IconAgendaSelected, IconArrowDown, IconArrowUp, IconDown, IconUp } from "../Icons";
 
 const monthDays = function (date) {
 	return new Date(date.getFullYear(), date.getMonth() - 1, 0).getDate();

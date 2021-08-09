@@ -1,28 +1,25 @@
-import React, { useEffect, useState } from "react";
-import AppLoading from "expo-app-loading";
-import { useFonts } from "@use-expo/font";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Platform, StatusBar } from "react-native";
+import { useFonts } from "@use-expo/font";
+import AppLoading from "expo-app-loading";
 import * as Linking from "expo-linking";
-
-import WelcomeScreen from "./app/screen/WelcomeScreen";
-
-import LoginScreen from "./app/screen/LoginScreen";
-import RegisterScreen from "./app/screen/RegisterScreen";
-
-import ForgotPasswordScreen from "./app/screen/passwords/ForgotPasswordScreen";
-import VerifyCodeScreen from "./app/screen/passwords/VerifyCodeScreen";
-import ChangePasswordScreen from "./app/screen/passwords/ChangePasswordScreen";
-
+import React, { useEffect, useState } from "react";
+import { Platform, StatusBar } from "react-native";
 import Account from "./app/Account";
+
+import Colors from "./app/config/Colors";
 
 import dataContext from "./app/contexts/dataContext";
 import lastStatusBarColorContext from "./app/contexts/lastStatusBarColorContext";
 
 import dutch from "./app/languages/dutch";
 
-import Colors from "./app/config/Colors";
+import LoginScreen from "./app/screen/LoginScreen";
+import ChangePasswordScreen from "./app/screen/passwords/ChangePasswordScreen";
+import ForgotPasswordScreen from "./app/screen/passwords/ForgotPasswordScreen";
+import VerifyCodeScreen from "./app/screen/passwords/VerifyCodeScreen";
+import RegisterScreen from "./app/screen/RegisterScreen";
+import WelcomeScreen from "./app/screen/WelcomeScreen";
 
 const prefix = Linking.makeUrl("/");
 

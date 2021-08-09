@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import SafeView from "../components/SafeView";
+
 import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";
 

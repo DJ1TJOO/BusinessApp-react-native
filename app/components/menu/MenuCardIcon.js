@@ -1,7 +1,8 @@
 import React from "react";
-import { StyleSheet, Animated } from "react-native";
+import { Animated } from "react-native";
 
 import Colors from "../../config/Colors";
+
 import { IconDown } from "../Icons";
 
 const MenuCardIcon = ({ animatedValue, style }) => {

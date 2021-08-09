@@ -1,18 +1,18 @@
-import React, { useState, useContext, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useContext, useEffect, useState } from "react";
 
-import FormButton from "../components/form/FormButton";
 import Form from "../components/form/Form";
+import FormButton from "../components/form/FormButton";
 import FormInput from "../components/form/FormInput";
 import Wrapper from "../components/Wrapper";
 
-import useFormData from "../hooks/useFormData";
+import config from "../config/config";
 
 import dataContext from "../contexts/dataContext";
 
-import config from "../config/config";
+import useFormData from "../hooks/useFormData";
 
 import languagesUtils from "../languages/utils";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const defaultFormData = [
 	["business_name", "email", "password"],

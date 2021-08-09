@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, Animated, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { IconArrowForward } from "../Icons";
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
+
+import { IconArrowForward } from "../Icons";
 import MenuCardIcon from "./MenuCardIcon";
 import MenuRoutes from "./MenuRoutes";
 

@@ -1,20 +1,20 @@
-import React, { useRef, useState, useEffect, useContext } from "react";
-import { StyleSheet, Animated, StatusBar, View, Platform, RefreshControl, Dimensions } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import interpolate from "color-interpolate";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { Animated, Dimensions, Platform, RefreshControl, StatusBar, StyleSheet, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import SafeView from "./SafeView";
-import Header from "./Header";
-import Loading from "./Loading";
-import { IconLoading } from "./Icons";
 
 import Colors from "../config/Colors";
 
+import lastStatusBarColorContext from "../contexts/lastStatusBarColorContext";
+import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
+
 import useErrorModal from "../hooks/useErrorModal";
 
-import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
-import lastStatusBarColorContext from "../contexts/lastStatusBarColorContext";
+import Header from "./Header";
+import { IconLoading } from "./Icons";
+import Loading from "./Loading";
+import SafeView from "./SafeView";
 
 const interpolation = interpolate([Colors.white, Colors.primary]);
 const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError }) => {

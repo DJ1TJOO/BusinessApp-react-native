@@ -1,18 +1,18 @@
-import React, { useState, useContext } from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
+import React, { useContext, useState } from "react";
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import Heading from "../../components/Heading";
-import { IconAdd, IconCross, IconDown, IconRemove, IconArrowBack, IconCheck } from "../../components/Icons";
-import Wrapper from "../../components/Wrapper";
-import Colors from "../../config/Colors";
-import FontSizes from "../../config/FontSizes";
-import FormInput from "../../components/form/FormInput";
 import FormButton from "../../components/form/FormButton";
+import FormInput from "../../components/form/FormInput";
 import FormSelect from "../../components/form/FormSelect";
+import Heading from "../../components/Heading";
+import { IconAdd, IconCheck, IconCross, IconRemove } from "../../components/Icons";
+import Wrapper from "../../components/Wrapper";
+
+import Colors from "../../config/Colors";
+import config from "../../config/config";
+import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
-
-import config from "../../config/config";
 
 import languagesUtils from "../../languages/utils";
 

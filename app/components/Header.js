@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Animated, TouchableOpacity } from "react-native";
+import { Animated, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";

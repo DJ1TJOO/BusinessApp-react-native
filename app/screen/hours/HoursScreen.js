@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
-import Heading from "../../components/Heading";
-import Wrapper from "../../components/Wrapper";
 import Card from "../../components/Card";
 import FormButton from "../../components/form/FormButton";
-import { IconCross, IconCheck, IconLoading } from "../../components/Icons";
+import Heading from "../../components/Heading";
+import { IconCheck, IconCross, IconLoading } from "../../components/Icons";
+import Wrapper from "../../components/Wrapper";
 
 import config from "../../config/config";
 
-import languagesUtils from "../../languages/utils";
-
 import dataContext from "../../contexts/dataContext";
+
+import languagesUtils from "../../languages/utils";
 
 const getWeekNumber = (d) => {
 	// Copy date so don't modify original

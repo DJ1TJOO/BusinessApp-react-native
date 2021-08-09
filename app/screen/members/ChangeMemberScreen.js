@@ -1,15 +1,13 @@
 import React, { useContext, useState } from "react";
 
-import Wrapper from "../../components/Wrapper";
-import Heading from "../../components/Heading";
 import FormButton from "../../components/form/FormButton";
-import FormInput from "../../components/form/FormInput";
 import FormDate from "../../components/form/FormDate";
+import FormInput from "../../components/form/FormInput";
 import FormSelect from "../../components/form/FormSelect";
-import { IconArrowBack } from "../../components/Icons";
+import Heading from "../../components/Heading";
+import Wrapper from "../../components/Wrapper";
 
 import config from "../../config/config";
-import Colors from "../../config/Colors";
 
 import dataContext from "../../contexts/dataContext";
 

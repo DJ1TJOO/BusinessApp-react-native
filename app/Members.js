@@ -1,9 +1,9 @@
-import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import React from "react";
 
-import MembersScreen from "./screen/members/MembersScreen";
-import MemberScreen from "./screen/members/MemberScreen";
 import ChangeMemberScreen from "./screen/members/ChangeMemberScreen";
+import MemberScreen from "./screen/members/MemberScreen";
+import MembersScreen from "./screen/members/MembersScreen";
 
 const Stack = createStackNavigator();
 const Members = () => {

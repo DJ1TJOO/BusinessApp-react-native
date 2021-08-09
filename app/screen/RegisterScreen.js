@@ -1,21 +1,20 @@
+import * as ImagePicker from "expo-image-picker";
 import React, { useContext, useState } from "react";
 import { Alert, Image, Linking, StyleSheet } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 
-import FormButton from "../components/form/FormButton";
 import Form from "../components/form/Form";
+import FormButton from "../components/form/FormButton";
+import FormDate from "../components/form/FormDate";
+import FormHeading from "../components/form/FormHeading";
 import FormInput from "../components/form/FormInput";
 import Wrapper from "../components/Wrapper";
-import FormHeading from "../components/form/FormHeading";
-import FormDate from "../components/form/FormDate";
 
 import Colors from "../config/Colors";
-
-import useFormData from "../hooks/useFormData";
+import config from "../config/config";
 
 import dataContext from "../contexts/dataContext";
 
-import config from "../config/config";
+import useFormData from "../hooks/useFormData";
 
 import languagesUtils from "../languages/utils";
 

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import Modal from "../components/Modal";
 import { IconCross } from "../components/Icons";
+import Modal from "../components/Modal";
+
 import Colors from "../config/Colors";
 
 /**

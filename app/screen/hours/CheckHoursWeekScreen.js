@@ -1,18 +1,18 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import Heading from "../../components/Heading";
-import { IconArrowBack, IconCross } from "../../components/Icons";
-import Wrapper from "../../components/Wrapper";
-import Colors from "../../config/Colors";
-import FontSizes from "../../config/FontSizes";
 import FormButton from "../../components/form/FormButton";
+import Heading from "../../components/Heading";
+import { IconCross } from "../../components/Icons";
+import Wrapper from "../../components/Wrapper";
+
+import Colors from "../../config/Colors";
+import config from "../../config/config";
+import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
 
 import languagesUtils from "../../languages/utils";
-
-import config from "../../config/config";
 
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	return (

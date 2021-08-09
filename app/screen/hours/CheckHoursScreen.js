@@ -1,13 +1,13 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
 import Heading from "../../components/Heading";
-import Wrapper from "../../components/Wrapper";
 import MenuCard from "../../components/menu/MenuCard";
-
-import dataContext from "../../contexts/dataContext";
+import Wrapper from "../../components/Wrapper";
 
 import config from "../../config/config";
+
+import dataContext from "../../contexts/dataContext";
 
 const CheckHoursScreen = ({ navigation }) => {
 	const [currentError, setCurrentError] = useState(null);

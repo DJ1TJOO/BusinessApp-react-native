@@ -1,9 +1,9 @@
-import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import React from "react";
 
-import CheckHoursWeek from "./screen/hours/CheckHoursWeekScreen";
-import CheckHoursScreen from "./screen/hours/CheckHoursScreen";
 import CheckHoursPersonScreen from "./screen/hours/CheckHoursPersonScreen";
+import CheckHoursScreen from "./screen/hours/CheckHoursScreen";
+import CheckHoursWeek from "./screen/hours/CheckHoursWeekScreen";
 
 const Stack = createStackNavigator();
 const CheckHours = () => {
