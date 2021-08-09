@@ -56,11 +56,18 @@ login.post("/", async (req, res) => {
 });
 
 login.post("/validate", authToken, async (req, res) => {
+	const token = jwt.sign(req.token, process.env.JWT_SECRET, {
+		expiresIn: "1d",
+	});
+
 	const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [req.token.id]);
 	if (results.length < 1) {
 		return res.send({
 			success: true,
-			data: null,
+			data: {
+				token,
+				user: null,
+			},
 		});
 	}
 
@@ -68,7 +75,10 @@ login.post("/validate", authToken, async (req, res) => {
 
 	res.json({
 		success: true,
-		data: user,
+		data: {
+			token,
+			user,
+		},
 	});
 });
 
