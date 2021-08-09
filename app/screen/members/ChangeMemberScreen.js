@@ -229,18 +229,14 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 									if (!team) continue;
 
 									// Remove user from team
-									const resTeam = await fetch(config.api + "teams/" + team.id + "/" + rotue.params.id, {
+									const resTeam = await fetch(config.api + "teams/" + team.id + "/" + route.params.id, {
 										method: "DELETE",
 									}).then((res) => res.json());
 
 									// Failed to remove from team
 									if (!resTeam.success) {
 										// Display error
-										setCurrentError(
-											languagesUtils.convertError(data.language, resTeam, { userId: resUser.data.id }, "teams", {
-												userId: "gebruiker",
-											})
-										);
+										setCurrentError(languagesUtils.convertError(data.language, resTeam, {}, "teams", {}));
 										return;
 									}
 								}
@@ -268,8 +264,21 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 			</FormButton>
 			<FormButton
 				bad={true}
-				onPress={() => {
-					// TODO: delete user
+				onPress={async () => {
+					const res = await fetch(config.api + "users/" + route.params.id, {
+						method: "DELETE",
+					}).then((res) => res.json());
+
+					// Failed to delete
+					if (!res.success) {
+						// Display error
+						setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
+						return;
+					}
+
+					// TODO: delete from all tables (ex: teams, chats)
+
+					navigation.navigate("Members", { date: Date.now() });
 				}}
 			>
 				Verwijderen

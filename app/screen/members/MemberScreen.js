@@ -6,6 +6,7 @@ import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
+import config from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
 const MemberScreen = ({ navigation, route }) => {
@@ -45,8 +46,21 @@ const MemberScreen = ({ navigation, route }) => {
 			<FormButton onPress={() => navigation.navigate("ChangeMember", route.params)}>Aanpassen</FormButton>
 			<FormButton
 				bad={true}
-				onPress={() => {
-					// TODO: delete user
+				onPress={async () => {
+					const res = await fetch(config.api + "users/" + route.params.id, {
+						method: "DELETE",
+					}).then((res) => res.json());
+
+					// Failed to delete
+					if (!res.success) {
+						// Display error
+						setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
+						return;
+					}
+
+					// TODO: delete from all tables (ex: teams, chats)
+
+					navigation.navigate("Members", { date: Date.now() });
 				}}
 			>
 				Verwijderen
