@@ -17,8 +17,6 @@ const Heading = ({ title, style, containerStyle, icon, onPress }) => {
 	);
 };
 
-Heading.BACK_ICON = <IconArrowBack color={Colors.textPrimary} style={styles.backIcon} />;
-
 const styles = StyleSheet.create({
 	backIcon: {
 		marginRight: 10,
@@ -35,5 +33,7 @@ const styles = StyleSheet.create({
 		marginBottom: 1,
 	},
 });
+
+Heading.BACK_ICON = <IconArrowBack color={Colors.textPrimary} style={styles.backIcon} />;
 
 export default Heading;
