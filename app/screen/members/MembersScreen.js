@@ -18,7 +18,7 @@ const MembersScreen = ({ navigation, route }) => {
 	const getUsers = async () => {
 		if (!data.members) data.members = [];
 		try {
-			const res = await fetch(config.api + "users/business/" + data.user.businessId).then((res) => res.json());
+			const res = await fetch(config.api + "users/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.members = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -47,6 +47,7 @@ const MembersScreen = ({ navigation, route }) => {
 						email: member.email,
 						//TODO: get rights
 						rights: member.right_id,
+						id: member.id,
 					}))
 					.map((member, index) => (
 						<Card

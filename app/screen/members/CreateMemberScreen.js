@@ -84,7 +84,7 @@ const defaultFormData = [
 ];
 
 const CreateMemberScreen = ({ navigation }) => {
-	// TODO: test
+	// TODO: test teams and rights
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 	const [currentError, setCurrentError] = useState(null);
 
@@ -161,7 +161,7 @@ const CreateMemberScreen = ({ navigation }) => {
 
 							// Create user
 							const bodyUser = {
-								businessId: data.user.businessId,
+								businessId: data.user.business_id,
 								firstName: formData.firstname.value,
 								lastName: formData.lastname.value,
 								email: formData.email.value,
@@ -201,7 +201,6 @@ const CreateMemberScreen = ({ navigation }) => {
 
 										// Failed to add to team
 										if (!resTeam.success) {
-											console.log(resTeam);
 											// Display error
 											setCurrentError(
 												languagesUtils.convertError(data.language, resTeam, { userId: resUser.data.id }, "teams", {
@@ -216,7 +215,6 @@ const CreateMemberScreen = ({ navigation }) => {
 								// Go to and update members
 								navigation.navigate("Members", { date: Date.now() });
 							} else {
-								console.log(resUser);
 								// Display error
 								setCurrentError(
 									languagesUtils.convertError(data.language, resUser, bodyUser, "gebruiker", {

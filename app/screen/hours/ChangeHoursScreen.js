@@ -142,7 +142,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 				},
 				body: JSON.stringify({
 					userId: data.user.id,
-					businessId: data.user.businessId,
+					businessId: data.user.business_id,
 					week: currentHours.week,
 					year: currentHours.year,
 				}),
@@ -156,7 +156,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 						res,
 						{
 							userId: data.user.id,
-							businessId: data.user.businessId,
+							businessId: data.user.business_id,
 							week: currentHours.week,
 							year: currentHours.year,
 						},

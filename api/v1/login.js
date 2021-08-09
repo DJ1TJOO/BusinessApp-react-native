@@ -41,7 +41,7 @@ login.post("/", async (req, res) => {
 			success: true,
 			data: {
 				token,
-				user: { ...user, businessId: business_results[0].id },
+				user,
 			},
 		});
 	} catch (error) {
@@ -71,7 +71,7 @@ login.post("/validate", authToken, async (req, res) => {
 		});
 	}
 
-	const { pwd, ...user } = results;
+	const { pwd, ...user } = results[0];
 
 	res.json({
 		success: true,

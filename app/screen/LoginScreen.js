@@ -110,12 +110,12 @@ const LoginScreen = ({ navigation }) => {
 								"user",
 								JSON.stringify({
 									...res.data.user,
-									business: formData.business_name.value,
+									business: user.business,
 								})
 							);
 						}
 
-						const businessRes = await fetch(config.api + "business/" + user.businessId).then((res) => res.json());
+						const businessRes = await fetch(config.api + "business/" + user.business_id).then((res) => res.json());
 
 						// TODO: update user data from api
 						if (businessRes.success) {
@@ -123,7 +123,7 @@ const LoginScreen = ({ navigation }) => {
 							setData({
 								...data,
 								token: res.data.token,
-								user: res.data.user || user,
+								user: { ...res.data.user, business: user.business } || user,
 								business: businessRes.data,
 							});
 
@@ -195,7 +195,7 @@ const LoginScreen = ({ navigation }) => {
 									})
 								);
 
-								const businessRes = await fetch(config.api + "business/" + res.data.user.businessId).then((res) => res.json());
+								const businessRes = await fetch(config.api + "business/" + res.data.user.business_id).then((res) => res.json());
 
 								if (businessRes.success) {
 									// Store in data

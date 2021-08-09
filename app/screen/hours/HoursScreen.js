@@ -97,7 +97,7 @@ const HoursScreen = ({ navigation, route }) => {
 					if (!hours) {
 						hours = {
 							user_id: data.user.id,
-							business_id: data.user.businessId,
+							business_id: data.user.business_id,
 							hours: [],
 							year: year,
 							week: i,
