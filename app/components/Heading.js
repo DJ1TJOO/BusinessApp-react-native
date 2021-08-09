@@ -4,6 +4,8 @@ import { StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
 import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";
 
+import { IconArrowBack } from "./Icons";
+
 const Heading = ({ title, style, containerStyle, icon, onPress }) => {
 	return (
 		<TouchableWithoutFeedback onPress={onPress}>
@@ -15,7 +17,13 @@ const Heading = ({ title, style, containerStyle, icon, onPress }) => {
 	);
 };
 
+Heading.BACK_ICON = <IconArrowBack color={Colors.textPrimary} style={styles.backIcon} />;
+
 const styles = StyleSheet.create({
+	backIcon: {
+		marginRight: 10,
+		marginTop: -2,
+	},
 	container: {
 		flexDirection: "row",
 		alignContent: "center",

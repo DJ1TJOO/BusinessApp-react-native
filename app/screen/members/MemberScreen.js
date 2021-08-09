@@ -12,7 +12,7 @@ const MemberScreen = ({ navigation, route }) => {
 	return (
 		<Wrapper showHeader={true} navigation={navigation}>
 			<Heading
-				icon={<IconArrowBack color={Colors.textPrimary} style={{ marginRight: 10, marginTop: -2 }} />}
+				icon={Heading.BACK_ICON}
 				title={route.params?.firstname + " " + route.params?.lastname}
 				onPress={() => {
 					navigation.navigate("Members");
