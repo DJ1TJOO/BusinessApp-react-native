@@ -272,7 +272,7 @@ business.patch("/:id", authBusinessOwner, async (req, res) => {
 	const { name, image, owner, ownerCode } = req.body;
 	try {
 		// Check if business exists
-		const [getResults] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
+		const [getResults] = await db.query(`SELECT logo FROM business WHERE id = ?`, [id]);
 		if (getResults.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -327,8 +327,8 @@ business.patch("/:id", authBusinessOwner, async (req, res) => {
 			}
 
 			// Check if user exists
-			const [getUserResults] = await db.query(`SELECT * FROM users WHERE id = ?`, [owner]);
-			if (getUserResults.length < 1) {
+			const [getUserResults] = await db.query(`SELECT count(*) FROM users WHERE id = ?`, [owner]);
+			if (getUserResults[0]["count(*)"] < 1) {
 				return res.status(404).send({
 					success: false,
 					error: "user_not_found",

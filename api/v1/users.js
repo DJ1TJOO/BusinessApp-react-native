@@ -13,7 +13,7 @@ users.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
 		// TODO: fix born date
-		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -21,10 +21,9 @@ users.get("/:id", async (req, res) => {
 			});
 		}
 
-		const { pwd: hashed, ...user } = results[0];
 		return res.send({
 			success: true,
-			data: user,
+			data: results[0],
 		});
 	} catch (error) {
 		// Mysql error
@@ -41,7 +40,7 @@ users.get("/business/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
 		// TODO: fix born date
-		const [results] = await db.query(`SELECT * FROM users WHERE business_id = ?`, [id]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE business_id = ?`, [id]);
 		if (results.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -51,10 +50,7 @@ users.get("/business/:id", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: results.map((x) => {
-				const { pwd: hashed, ...user } = x;
-				return user;
-			}),
+			data: results,
 		});
 	} catch (error) {
 		// Mysql error
@@ -365,7 +361,7 @@ users.post("/", async (req, res) => {
 						'${escape(email)}', '${pwd}', '${escape(bornDate.toISOString())}'${hasFunctionDescription ? `,'${escape(functionDescription)}'` : ""})`
 		);
 
-		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -374,7 +370,7 @@ users.post("/", async (req, res) => {
 			});
 		}
 
-		const { pwd: hashed, ...user } = results[0];
+		const user = results[0];
 		if (sendCreateCode) {
 			// Find code
 			let code;
@@ -482,7 +478,7 @@ users.get("/recover/:business/:email", async (req, res) => {
 
 	try {
 		// Get business
-		const [getBusinessResults] = await db.query(`SELECT * FROM business WHERE name = ?`, [business]);
+		const [getBusinessResults] = await db.query(`SELECT id FROM business WHERE name = ?`, [business]);
 		if (getBusinessResults.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -491,7 +487,7 @@ users.get("/recover/:business/:email", async (req, res) => {
 		}
 
 		// Check if user exists
-		const [getUserResults] = await db.query(`SELECT * FROM users WHERE email = ? AND business_id = ?`, [email, getBusinessResults[0].id]);
+		const [getUserResults] = await db.query(`SELECT id FROM users WHERE email = ? AND business_id = ?`, [email, getBusinessResults[0].id]);
 		if (getUserResults.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -694,7 +690,7 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 			[pwd, set.userId]
 		);
 
-		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [set.userId]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [set.userId]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -703,10 +699,9 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 			});
 		}
 
-		const { pwd: hashed, ...user } = results[0];
 		return res.send({
 			success: true,
-			data: user,
+			data: results[0],
 		});
 	} catch (error) {
 		// Mysql error
@@ -1001,7 +996,7 @@ users.patch("/:id", async (req, res) => {
 					WHERE id = '${id}'`
 		);
 
-		const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -1009,10 +1004,10 @@ users.patch("/:id", async (req, res) => {
 				error: "internal",
 			});
 		}
-		const { pwd: hashed, ...user } = results[0];
+
 		return res.send({
 			success: true,
-			data: user,
+			data: results[0],
 		});
 	} catch (error) {
 		// Mysql error
@@ -1028,15 +1023,13 @@ users.patch("/:id", async (req, res) => {
 users.delete("/:id", async (req, res) => {
 	const id = req.params.id;
 	try {
-		const [get_results] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
+		const [get_results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
 		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "user_not_found",
 			});
 		}
-
-		const { pwd: hashed, ...user } = get_results[0];
 
 		const [delete_results] = await db.query(`DELETE FROM users WHERE id = ?`, [id]);
 
@@ -1049,7 +1042,7 @@ users.delete("/:id", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: user,
+			data: get_results[0],
 		});
 	} catch (error) {
 		// Mysql error

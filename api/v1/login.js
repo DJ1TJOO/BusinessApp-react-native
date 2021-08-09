@@ -60,7 +60,7 @@ login.post("/validate", authToken, async (req, res) => {
 		expiresIn: "1d",
 	});
 
-	const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [req.token.id]);
+	const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [req.token.id]);
 	if (results.length < 1) {
 		return res.send({
 			success: true,
@@ -71,13 +71,11 @@ login.post("/validate", authToken, async (req, res) => {
 		});
 	}
 
-	const { pwd, ...user } = results[0];
-
 	res.json({
 		success: true,
 		data: {
 			token,
-			user,
+			user: results[0],
 		},
 	});
 });

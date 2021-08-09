@@ -156,8 +156,8 @@ teams.post("/:teamId/", async (req, res) => {
 	const { userId } = req.body;
 
 	try {
-		const [get_results] = await db.query(`SELECT * FROM teams WHERE id = ?`, [teamId]);
-		if (get_results.length < 1) {
+		const [get_results] = await db.query(`SELECT count(*) FROM teams WHERE id = ?`, [teamId]);
+		if (get_results[0]["count(*)"] < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "team_not_found",
@@ -223,8 +223,8 @@ teams.patch("/:id", async (req, res) => {
 	const { name, chatId, agendaId } = req.body;
 
 	try {
-		const [get_results] = await db.query(`SELECT * FROM teams WHERE id = ?`, [id]);
-		if (get_results.length < 1) {
+		const [get_results] = await db.query(`SELECT count(*) FROM teams WHERE id = ?`, [id]);
+		if (get_results[0]["count(*)"] < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "team_not_found",
