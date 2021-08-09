@@ -17,7 +17,7 @@ login.post("/", async (req, res) => {
 			});
 		}
 
-		const [results] = await db.query(`SELECT id, pwd FROM users WHERE email = ? AND business_id = ?`, [email, business_results[0].id]);
+		const [results] = await db.query(`SELECT * FROM users WHERE email = ? AND business_id = ?`, [email, business_results[0].id]);
 		if (results.length < 1) {
 			return res.status(401).send({
 				success: false,
@@ -25,15 +25,15 @@ login.post("/", async (req, res) => {
 			});
 		}
 
-		const user = results[0];
-		if (!bcrypt.compareSync(password, user.pwd)) {
+		const { pwd, ...user } = results[0];
+		if (!bcrypt.compareSync(password, pwd)) {
 			return res.status(401).send({
 				success: false,
 				error: "invalid_credentials",
 			});
 		}
 
-		const token = jwt.sign({ id: user.id, email: email, businessId: business_results[0].id }, process.env.JWT_SECRET, {
+		const token = jwt.sign({ id: user.id, email: user.email, businessId: business_results[0].id }, process.env.JWT_SECRET, {
 			expiresIn: "1d",
 		});
 
@@ -41,7 +41,7 @@ login.post("/", async (req, res) => {
 			success: true,
 			data: {
 				token,
-				user: { id: user.id, email: email, businessId: business_results[0].id },
+				user: { ...user, businessId: business_results[0].id },
 			},
 		});
 	} catch (error) {
@@ -56,8 +56,19 @@ login.post("/", async (req, res) => {
 });
 
 login.post("/validate", authToken, async (req, res) => {
+	const [results] = await db.query(`SELECT * FROM users WHERE id = ?`, [req.token.id]);
+	if (results.length < 1) {
+		return res.send({
+			success: true,
+			data: null,
+		});
+	}
+
+	const { pwd, ...user } = results;
+
 	res.json({
 		success: true,
+		data: user,
 	});
 });
 
