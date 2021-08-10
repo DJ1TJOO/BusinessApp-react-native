@@ -88,13 +88,13 @@ const Menu = ({ navigation }) => {
 					{
 						title: "Alle rechten",
 						onPress: () => {
-							navigation.closeDrawer();
+							navigation.navigate("Rights");
 						},
 					},
 					{
 						title: "Recht toevoegen",
 						onPress: () => {
-							navigation.closeDrawer();
+							navigation.navigate("CreateRight");
 						},
 					},
 				]}
