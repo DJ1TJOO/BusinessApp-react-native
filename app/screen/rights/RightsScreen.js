@@ -49,6 +49,7 @@ const RightsScreen = ({ navigation, route }) => {
 						</View>
 					</Card>
 				))}
+			{data.rights && data.rights.length < 1 && <Text style={styles.info}>Geen rechten</Text>}
 		</Wrapper>
 	);
 };
@@ -59,6 +60,11 @@ const styles = StyleSheet.create({
 		fontSize: FontSizes.title,
 		fontFamily: "Segoe-UI",
 		alignSelf: "center",
+	},
+	info: {
+		color: Colors.textPrimary,
+		fontSize: FontSizes.subtitle,
+		fontFamily: "Segoe-UI",
 	},
 	row: {
 		flexDirection: "row",

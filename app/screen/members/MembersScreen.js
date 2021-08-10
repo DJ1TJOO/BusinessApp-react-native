@@ -82,6 +82,7 @@ const MembersScreen = ({ navigation, route }) => {
 							</View>
 						</Card>
 					))}
+			{data.members && data.members.length < 1 && <Text style={styles.info}>Geen gebruikers</Text>}
 		</Wrapper>
 	);
 };
