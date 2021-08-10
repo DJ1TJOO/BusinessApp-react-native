@@ -8,7 +8,8 @@
 	"scripts": {
 		"start": "node server",
 		"dev": "nodemon server",
-		"secret": "node generateSecret"
+		"secret": "node generateSecret",
+		"uuid": "node generateUuid"
 	},
 	"dependencies": {
 		"bcrypt": "^5.0.1",
