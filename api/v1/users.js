@@ -13,7 +13,7 @@ users.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
 		// TODO: fix born date
-		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -40,7 +40,7 @@ users.get("/business/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
 		// TODO: fix born date
-		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE business_id = ?`, [id]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE business_id = ?`, [id]);
 		if (results.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -362,7 +362,7 @@ users.post("/", async (req, res) => {
 		);
 
 		// TODO: fix born date
-		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -692,7 +692,7 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 		);
 
 		// TODO: fix born date
-		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [set.userId]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [set.userId]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -1000,7 +1000,7 @@ users.patch("/:id", async (req, res) => {
 		);
 
 		// TODO: fix born date
-		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
 			return res.status(500).send({
@@ -1028,7 +1028,7 @@ users.delete("/:id", async (req, res) => {
 	const id = req.params.id;
 	try {
 		// TODO: fix born date
-		const [get_results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
+		const [get_results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [id]);
 		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,

@@ -62,7 +62,7 @@ login.post("/validate", authToken, async (req, res) => {
 	});
 
 	// TODO: fix born date
-	const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [req.token.id]);
+	const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [req.token.id]);
 	if (results.length < 1) {
 		return res.send({
 			success: true,
