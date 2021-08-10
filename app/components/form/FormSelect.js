@@ -7,12 +7,53 @@ import FontSizes from "../../config/FontSizes";
 import { IconCheck, IconDown } from "../Icons";
 import FormInput from "./FormInput";
 
+/**
+ * @param {Array<String>} valueToFormat
+ * @returns
+ */
 const format = (valueToFormat) => {
 	const formatted = valueToFormat.join(", ").replace(/.+(,.+)$/g, (a, b) => {
 		const string = b.replace(/,/g, "en");
 		return a.replace(new RegExp(b + "$"), " ") + string;
 	});
 	return formatted;
+};
+
+/**
+ * @param {String} formatToValue
+ */
+const formatToValue = (formatToValue) => {
+	// Split up and trim
+	const values = formatToValue
+		.trim()
+		.split(", ")
+		.map((x) => x.trim());
+
+	// Split up all en
+	const hasEn = values.filter((x) => x.includes("en "));
+	for (let i = 0; i < hasEn.length; i++) {
+		const string = hasEn[i];
+
+		// Remove from values
+		values.splice(values.indexOf(string), 1);
+
+		// Split up and trim
+		values.push(...string.split("en ").map((x) => x.trim()));
+	}
+
+	// Remove duplicates
+	for (let i = 0; i < values.length; i++) {
+		const value = values[i];
+
+		// Check if not empty and not duplicate
+		if (value !== "" && values.filter((x) => x === value).length < 2) continue;
+
+		// Remove
+		values.splice(i, 1);
+	}
+
+	// Remove empty strings
+	return values;
 };
 
 const getValueToSet = (value, defaultValue, multiple) => {
@@ -29,6 +70,7 @@ const getValueToSet = (value, defaultValue, multiple) => {
 
 const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, onSelected, multiple, defaultValue, onChange, validator, ...otherProps }) => {
 	let [currentValue, setCurrentValue] = useState(getValueToSet(value, defaultValue, multiple));
+	const [inputValue, setInputValue] = useState(multiple ? format(currentValue) : currentValue);
 	const [currentSelected, setCurrentSelected] = useState(!!selected);
 	const [currentErrorLabel, setCurrentErrorLabel] = useState(null);
 	const [isValid, setIsValid] = useState(null);
@@ -41,6 +83,11 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 	useEffect(() => {
 		setCurrentSelected(selected);
 	}, [selected]);
+
+	useEffect(() => {
+		if (multiple) setInputValue(format(currentValue));
+		else setInputValue(currentValue);
+	}, [currentValue]);
 
 	const checkValue = (value) => {
 		setCurrentValue(value);
@@ -77,12 +124,43 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 					setCurrentSelected(!currentSelected);
 				}
 			}}
-			value={!multiple ? currentValue : format(currentValue)}
+			value={inputValue}
 			style={[styles.select]}
 			innerStyle={[currentSelected && styles.selectSelected]}
 			errorLabel={currentErrorLabel}
 			valid={isValid}
-			// TODO: custom values onchange
+			onChange={(text) => text !== inputValue && setInputValue(text)}
+			onEndEditing={(e) => {
+				if (!allowsCustomValue) return;
+
+				// Get real value
+				/** @type {Array<String>} */
+				let value = e.nativeEvent.text;
+				if (multiple) {
+					value = formatToValue(value);
+
+					// Filter and sort
+					value = value.filter((x) => data.includes(x));
+					value.sort((a, b) => data.indexOf(a) - data.indexOf(b));
+
+					// Check if different
+					if (value.join(",") === currentValue.join(",")) {
+						// Update text to current value
+						if (multiple) {
+							setInputValue(format(currentValue));
+						}
+					} else {
+						// Update value
+						checkValue(value);
+					}
+				} else {
+					// Check if different
+					if (value !== currentValue) {
+						// Update value
+						checkValue(value);
+					}
+				}
+			}}
 			{...otherProps}
 		>
 			<TouchableOpacity
