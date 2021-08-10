@@ -4,7 +4,7 @@ const { dbGenerateUniqueId } = require("./helpers/utils");
 const rights = require("express").Router();
 
 // TOOD: add rights
-const existingRights = ["right1", "right2"];
+const existingRights = ["right", "right2", "right3", "right4", "right5"];
 
 // TODO: authorization
 // TODO: test
@@ -21,7 +21,7 @@ rights.get("/:id", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: results[0],
+			data: results.map((x) => ({ ...x, rights: x.rights.split(",") }))[0],
 		});
 	} catch (error) {
 		// Mysql error
@@ -47,7 +47,7 @@ rights.get("/business/:businessId", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: results,
+			data: results.map((x) => ({ ...x, rights: x.rights.split(",") })),
 		});
 	} catch (error) {
 		// Mysql error
@@ -158,7 +158,7 @@ rights.post("/", async (req, res) => {
 		await db.query(
 			`INSERT INTO 
 					rights (id, name, business_id, rights)
-					VALUES ('${escape(id)}', '${escape(name)}','${escape(businessId)}','${escape(rights.join(","))}')`
+					VALUES ('${escape(id)}', '${escape(name)}','${escape(businessId)}','${rights.map((x) => escape(x)).join(",")}')`
 		);
 
 		const [results] = await db.query(`SELECT * FROM rights WHERE id = ?`, [id]);
@@ -261,7 +261,7 @@ rights.patch("/:id", async (req, res) => {
 
 		const update = [];
 		if (hasName) update.push({ name: "name", value: escape(name) });
-		if (hasRights) update.push({ name: "rights", value: escape(rights.join(",")) });
+		if (hasRights) update.push({ name: "rights", value: rights.map((x) => escape(x)).join(",") });
 
 		// Update right
 		await db.query(
@@ -329,3 +329,5 @@ rights.delete("/:id", async (req, res) => {
 		});
 	}
 });
+
+module.exports = rights;
