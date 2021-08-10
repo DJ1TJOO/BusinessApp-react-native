@@ -328,7 +328,7 @@ teams.patch("/:id", async (req, res) => {
 		// Update team
 		await db.query(
 			`UPDATE 
-					users
+					teams
 					SET ${update.map((x) => `${x.name} = '${x.value}'`).join(",")}
 					WHERE id = '${id}'`
 		);
