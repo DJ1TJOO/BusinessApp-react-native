@@ -31,6 +31,32 @@ teams.get("/:id", async (req, res) => {
 	}
 });
 
+teams.get("/business/:businessId", async (req, res) => {
+	const { businessId } = req.params;
+	try {
+		const [results] = await db.query(`SELECT * FROM teams WHERE business_id = ?`, [businessId]);
+		if (results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "team_not_found",
+			});
+		}
+
+		return res.send({
+			success: true,
+			data: results,
+		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
 teams.post("/", async (req, res) => {
 	const { name, businessId, chatId, agendaId } = req.body;
 
