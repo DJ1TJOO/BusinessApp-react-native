@@ -361,6 +361,7 @@ users.post("/", async (req, res) => {
 						'${escape(email)}', '${pwd}', '${escape(bornDate.toISOString())}'${hasFunctionDescription ? `,'${escape(functionDescription)}'` : ""})`
 		);
 
+		// TODO: fix born date
 		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
@@ -690,6 +691,7 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 			[pwd, set.userId]
 		);
 
+		// TODO: fix born date
 		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [set.userId]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
@@ -720,6 +722,7 @@ users.patch("/:id", async (req, res) => {
 
 	try {
 		// Get user
+		// TODO: fix born date
 		const [getResults] = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
 		if (getResults.length < 1) {
 			return res.status(404).send({
@@ -996,6 +999,7 @@ users.patch("/:id", async (req, res) => {
 					WHERE id = '${id}'`
 		);
 
+		// TODO: fix born date
 		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
 		if (results.length < 1) {
 			// Return status 500 (internal server error) internal
@@ -1023,6 +1027,7 @@ users.patch("/:id", async (req, res) => {
 users.delete("/:id", async (req, res) => {
 	const id = req.params.id;
 	try {
+		// TODO: fix born date
 		const [get_results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email FROM users WHERE id = ?`, [id]);
 		if (get_results.length < 1) {
 			return res.status(404).send({

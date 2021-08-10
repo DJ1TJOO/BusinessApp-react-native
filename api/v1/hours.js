@@ -98,7 +98,6 @@ const addProjectHours = async (hours) => {
 };
 
 // TODO: authorization
-// TODO: test all
 hours.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	return objectToResponse(res, await getHours({ id }));

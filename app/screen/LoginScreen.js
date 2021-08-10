@@ -117,7 +117,6 @@ const LoginScreen = ({ navigation }) => {
 
 						const businessRes = await fetch(config.api + "business/" + user.business_id).then((res) => res.json());
 
-						// TODO: update user data from api
 						if (businessRes.success) {
 							// Store in data
 							setData({
