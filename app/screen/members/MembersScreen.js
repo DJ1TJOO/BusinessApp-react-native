@@ -36,6 +36,7 @@ const MembersScreen = ({ navigation, route }) => {
 		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getUsers}>
 			<Heading title="Alle gebruikers" />
 			{data.members &&
+				data.members.length > 0 &&
 				data.members
 					.map((member) => ({
 						firstname: member.first_name,

@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import Card from "../../components/Card";
-import FormButton from "../../components/form/FormButton";
 import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
 
@@ -37,6 +36,7 @@ const RightsScreen = ({ navigation, route }) => {
 		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getRights}>
 			<Heading title="Alle rechten" />
 			{data.rights &&
+				data.rights.length > 0 &&
 				data.rights.map((right, index) => (
 					<Card
 						key={index}
