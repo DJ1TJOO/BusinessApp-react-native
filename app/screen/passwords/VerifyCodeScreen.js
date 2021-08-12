@@ -8,6 +8,8 @@ import Wrapper from "../../components/Wrapper";
 
 import dataContext from "../../contexts/dataContext";
 
+import languagesUtils from "../../languages/utils";
+
 const verify = async (businessId, userId, code, setCurrentError, data) => {
 	try {
 		const res = await fetch(`http://192.168.178.25:8003/v1/users/recover/${businessId}/${userId}/${code}`, {

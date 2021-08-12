@@ -9,6 +9,8 @@ import Colors from "../../config/Colors";
 import config from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
+import languagesUtils from "../../languages/utils";
+
 const MemberScreen = ({ navigation, route }) => {
 	return (
 		<Wrapper showHeader={true} navigation={navigation}>

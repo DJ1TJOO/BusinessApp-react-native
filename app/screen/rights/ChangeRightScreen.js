@@ -13,6 +13,8 @@ import dataContext from "../../contexts/dataContext";
 
 import useFormData from "../../hooks/useFormData";
 
+import languagesUtils from "../../languages/utils";
+
 const defaultFormData = (params) => [
 	["name", "rights"],
 	[
