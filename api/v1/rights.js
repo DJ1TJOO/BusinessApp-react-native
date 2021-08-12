@@ -4,7 +4,20 @@ const { dbGenerateUniqueId } = require("./helpers/utils");
 const rights = require("express").Router();
 
 // TOOD: add rights
-const existingRights = ["right", "right2", "right3", "right4", "right5"];
+const availableRights = {
+	RIGHT: 0,
+	RIGHT2: 1,
+	RIGHT3: 2,
+	RIGHT4: 3,
+	RIGHT5: 4,
+};
+
+rights.get("/available", (req, res) => {
+	return res.send({
+		success: true,
+		data: availableRights,
+	});
+});
 
 // TODO: authorization
 // TODO: test
@@ -21,7 +34,7 @@ rights.get("/:id", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: results.map((x) => ({ ...x, rights: x.rights.split(",") }))[0],
+			data: { ...results[0], rights: results[0].rights.split(",").map(Number) },
 		});
 	} catch (error) {
 		// Mysql error
@@ -47,7 +60,7 @@ rights.get("/business/:businessId", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: results.map((x) => ({ ...x, rights: x.rights.split(",") })),
+			data: results.map((x) => ({ ...x, rights: x.rights.split(",").map(Number) })),
 		});
 	} catch (error) {
 		// Mysql error
@@ -140,7 +153,7 @@ rights.post("/", async (req, res) => {
 		}
 
 		// Has none exising rights
-		if (rights.some((x) => !existingRights.includes(x))) {
+		if (rights.some((x) => !Object.values(availableRights).includes(x))) {
 			// Return status 422 (unprocessable entity) incorrect
 			return res.status(422).send({
 				success: false,
@@ -172,7 +185,7 @@ rights.post("/", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: results[0],
+			data: { ...results[0], rights: results[0].rights.split(",").map(Number) },
 		});
 	} catch (error) {
 		// Mysql error
@@ -246,7 +259,7 @@ rights.patch("/:id", async (req, res) => {
 			}
 
 			// Has none exising rights
-			if (rights.some((x) => !existingRights.includes(x))) {
+			if (rights.some((x) => !Object.values(availableRights).includes(x))) {
 				// Return status 422 (unprocessable entity) incorrect
 				return res.status(422).send({
 					success: false,
@@ -288,7 +301,7 @@ rights.patch("/:id", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: results[0],
+			data: { ...results[0], rights: results[0].rights.split(",").map(Number) },
 		});
 	} catch (error) {
 		// Mysql error
@@ -323,7 +336,7 @@ rights.delete("/:id", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: get_results[0],
+			data: { ...get_results[0], rights: get_results[0].rights.split(",").map(Number) },
 		});
 	} catch (error) {
 		// Mysql error
