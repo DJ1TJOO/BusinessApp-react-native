@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import FormButton from "../../components/form/FormButton";
 import FormDate from "../../components/form/FormDate";
@@ -88,11 +88,13 @@ const defaultFormData = (params) => [
 ];
 
 const ChangeMemberScreen = ({ navigation, route }) => {
-	// TODO: test teams and rights
+	// TODO: test teams
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData(route.params));
 	const [currentError, setCurrentError] = useState(null);
 
 	const [data, setData] = useContext(dataContext);
+
+	const [rights, setRights] = useState([{ id: null, name: "Geen rechten" }]);
 
 	// TODO: get from api
 	const teams = [
@@ -100,12 +102,32 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 		{ id: "2", name: "team2" },
 		{ id: "3", name: "team3" },
 	];
-	const rights = [
-		{ id: null, name: "Geen rechten" },
-		{ id: "1", name: "right" },
-		{ id: "2", name: "right2" },
-		{ id: "3", name: "right3" },
-	];
+
+	const getRights = async () => {
+		if (!data.rights) data.rights = [];
+		try {
+			const res = await fetch(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			if (res.success) data.rights = res.data;
+			setData({ ...data });
+		} catch (error) {
+			throw error;
+		}
+	};
+
+	useEffect(() => {
+		(async () => {
+			// Get rights
+			if (!data.rights || !Array.isArray(data.rights) || !(data.rights.length > 0)) {
+				await getRights();
+			}
+
+			setRights([{ id: null, name: "Geen rechten" }, ...data.rights.map((x) => ({ id: x.id, name: x.name }))]);
+		})();
+	}, []);
+
+	useEffect(() => {
+		setFormValue("rightId")(rights.find((x) => x.id === route.params?.rights)?.name);
+	}, [rights]);
 
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError}>

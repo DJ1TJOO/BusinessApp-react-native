@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text } from "react-native";
 
 import FormButton from "../../components/form/FormButton";
@@ -9,9 +9,31 @@ import Colors from "../../config/Colors";
 import config from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
+import dataContext from "../../contexts/dataContext";
+
 import languagesUtils from "../../languages/utils";
 
 const MemberScreen = ({ navigation, route }) => {
+	const [data, setData] = useContext(dataContext);
+
+	const getRights = async () => {
+		if (!data.rights) data.rights = [];
+		try {
+			const res = await fetch(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			if (res.success) data.rights = res.data;
+			setData({ ...data });
+		} catch (error) {
+			throw error;
+		}
+	};
+
+	useEffect(() => {
+		// Get rights
+		if (!data.rights || !Array.isArray(data.rights) || !(data.rights.length > 0)) {
+			getRights();
+		}
+	}, []);
+
 	return (
 		<Wrapper showHeader={true} navigation={navigation}>
 			<Heading
@@ -44,7 +66,7 @@ const MemberScreen = ({ navigation, route }) => {
 					  })()}
 			</Text>
 			<Text style={styles.label}>Rechten</Text>
-			<Text style={styles.value}>{route.params?.rights || "Geen rechten"}</Text>
+			<Text style={styles.value}>{(data.rights && data.rights.find((x) => x.id === route.params?.rights)?.name) || "Geen rechten"}</Text>
 			<FormButton onPress={() => navigation.navigate("ChangeMember", route.params)}>Aanpassen</FormButton>
 			<FormButton
 				bad={true}
