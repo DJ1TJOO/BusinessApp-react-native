@@ -58,6 +58,7 @@ const Modal = ({ children, error, info, icon, onDismiss, buttons = [{ text: "Oke
 								style={[
 									styles.button,
 									{ width: `${100 / buttons.length}%` },
+									type === MODAL_BUTTON_TYPES.CANCEL && { backgroundColor: Colors.red },
 									color && { backgroundColor: color },
 									index === 0 && styles.buttonStart,
 									index === buttons.length - 1 && styles.buttonEnd,
@@ -68,7 +69,7 @@ const Modal = ({ children, error, info, icon, onDismiss, buttons = [{ text: "Oke
 										friction: 20,
 										tension: 100,
 										useNativeDriver: false,
-									}).start(() => onDismiss({ text, type, color }));
+									}).start(() => onDismiss(text, type, color));
 								}}
 							>
 								{text}
