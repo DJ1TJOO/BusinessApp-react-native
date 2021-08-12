@@ -9,6 +9,7 @@ import Colors from "../config/Colors";
 import lastStatusBarColorContext from "../contexts/lastStatusBarColorContext";
 import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
 
+import useConfirmationModal from "../hooks/useConfirmationModal";
 import useErrorModal from "../hooks/useErrorModal";
 
 import Header from "./Header";
@@ -17,7 +18,7 @@ import Loading from "./Loading";
 import SafeView from "./SafeView";
 
 const interpolation = interpolate([Colors.white, Colors.primary]);
-const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError }) => {
+const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError, confirmation, setConfirmation }) => {
 	const [lastStatusBarColor, setLastStatusBarColor] = useContext(lastStatusBarColorContext);
 
 	const insets = useSafeAreaInsets();
@@ -74,6 +75,18 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 		useEffect(() => {
 			if (currentError !== error) setError(currentError);
 		}, [currentError]);
+	}
+
+	const [currentConfirmation, setCurrentConfirmation, ConfirmationModal] = useConfirmationModal();
+
+	useEffect(() => {
+		if (confirmation !== currentConfirmation) setCurrentConfirmation(confirmation);
+	}, [confirmation]);
+
+	if (setConfirmation) {
+		useEffect(() => {
+			if (currentConfirmation !== confirmation) setConfirmation(currentConfirmation);
+		}, [currentConfirmation]);
 	}
 
 	return (
@@ -165,6 +178,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 				)}
 			</wrapperScrollViewContext.Provider>
 			{ErrorModal}
+			{ConfirmationModal}
 		</SafeView>
 	);
 };
