@@ -77,7 +77,7 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 
 	useEffect(() => {
 		const newValue = getValueToSet(value, defaultValue, multiple);
-		if (value !== newValue) checkValue(newValue);
+		if (currentValue !== newValue) checkValue(newValue);
 	}, [value]);
 
 	useEffect(() => {
