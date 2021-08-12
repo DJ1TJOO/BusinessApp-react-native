@@ -129,8 +129,10 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 		setFormValue("rightId")(rights.find((x) => x.id === route.params?.rights)?.name);
 	}, [rights]);
 
+	const [currentConfirmation, setCurrentConfirmation] = useState(null);
+
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
+		<Wrapper showHeader={true} navigation={navigation} error={currentError} confirmation={currentConfirmation}>
 			<Heading
 				icon={Heading.BACK_ICON}
 				title={route.params?.firstname + " " + route.params?.lastname}
@@ -288,21 +290,33 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 			</FormButton>
 			<FormButton
 				bad={true}
-				onPress={async () => {
-					const res = await fetch(config.api + "users/" + route.params.id, {
-						method: "DELETE",
-					}).then((res) => res.json());
+				onPress={() => {
+					setCurrentConfirmation({
+						question: "Weet u zeker dat u de gebruiker '" + route.params?.firstname + " " + route.params?.lastname + "' wilt verwijderen?",
+						buttons: {
+							accept: "Verwijder",
+							cancel: "Annuleer",
+						},
+						events: {
+							onAccept: async () => {
+								const res = await fetch(config.api + "users/" + route.params.id, {
+									method: "DELETE",
+								}).then((res) => res.json());
 
-					// Failed to delete
-					if (!res.success) {
-						// Display error
-						setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
-						return;
-					}
+								// Failed to delete
+								if (!res.success) {
+									// Display error
+									setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
+									return;
+								}
 
-					// TODO: delete from all tables (ex: teams, chats)
+								// TODO: delete from all tables (ex: teams, chats)
 
-					navigation.navigate("Members", { date: Date.now() });
+								navigation.navigate("Members", { date: Date.now() });
+							},
+							onCancel: () => {},
+						},
+					});
 				}}
 			>
 				Verwijderen

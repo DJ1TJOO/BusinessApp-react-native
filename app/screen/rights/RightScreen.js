@@ -41,8 +41,10 @@ const RightScreen = ({ navigation, route }) => {
 		})();
 	}, []);
 
+	const [currentConfirmation, setCurrentConfirmation] = useState(null);
+
 	return (
-		<Wrapper showHeader={true} navigation={navigation}>
+		<Wrapper showHeader={true} navigation={navigation} confirmation={currentConfirmation}>
 			<Heading
 				icon={Heading.BACK_ICON}
 				title={route.params?.name}
@@ -69,19 +71,31 @@ const RightScreen = ({ navigation, route }) => {
 			<FormButton onPress={() => navigation.navigate("ChangeRight", route.params)}>Aanpassen</FormButton>
 			<FormButton
 				bad={true}
-				onPress={async () => {
-					const res = await fetch(config.api + "rights/" + route.params.id, {
-						method: "DELETE",
-					}).then((res) => res.json());
+				onPress={() => {
+					setCurrentConfirmation({
+						question: "Weet u zeker dat u het recht '" + route.params?.name + "' wilt verwijderen?",
+						buttons: {
+							accept: "Verwijder",
+							cancel: "Annuleer",
+						},
+						events: {
+							onAccept: async () => {
+								const res = await fetch(config.api + "rights/" + route.params.id, {
+									method: "DELETE",
+								}).then((res) => res.json());
 
-					// Failed to delete
-					if (!res.success) {
-						// Display error
-						setCurrentError(languagesUtils.convertError(data.language, res, {}, "rechten", {}));
-						return;
-					}
+								// Failed to delete
+								if (!res.success) {
+									// Display error
+									setCurrentError(languagesUtils.convertError(data.language, res, {}, "rechten", {}));
+									return;
+								}
 
-					navigation.navigate("Rights", { date: Date.now() });
+								navigation.navigate("Rights", { date: Date.now() });
+							},
+							onCancel: () => {},
+						},
+					});
 				}}
 			>
 				Verwijderen
