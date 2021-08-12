@@ -8,7 +8,9 @@ import Menu from "./Menu";
 import Rights from "./Rights";
 
 import HomeScreen from "./screen/HomeScreen";
+
 import CreateMemberScreen from "./screen/members/CreateMemberScreen";
+import CreateRightScreen from "./screen/rights/CreateRightScreen";
 
 const Drawer = createDrawerNavigator();
 const Account = () => {
@@ -29,7 +31,7 @@ const Account = () => {
 			<Drawer.Screen name="CreateMember" component={CreateMemberScreen} />
 
 			<Drawer.Screen name="Rights" component={Rights} />
-			{/* <Drawer.Screen name="CreateRight" component={CreateRightScreen} /> */}
+			<Drawer.Screen name="CreateRight" component={CreateRightScreen} />
 		</Drawer.Navigator>
 	);
 };
