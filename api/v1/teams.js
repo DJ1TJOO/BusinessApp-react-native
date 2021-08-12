@@ -249,8 +249,8 @@ teams.patch("/:id", async (req, res) => {
 	const { name, chatId, agendaId } = req.body;
 
 	try {
-		const [get_results] = await db.query(`SELECT count(*) FROM teams WHERE id = ?`, [id]);
-		if (get_results[0]["count(*)"] < 1) {
+		const [get_results] = await db.query(`SELECT name,agenda_id,chat_id FROM teams WHERE id = ?`, [id]);
+		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "team_not_found",
@@ -259,7 +259,7 @@ teams.patch("/:id", async (req, res) => {
 
 		// Check if  name is correct
 		let hasName = false;
-		if (name) {
+		if (name && get_results[0].name !== name) {
 			// Name too long
 			if (name.length > 255) {
 				// Return status 422 (unprocessable entity) too long
@@ -289,7 +289,7 @@ teams.patch("/:id", async (req, res) => {
 		}
 
 		let hasChat = false;
-		if (chatId) {
+		if (typeof chatId !== "undefined" && get_results[0].chat_id !== chatId) {
 			const [chat_result] = await db.query(`SELECT count(*) FROM chats WHERE id = ?`, [chatId]);
 
 			// Chat does not exists
@@ -305,7 +305,7 @@ teams.patch("/:id", async (req, res) => {
 		}
 
 		let hasAgenda = false;
-		if (agendaId) {
+		if (typeof agendaId !== "undefined" && get_results[0].agenda_id !== agendaId) {
 			const [agenda_result] = await db.query(`SELECT count(*) FROM agendas WHERE id = ?`, [agendaId]);
 
 			// Agenda does not exists
@@ -326,12 +326,14 @@ teams.patch("/:id", async (req, res) => {
 		if (hasAgenda) update.push({ name: "agenda_id", value: escape(agendaId) });
 
 		// Update team
-		await db.query(
-			`UPDATE 
+		if (update.length > 0) {
+			await db.query(
+				`UPDATE 
 					teams
 					SET ${update.map((x) => `${x.name} = '${x.value}'`).join(",")}
 					WHERE id = '${id}'`
-		);
+			);
+		}
 
 		const [results] = await db.query(`SELECT * FROM teams WHERE id = ?`, [id]);
 		if (results.length < 1) {

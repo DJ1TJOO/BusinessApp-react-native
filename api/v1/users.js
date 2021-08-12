@@ -831,7 +831,7 @@ users.patch("/:id", async (req, res) => {
 
 		// Check if right is specified
 		let hasRight = false;
-		if (rightId && currentUser.right_id !== rightId) {
+		if (typeof rightId !== "undefined" && currentUser.right_id !== rightId) {
 			const [function_result] = await db.query(`SELECT count(*) FROM rights WHERE id = ?`, [rightId]);
 
 			// Right does not exists
@@ -910,7 +910,7 @@ users.patch("/:id", async (req, res) => {
 
 		// Check if function description is specified
 		let hasFunctionDescription = false;
-		if (functionDescription && currentUser.function_description !== functionDescription) {
+		if (typeof functionDescription !== "undefined" && currentUser.function_description !== functionDescription) {
 			// Function description too long
 			if (functionDescription.length > 255) {
 				// Return status 422 (unprocessable entity) too long
@@ -992,12 +992,14 @@ users.patch("/:id", async (req, res) => {
 		if (hasPassword) update.push({ name: "pwd", value: pwd });
 
 		// Update user
-		await db.query(
-			`UPDATE 
+		if (update.length > 0) {
+			await db.query(
+				`UPDATE 
 					users
 					SET ${update.map((x) => `${x.name} = '${x.value}'`).join(",")}
 					WHERE id = '${id}'`
-		);
+			);
+		}
 
 		// TODO: fix born date
 		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [id]);

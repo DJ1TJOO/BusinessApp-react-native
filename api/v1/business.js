@@ -272,7 +272,7 @@ business.patch("/:id", authBusinessOwner, async (req, res) => {
 	const { name, image, owner, ownerCode } = req.body;
 	try {
 		// Check if business exists
-		const [getResults] = await db.query(`SELECT logo FROM business WHERE id = ?`, [id]);
+		const [getResults] = await db.query(`SELECT logo,name FROM business WHERE id = ?`, [id]);
 		if (getResults.length < 1) {
 			return res.status(404).send({
 				success: false,
@@ -340,7 +340,7 @@ business.patch("/:id", authBusinessOwner, async (req, res) => {
 
 		// Check if name is specified
 		let hasName = false;
-		if (name) {
+		if (name && getResults[0].name !== name) {
 			const [business_result] = await db.query(`SELECT count(*) FROM business WHERE name = ?`, [name]);
 
 			// Busines name taken
@@ -468,15 +468,17 @@ business.patch("/:id", authBusinessOwner, async (req, res) => {
 		if (hasImage) update.push({ name: "logo", value: imageInfo.id });
 
 		// Update business
-		await db.query(
-			`UPDATE 
+		if (update.length > 0) {
+			await db.query(
+				`UPDATE 
 					business
 					SET ${update.map((x) => `${x.name} = ${escape(x.value)}`).join(",")}
 					WHERE id = ?`,
-			[id]
-		);
+				[id]
+			);
 
-		if (hasImage) deleteImage("business_logos", getResults[0].logo);
+			if (hasImage) deleteImage("business_logos", getResults[0].logo);
+		}
 
 		const [results] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
 		if (results.length < 1) {

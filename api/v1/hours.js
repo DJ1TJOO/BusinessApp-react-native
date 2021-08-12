@@ -557,8 +557,8 @@ hours.patch("/:id", async (req, res) => {
 	const { valid, submitted } = req.body;
 	try {
 		// Check if hours exists
-		const [getResults] = await db.query(`SELECT count(*) FROM hours WHERE id = ?`, [id]);
-		if (getResults[0]["count(*)"] < 1) {
+		const [getResults] = await db.query(`SELECT valid,submitted FROM hours WHERE id = ?`, [id]);
+		if (getResults.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "hours_not_found",
@@ -567,7 +567,7 @@ hours.patch("/:id", async (req, res) => {
 
 		// Submitted specified
 		let hasSubmitted = false;
-		if (typeof submitted !== "undefined") {
+		if (typeof submitted !== "undefined" && getResults[0].submitted !== submitted) {
 			// Not boolean and not null
 			if (typeof submitted !== "boolean" && submitted !== null) {
 				// Return status 422 (unprocessable entity) incorrect
@@ -585,7 +585,7 @@ hours.patch("/:id", async (req, res) => {
 
 		// Valid specified
 		let hasValid = false;
-		if (typeof valid !== "undefined") {
+		if (typeof valid !== "undefined" && getResults[0].valid !== valid) {
 			// Not boolean and not null
 			if (typeof valid !== "boolean" && valid !== null) {
 				// Return status 422 (unprocessable entity) incorrect
@@ -606,13 +606,15 @@ hours.patch("/:id", async (req, res) => {
 		if (hasValid) update.push({ name: "valid", value: valid });
 
 		// Update hours
-		await db.query(
-			`UPDATE 
+		if (update.length > 0) {
+			await db.query(
+				`UPDATE 
 					hours
 					SET ${update.map((x) => `${x.name} = ${x.value}`).join(",")}
 					WHERE id = ?`,
-			[id]
-		);
+				[id]
+			);
+		}
 
 		const [results] = await db.query(`SELECT * FROM hours WHERE id = ?`, [id]);
 		if (results.length < 1) {
@@ -642,8 +644,10 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 	const { projectHoursId } = req.params;
 	const { project, projectName, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
 	try {
-		const [get_results] = await db.query(`SELECT count(*) FROM project_hours WHERE id = ?`, [projectHoursId]);
-		if (get_results[0]["count(*)"] < 1) {
+		const [get_results] = await db.query(`SELECT project,project_id,description,monday,tuesday,wednesday,thursday,friday,saturday,sunday FROM project_hours WHERE id = ?`, [
+			projectHoursId,
+		]);
+		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "project_hours_not_found",
@@ -680,7 +684,7 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 
 		// Check if project is correct
 		let hasProject = false;
-		if (project) {
+		if (project && get_results[0].project !== project) {
 			// Project too long
 			if (project.length > 255) {
 				// Return status 422 (unprocessable entity) too long
@@ -710,7 +714,7 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 		}
 
 		let hasDescription = false;
-		if (description) {
+		if (description && get_results[0].description !== description) {
 			// Description too long
 			if (description.length > 255) {
 				// Return status 422 (unprocessable entity) too long
@@ -744,18 +748,27 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 			}
 
 			projectId = project_result[0].id;
-			hasProjectId = true;
+			if (get_results[0].project_id !== projectId) {
+				hasProjectId = true;
+			}
 		}
 
 		const update = [];
 
-		if (mondayValidation.success && mondayValidation.data) update.push({ name: "monday", value: escape(mondayValidation.data) });
-		if (tuesdayValidation.success && tuesdayValidation.data) update.push({ name: "tuesday", value: escape(tuesdayValidation.data) });
-		if (wednesdayValidation.success && wednesdayValidation.data) update.push({ name: "wednesday", value: escape(wednesdayValidation.data) });
-		if (thursdayValidation.success && thursdayValidation.data) update.push({ name: "thursday", value: escape(thursdayValidation.data) });
-		if (fridayValidation.success && fridayValidation.data) update.push({ name: "friday", value: escape(fridayValidation.data) });
-		if (saturdayValidation.success && saturdayValidation.data) update.push({ name: "saturday", value: escape(saturdayValidation.data) });
-		if (sundayValidation.success && sundayValidation.data) update.push({ name: "sunday", value: escape(sundayValidation.data) });
+		if (mondayValidation.success && mondayValidation.data && mondayValidation.data !== get_results[0].monday)
+			update.push({ name: "monday", value: escape(mondayValidation.data) });
+		if (tuesdayValidation.success && tuesdayValidation.data && tuesdayValidation.data !== get_results[0].tuesday)
+			update.push({ name: "tuesday", value: escape(tuesdayValidation.data) });
+		if (wednesdayValidation.success && wednesdayValidation.data && wednesdayValidation.data !== get_results[0].wednesday)
+			update.push({ name: "wednesday", value: escape(wednesdayValidation.data) });
+		if (thursdayValidation.success && thursdayValidation.data && thursdayValidation.data !== get_results[0].thursday)
+			update.push({ name: "thursday", value: escape(thursdayValidation.data) });
+		if (fridayValidation.success && fridayValidation.data && fridayValidation.data !== get_results[0].friday)
+			update.push({ name: "friday", value: escape(fridayValidation.data) });
+		if (saturdayValidation.success && saturdayValidation.data && saturdayValidation.data !== get_results[0].saturday)
+			update.push({ name: "saturday", value: escape(saturdayValidation.data) });
+		if (sundayValidation.success && sundayValidation.data && sundayValidation.data !== get_results[0].sunday)
+			update.push({ name: "sunday", value: escape(sundayValidation.data) });
 
 		if (hasProject) update.push({ name: "project", value: escape(project) });
 		if (hasProjectId)
@@ -765,8 +778,8 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 			});
 		if (hasDescription) update.push({ name: "description", value: escape(description) });
 
+		// Update project_hours
 		if (update.length > 0) {
-			// Update project_hours
 			await db.query(
 				`UPDATE 
 					project_hours

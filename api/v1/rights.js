@@ -190,8 +190,8 @@ rights.patch("/:id", async (req, res) => {
 	const { name, rights } = req.body;
 
 	try {
-		const [get_results] = await db.query(`SELECT count(*) FROM rights WHERE id = ?`, [id]);
-		if (get_results[0]["count(*)"] < 1) {
+		const [get_results] = await db.query(`SELECT name,rights FROM rights WHERE id = ?`, [id]);
+		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "right_not_found",
@@ -200,7 +200,7 @@ rights.patch("/:id", async (req, res) => {
 
 		// Check if name is correct
 		let hasName = false;
-		if (name) {
+		if (name && get_results[0].name !== name) {
 			// Name too long
 			if (name.length > 255) {
 				// Return status 422 (unprocessable entity) too long
@@ -231,6 +231,7 @@ rights.patch("/:id", async (req, res) => {
 
 		// Check if rights is correct
 		let hasRights = false;
+		let rightsJoined;
 		if (rights) {
 			// Not array
 			if (!Array.isArray(rights)) {
@@ -256,20 +257,25 @@ rights.patch("/:id", async (req, res) => {
 				});
 			}
 
-			hasRights = true;
+			rightsJoined = rights.map((x) => escape(x)).join(",");
+			if (get_results[0].rights !== rightsJoined) {
+				hasRights = true;
+			}
 		}
 
 		const update = [];
 		if (hasName) update.push({ name: "name", value: escape(name) });
-		if (hasRights) update.push({ name: "rights", value: rights.map((x) => escape(x)).join(",") });
+		if (hasRights) update.push({ name: "rights", value: rightsJoined });
 
 		// Update right
-		await db.query(
-			`UPDATE 
+		if (update.length > 0) {
+			await db.query(
+				`UPDATE 
 					rights
 					SET ${update.map((x) => `${x.name} = '${x.value}'`).join(",")}
 					WHERE id = '${id}'`
-		);
+			);
+		}
 
 		const [results] = await db.query(`SELECT * FROM rights WHERE id = ?`, [id]);
 		if (results.length < 1) {
