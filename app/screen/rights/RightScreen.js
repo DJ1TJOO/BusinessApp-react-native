@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 
 import FormButton from "../../components/form/FormButton";
@@ -9,9 +9,38 @@ import Colors from "../../config/Colors";
 import config from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
+import dataContext from "../../contexts/dataContext";
+
 import languagesUtils from "../../languages/utils";
 
 const RightScreen = ({ navigation, route }) => {
+	const [data, setData] = useContext(dataContext);
+
+	const [rights, setRights] = useState([]);
+
+	const getRights = async () => {
+		if (!data.availableRights) data.availableRights = {};
+		try {
+			const res = await fetch(config.api + "rights/available").then((res) => res.json());
+			if (res.success) data.availableRights = res.data;
+			setData({ ...data });
+		} catch (error) {
+			throw error;
+		}
+	};
+
+	useEffect(() => {
+		(async () => {
+			// Get rights
+			if (!data.availableRights || Object.keys(data.availableRights) < 1) {
+				await getRights();
+			}
+
+			const rights = Object.keys(data.availableRights).map((x) => ({ id: data.availableRights[x], name: languagesUtils.capitalizeFirstLetter(x.toLowerCase()) }));
+			setRights(rights);
+		})();
+	}, []);
+
 	return (
 		<Wrapper showHeader={true} navigation={navigation}>
 			<Heading
@@ -26,15 +55,16 @@ const RightScreen = ({ navigation, route }) => {
 
 			<Text style={styles.label}>Rechten</Text>
 			<Text style={styles.value}>
-				{route.params?.rights.length < 1
+				{!rights || rights.length < 1 || route.params?.rights.length < 1
 					? "Geen rechten"
-					: (() => {
-							const rights = route.params?.rights.join(", ").replace(/.+(,.+)$/g, (a, b) => {
+					: rights
+							.filter((x) => route.params.rights.includes(x.id))
+							.map((x) => x.name)
+							.join(", ")
+							.replace(/.+(,.+)$/g, (a, b) => {
 								const string = b.replace(/,/g, "en");
 								return a.replace(b, " ") + string;
-							});
-							return rights;
-					  })()}
+							})}
 			</Text>
 			<FormButton onPress={() => navigation.navigate("ChangeRight", route.params)}>Aanpassen</FormButton>
 			<FormButton

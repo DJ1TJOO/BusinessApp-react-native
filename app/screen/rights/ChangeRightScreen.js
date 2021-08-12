@@ -1,7 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import FormButton from "../../components/form/FormButton";
-import FormDate from "../../components/form/FormDate";
 import FormInput from "../../components/form/FormInput";
 import FormSelect from "../../components/form/FormSelect";
 import Heading from "../../components/Heading";
@@ -17,10 +16,7 @@ import languagesUtils from "../../languages/utils";
 
 const defaultFormData = (params) => [
 	["name", "rights"],
-	[
-		{ key: "name", value: params.name },
-		{ key: "rights", value: params.rights },
-	],
+	[{ key: "name", value: params.name }],
 	[
 		{
 			key: "name",
@@ -41,12 +37,31 @@ const ChangeRightScreen = ({ navigation, route }) => {
 
 	const [data, setData] = useContext(dataContext);
 
-	// TODO: get from api
-	const rights = [
-		{ id: "1", name: "right" },
-		{ id: "2", name: "right2" },
-		{ id: "3", name: "right3" },
-	];
+	const [rights, setRights] = useState([]);
+
+	const getRights = async () => {
+		if (!data.availableRights) data.availableRights = {};
+		try {
+			const res = await fetch(config.api + "rights/available").then((res) => res.json());
+			if (res.success) data.availableRights = res.data;
+			setData({ ...data });
+		} catch (error) {
+			throw error;
+		}
+	};
+
+	useEffect(() => {
+		(async () => {
+			// Get rights
+			if (!data.availableRights || Object.keys(data.availableRights) < 1) {
+				await getRights();
+			}
+
+			const rights = Object.keys(data.availableRights).map((x) => ({ id: data.availableRights[x], name: languagesUtils.capitalizeFirstLetter(x.toLowerCase()) }));
+			setRights(rights);
+			setFormValue("rights")(rights.filter((x) => route.params.rights.includes(x.id)).map((x) => x.name));
+		})();
+	}, []);
 
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
@@ -70,10 +85,12 @@ const ChangeRightScreen = ({ navigation, route }) => {
 					try {
 						setCurrentError(null);
 
+						let updatedRights = formData.rights.value.map((x) => rights.find((y) => y.name === x)?.id);
+
 						// Update right
 						const bodyRight = {
 							name: formData.name.value !== route.params.name ? formData.name.value : undefined,
-							rights: formData.rights.value !== route.params.rights ? formData.rights.value : undefined,
+							rights: updatedRights !== route.params.rights ? updatedRights : undefined,
 						};
 
 						const resRight = await fetch(config.api + "rights/" + route.params.id, {
