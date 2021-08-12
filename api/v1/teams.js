@@ -290,15 +290,17 @@ teams.patch("/:id", async (req, res) => {
 
 		let hasChat = false;
 		if (typeof chatId !== "undefined" && get_results[0].chat_id !== chatId) {
-			const [chat_result] = await db.query(`SELECT count(*) FROM chats WHERE id = ?`, [chatId]);
+			if (chatId !== null) {
+				const [chat_result] = await db.query(`SELECT count(*) FROM chats WHERE id = ?`, [chatId]);
 
-			// Chat does not exists
-			if (chat_result[0]["count(*)"] < 1) {
-				// Return status 404 (not found) chat not found
-				return res.status(404).send({
-					success: false,
-					error: "chat_not_found",
-				});
+				// Chat does not exists
+				if (chat_result[0]["count(*)"] < 1) {
+					// Return status 404 (not found) chat not found
+					return res.status(404).send({
+						success: false,
+						error: "chat_not_found",
+					});
+				}
 			}
 
 			hasChat = true;
@@ -306,15 +308,17 @@ teams.patch("/:id", async (req, res) => {
 
 		let hasAgenda = false;
 		if (typeof agendaId !== "undefined" && get_results[0].agenda_id !== agendaId) {
-			const [agenda_result] = await db.query(`SELECT count(*) FROM agendas WHERE id = ?`, [agendaId]);
+			if (agendaId !== null) {
+				const [agenda_result] = await db.query(`SELECT count(*) FROM agendas WHERE id = ?`, [agendaId]);
 
-			// Agenda does not exists
-			if (agenda_result[0]["count(*)"] < 1) {
-				// Return status 404 (not found) agenda not found
-				return res.status(404).send({
-					success: false,
-					error: "agenda_not_found",
-				});
+				// Agenda does not exists
+				if (agenda_result[0]["count(*)"] < 1) {
+					// Return status 404 (not found) agenda not found
+					return res.status(404).send({
+						success: false,
+						error: "agenda_not_found",
+					});
+				}
 			}
 
 			hasAgenda = true;

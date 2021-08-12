@@ -832,15 +832,17 @@ users.patch("/:id", async (req, res) => {
 		// Check if right is specified
 		let hasRight = false;
 		if (typeof rightId !== "undefined" && currentUser.right_id !== rightId) {
-			const [function_result] = await db.query(`SELECT count(*) FROM rights WHERE id = ?`, [rightId]);
+			if (rightId !== null) {
+				const [function_result] = await db.query(`SELECT count(*) FROM rights WHERE id = ?`, [rightId]);
 
-			// Right does not exists
-			if (function_result[0]["count(*)"] < 1) {
-				// Return status 404 (not found) right not found
-				return res.status(404).send({
-					success: false,
-					error: "right_not_found",
-				});
+				// Right does not exists
+				if (function_result[0]["count(*)"] < 1) {
+					// Return status 404 (not found) right not found
+					return res.status(404).send({
+						success: false,
+						error: "right_not_found",
+					});
+				}
 			}
 
 			hasRight = true;
@@ -911,17 +913,19 @@ users.patch("/:id", async (req, res) => {
 		// Check if function description is specified
 		let hasFunctionDescription = false;
 		if (typeof functionDescription !== "undefined" && currentUser.function_description !== functionDescription) {
-			// Function description too long
-			if (functionDescription.length > 255) {
-				// Return status 422 (unprocessable entity) too long
-				return res.status(422).send({
-					success: false,
-					error: "too_long",
-					data: {
-						field: "functionDescription",
-						maxLength: 255,
-					},
-				});
+			if (functionDescription !== null) {
+				// Function description too long
+				if (functionDescription.length > 255) {
+					// Return status 422 (unprocessable entity) too long
+					return res.status(422).send({
+						success: false,
+						error: "too_long",
+						data: {
+							field: "functionDescription",
+							maxLength: 255,
+						},
+					});
+				}
 			}
 
 			hasFunctionDescription = true;
