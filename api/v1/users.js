@@ -36,8 +36,8 @@ users.get("/:id", async (req, res) => {
 	}
 });
 
-users.get("/business/:id", async (req, res) => {
-	const { id } = req.params;
+users.get("/business/:businessId", async (req, res) => {
+	const { businessId } = req.params;
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
 
@@ -51,7 +51,7 @@ users.get("/business/:id", async (req, res) => {
 		}
 
 		// TODO: fix born date
-		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE business_id = ?`, [id]);
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE business_id = ?`, [businessId]);
 
 		return res.send({
 			success: true,
