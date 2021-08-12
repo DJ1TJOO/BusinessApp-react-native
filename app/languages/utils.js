@@ -1,4 +1,10 @@
 /**
+ * @param {String} string
+ * @returns {String}
+ */
+const capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+
+/**
  * @param {Object} language
  * @param {Object} res
  * @param {{[key]: String | Object}} body
@@ -51,7 +57,7 @@ const convertError = (language, res, body, type, fields) => {
 	// Remove double spaces
 	errorMessage = errorMessage.replace(/  +/g, " ");
 
-	return errorMessage.charAt(0).toUpperCase() + errorMessage.slice(1);
+	return capitalizeFirstLetter(errorMessage);
 };
 
-export default { convertError };
+export default { capitalizeFirstLetter, convertError };
