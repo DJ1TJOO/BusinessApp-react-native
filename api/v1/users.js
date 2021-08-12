@@ -39,14 +39,19 @@ users.get("/:id", async (req, res) => {
 users.get("/business/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
-		// TODO: fix born date
-		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE business_id = ?`, [id]);
-		if (results.length < 1) {
+		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
+
+		// Business does not exists
+		if (business_result[0]["count(*)"] < 1) {
+			// Return status 404 (not found) chat not found
 			return res.status(404).send({
 				success: false,
-				error: "user_not_found",
+				error: "business_not_found",
 			});
 		}
+
+		// TODO: fix born date
+		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE business_id = ?`, [id]);
 
 		return res.send({
 			success: true,

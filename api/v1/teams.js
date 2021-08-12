@@ -34,13 +34,18 @@ teams.get("/:id", async (req, res) => {
 teams.get("/business/:businessId", async (req, res) => {
 	const { businessId } = req.params;
 	try {
-		const [results] = await db.query(`SELECT * FROM teams WHERE business_id = ?`, [businessId]);
-		if (results.length < 1) {
+		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
+
+		// Business does not exists
+		if (business_result[0]["count(*)"] < 1) {
+			// Return status 404 (not found) chat not found
 			return res.status(404).send({
 				success: false,
-				error: "team_not_found",
+				error: "business_not_found",
 			});
 		}
+
+		const [results] = await db.query(`SELECT * FROM teams WHERE business_id = ?`, [businessId]);
 
 		return res.send({
 			success: true,
@@ -63,7 +68,7 @@ teams.post("/", async (req, res) => {
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
 
-		// Chat does not exists
+		// Business does not exists
 		if (business_result[0]["count(*)"] < 1) {
 			// Return status 404 (not found) chat not found
 			return res.status(404).send({
