@@ -116,6 +116,8 @@ teams.post("/", async (req, res) => {
 			});
 		}
 
+		// TODO: check name taken
+
 		let hasChat = false;
 		if (chatId) {
 			const [chat_result] = await db.query(`SELECT count(*) FROM chats WHERE id = ?`, [chatId]);
@@ -290,6 +292,8 @@ teams.patch("/:id", async (req, res) => {
 					},
 				});
 			}
+
+			// TODO: check name taken
 			hasName = true;
 		}
 

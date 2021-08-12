@@ -132,6 +132,8 @@ rights.post("/", async (req, res) => {
 			});
 		}
 
+		// TODO: check name taken
+
 		// Check if rights is correct
 		// Rights is empty
 		if (!rights) {
@@ -244,6 +246,8 @@ rights.patch("/:id", async (req, res) => {
 					},
 				});
 			}
+
+			// TODO: check name taken
 			hasName = true;
 		}
 
