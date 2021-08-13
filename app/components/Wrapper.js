@@ -90,7 +90,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 	}
 
 	return (
-		<SafeView>
+		<SafeView style={styles.safeView}>
 			{showHeader && (
 				<Header
 					navigation={navigation}
@@ -184,6 +184,9 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 };
 
 const styles = StyleSheet.create({
+	safeView: {
+		overflow: "visible",
+	},
 	wrapper: {
 		flex: 1,
 		marginHorizontal: 10,
