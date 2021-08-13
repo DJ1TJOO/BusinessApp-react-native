@@ -106,6 +106,20 @@ rights.post("/", async (req, res) => {
 			});
 		}
 
+		const [right_result] = await db.query(`SELECT count(*) FROM rights WHERE name = ?`, [name]);
+
+		// Right name taken
+		if (right_result[0]["count(*)"] > 0) {
+			// Return status 409 (conflict) taken
+			return res.status(409).send({
+				success: false,
+				error: "taken",
+				data: {
+					field: "name",
+				},
+			});
+		}
+
 		// Name too long
 		if (name.length > 255) {
 			// Return status 422 (unprocessable entity) too long
@@ -131,8 +145,6 @@ rights.post("/", async (req, res) => {
 				},
 			});
 		}
-
-		// TODO: check name taken
 
 		// Check if rights is correct
 		// Rights is empty
@@ -221,6 +233,20 @@ rights.patch("/:id", async (req, res) => {
 		// Check if name is correct
 		let hasName = false;
 		if (name && get_results[0].name !== name) {
+			const [right_result] = await db.query(`SELECT count(*) FROM rights WHERE name = ?`, [name]);
+
+			// Right name taken
+			if (right_result[0]["count(*)"] > 0) {
+				// Return status 409 (conflict) taken
+				return res.status(409).send({
+					success: false,
+					error: "taken",
+					data: {
+						field: "name",
+					},
+				});
+			}
+
 			// Name too long
 			if (name.length > 255) {
 				// Return status 422 (unprocessable entity) too long
@@ -247,7 +273,6 @@ rights.patch("/:id", async (req, res) => {
 				});
 			}
 
-			// TODO: check name taken
 			hasName = true;
 		}
 
