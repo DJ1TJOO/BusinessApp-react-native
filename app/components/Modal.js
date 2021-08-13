@@ -1,8 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Animated, Dimensions, StyleSheet, Text, View } from "react-native";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { Animated, Dimensions, Platform, StatusBar, StyleSheet, Text, View } from "react-native";
+import { RootSiblingPortal } from "react-native-root-siblings";
 
 import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";
+
+import lastStatusBarColorContext from "../contexts/lastStatusBarColorContext";
 
 import FormButton from "./form/FormButton";
 import SafeView from "./SafeView";
@@ -16,6 +19,8 @@ export const MODAL_BUTTON_TYPES = {
 const Modal = ({ children, error, info, icon, onDismiss, buttons = [{ text: "Oke", type: MODAL_BUTTON_TYPES.DISMISS }] }) => {
 	const [containerLayout, setContainerLayout] = useState({ x: 0, y: 0, height: 0, width: 0 });
 	const offset = useRef(new Animated.Value(Dimensions.get("screen").height / 1.5)).current;
+
+	const [lastStatusBarColor, setLastStatusBarColor] = useContext(lastStatusBarColorContext);
 
 	useEffect(() => {
 		Animated.spring(offset, {
@@ -32,53 +37,62 @@ const Modal = ({ children, error, info, icon, onDismiss, buttons = [{ text: "Oke
 		extrapolate: "clamp",
 	});
 
+	if (Platform.OS === "android") {
+		StatusBar.setBackgroundColor("#707070", true);
+	}
+
 	return (
-		<Animated.View style={[styles.overlay, { backgroundColor: overlayColor }]}>
-			<SafeView style={[styles.safeView, { paddingTop: -containerLayout.height / 2 - 38 }]}>
-				<Animated.View
-					style={{
-						transform: [{ translateY: offset }],
-					}}
-				>
-					<View
-						style={[styles.container]}
-						onLayout={(e) => {
-							setContainerLayout(e.nativeEvent.layout);
+		<RootSiblingPortal>
+			<Animated.View style={[styles.overlay, { backgroundColor: overlayColor }]}>
+				<SafeView style={[styles.safeView, { paddingTop: -containerLayout.height / 2 - 38 }]}>
+					<Animated.View
+						style={{
+							transform: [{ translateY: offset }],
 						}}
 					>
-						{icon}
-						{error && <Text style={[styles.text, styles.error]}>{error}</Text>}
-						{info && <Text style={[styles.text, styles.info]}>{info}</Text>}
-						{children}
-					</View>
-					<View style={styles.buttonContainer}>
-						{buttons.map(({ text, type, color }, index) => (
-							<FormButton
-								key={text + " " + type}
-								style={[
-									styles.button,
-									{ width: `${100 / buttons.length}%` },
-									type === MODAL_BUTTON_TYPES.CANCEL && { backgroundColor: Colors.red },
-									color && { backgroundColor: color },
-									index === 0 && styles.buttonStart,
-									index === buttons.length - 1 && styles.buttonEnd,
-								]}
-								onPress={() => {
-									Animated.spring(offset, {
-										toValue: Dimensions.get("screen").height / 1.5,
-										friction: 20,
-										tension: 100,
-										useNativeDriver: false,
-									}).start(() => onDismiss(text, type, color));
-								}}
-							>
-								{text}
-							</FormButton>
-						))}
-					</View>
-				</Animated.View>
-			</SafeView>
-		</Animated.View>
+						<View
+							style={[styles.container]}
+							onLayout={(e) => {
+								setContainerLayout(e.nativeEvent.layout);
+							}}
+						>
+							{icon}
+							{error && <Text style={[styles.text, styles.error]}>{error}</Text>}
+							{info && <Text style={[styles.text, styles.info]}>{info}</Text>}
+							{children}
+						</View>
+						<View style={styles.buttonContainer}>
+							{buttons.map(({ text, type, color }, index) => (
+								<FormButton
+									key={text + " " + type}
+									style={[
+										styles.button,
+										{ width: `${100 / buttons.length}%` },
+										type === MODAL_BUTTON_TYPES.CANCEL && { backgroundColor: Colors.red },
+										color && { backgroundColor: color },
+										index === 0 && styles.buttonStart,
+										index === buttons.length - 1 && styles.buttonEnd,
+									]}
+									onPress={() => {
+										if (Platform.OS === "android") {
+											StatusBar.setBackgroundColor(lastStatusBarColor, true);
+										}
+										Animated.spring(offset, {
+											toValue: Dimensions.get("screen").height / 1.5,
+											friction: 20,
+											tension: 100,
+											useNativeDriver: false,
+										}).start(() => onDismiss && onDismiss(text, type, color));
+									}}
+								>
+									{text}
+								</FormButton>
+							))}
+						</View>
+					</Animated.View>
+				</SafeView>
+			</Animated.View>
+		</RootSiblingPortal>
 	);
 };
 
@@ -105,6 +119,7 @@ const styles = StyleSheet.create({
 		marginHorizontal: 10,
 		borderTopLeftRadius: 12,
 		borderTopRightRadius: 12,
+		marginBottom: -1,
 	},
 	text: {
 		fontSize: FontSizes.subtitle,
@@ -126,6 +141,7 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		zIndex: 9999,
 		elevation: 2,
+		overflow: "visible",
 	},
 	safeView: {
 		justifyContent: "center",

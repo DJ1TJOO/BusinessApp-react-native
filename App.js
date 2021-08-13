@@ -5,6 +5,8 @@ import AppLoading from "expo-app-loading";
 import * as Linking from "expo-linking";
 import React, { useEffect, useState } from "react";
 import { Platform, StatusBar } from "react-native";
+import { RootSiblingParent } from "react-native-root-siblings";
+
 import Account from "./app/Account";
 
 import Colors from "./app/config/Colors";
@@ -25,6 +27,8 @@ const prefix = Linking.makeUrl("/");
 
 const Stack = createStackNavigator();
 
+// TODO: replace heading with form in some places
+// TODO: destink between pop up errors and form errors
 export default function App() {
 	const [data, setData] = useState({
 		language: dutch,
@@ -96,27 +100,29 @@ export default function App() {
 		return <AppLoading />;
 	} else {
 		return (
-			<dataContext.Provider value={[data, setData]}>
-				<lastStatusBarColorContext.Provider value={[lastStatusBarColor, setLastStatusBarColor]}>
-					<NavigationContainer linking={linking}>
-						<Stack.Navigator mode="modal" headerMode="none">
-							<Stack.Screen name="Welcome" component={WelcomeScreen} />
-							<Stack.Screen name="Login" component={LoginScreen} />
-							<Stack.Screen name="Register" component={RegisterScreen} />
-							<Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-							<Stack.Screen name="VerifyCode" component={VerifyCodeScreen} options={{ animationEnabled: false }} />
-							<Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ animationEnabled: false }} />
-							<Stack.Screen
-								name="Account"
-								component={Account}
-								options={{
-									gestureEnabled: false,
-								}}
-							/>
-						</Stack.Navigator>
-					</NavigationContainer>
-				</lastStatusBarColorContext.Provider>
-			</dataContext.Provider>
+			<RootSiblingParent>
+				<dataContext.Provider value={[data, setData]}>
+					<lastStatusBarColorContext.Provider value={[lastStatusBarColor, setLastStatusBarColor]}>
+						<NavigationContainer linking={linking}>
+							<Stack.Navigator mode="modal" headerMode="none">
+								<Stack.Screen name="Welcome" component={WelcomeScreen} />
+								<Stack.Screen name="Login" component={LoginScreen} />
+								<Stack.Screen name="Register" component={RegisterScreen} />
+								<Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+								<Stack.Screen name="VerifyCode" component={VerifyCodeScreen} options={{ animationEnabled: false }} />
+								<Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ animationEnabled: false }} />
+								<Stack.Screen
+									name="Account"
+									component={Account}
+									options={{
+										gestureEnabled: false,
+									}}
+								/>
+							</Stack.Navigator>
+						</NavigationContainer>
+					</lastStatusBarColorContext.Provider>
+				</dataContext.Provider>
+			</RootSiblingParent>
 		);
 	}
 }
