@@ -13,6 +13,8 @@ import useFormData from "../../hooks/useFormData";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const defaultFormData = [
 	["business", "email"],
 	[],
@@ -54,8 +56,7 @@ const createCode = async (business, email, setCurrentError, data) => {
 		}
 		return res;
 	} catch (error) {
-		// TODO: send error to server
-		console.log(error);
+		utils.handleError(error);
 		return { success: false };
 	}
 };
@@ -83,7 +84,7 @@ const ForgotPasswordScreen = ({ navigation, route }) => {
 					if (res.success) data.login.businessNames = res.data;
 					else data.login.businessNames = [];
 				} catch (error) {
-					throw error;
+					utils.handleError(error);
 				}
 			})();
 		}

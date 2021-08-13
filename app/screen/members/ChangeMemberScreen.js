@@ -15,6 +15,8 @@ import useFormData from "../../hooks/useFormData";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const defaultFormData = (params) => [
 	["firstname", "lastname", "born", "email", "function", "teams", "rightId"],
 	[
@@ -110,7 +112,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
-			throw error;
+			utils.handleError(error);
 		}
 	};
 
@@ -282,7 +284,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 							);
 						}
 					} catch (error) {
-						throw error;
+						utils.handleError(error);
 					}
 				}}
 			>
@@ -299,20 +301,24 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 						},
 						events: {
 							onAccept: async () => {
-								const res = await fetch(config.api + "users/" + route.params.id, {
-									method: "DELETE",
-								}).then((res) => res.json());
+								try {
+									const res = await fetch(config.api + "users/" + route.params.id, {
+										method: "DELETE",
+									}).then((res) => res.json());
 
-								// Failed to delete
-								if (!res.success) {
-									// Display error
-									setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
-									return;
+									// Failed to delete
+									if (!res.success) {
+										// Display error
+										setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
+										return;
+									}
+
+									// TODO: delete from all tables (ex: teams, chats)
+
+									navigation.navigate("Members", { date: Date.now() });
+								} catch (error) {
+									utils.handleError(error);
 								}
-
-								// TODO: delete from all tables (ex: teams, chats)
-
-								navigation.navigate("Members", { date: Date.now() });
 							},
 							onCancel: () => {},
 						},

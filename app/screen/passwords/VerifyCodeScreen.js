@@ -10,6 +10,8 @@ import dataContext from "../../contexts/dataContext";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const verify = async (businessId, userId, code, setCurrentError, data) => {
 	try {
 		const res = await fetch(`http://192.168.178.25:8003/v1/users/recover/${businessId}/${userId}/${code}`, {
@@ -36,8 +38,7 @@ const verify = async (businessId, userId, code, setCurrentError, data) => {
 		}
 		return res.success;
 	} catch (error) {
-		// TODO: send error to server
-		console.log(error);
+		utils.handleError(error);
 		return false;
 	}
 };

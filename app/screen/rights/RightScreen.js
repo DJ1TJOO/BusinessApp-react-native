@@ -13,6 +13,8 @@ import dataContext from "../../contexts/dataContext";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const RightScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 
@@ -25,7 +27,7 @@ const RightScreen = ({ navigation, route }) => {
 			if (res.success) data.availableRights = res.data;
 			setData({ ...data });
 		} catch (error) {
-			throw error;
+			utils.handleError(error);
 		}
 	};
 
@@ -80,18 +82,22 @@ const RightScreen = ({ navigation, route }) => {
 						},
 						events: {
 							onAccept: async () => {
-								const res = await fetch(config.api + "rights/" + route.params.id, {
-									method: "DELETE",
-								}).then((res) => res.json());
+								try {
+									const res = await fetch(config.api + "rights/" + route.params.id, {
+										method: "DELETE",
+									}).then((res) => res.json());
 
-								// Failed to delete
-								if (!res.success) {
-									// Display error
-									setCurrentError(languagesUtils.convertError(data.language, res, {}, "rechten", {}));
-									return;
+									// Failed to delete
+									if (!res.success) {
+										// Display error
+										setCurrentError(languagesUtils.convertError(data.language, res, {}, "rechten", {}));
+										return;
+									}
+
+									navigation.navigate("Rights", { date: Date.now() });
+								} catch (error) {
+									utils.handleError(error);
 								}
-
-								navigation.navigate("Rights", { date: Date.now() });
 							},
 							onCancel: () => {},
 						},

@@ -14,6 +14,8 @@ import useFormData from "../../hooks/useFormData";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const defaultFormData = (params) => [
 	["name", "rights"],
 	[{ key: "name", value: params.name }],
@@ -46,7 +48,7 @@ const ChangeRightScreen = ({ navigation, route }) => {
 			if (res.success) data.availableRights = res.data;
 			setData({ ...data });
 		} catch (error) {
-			throw error;
+			utils.handleError(error);
 		}
 	};
 
@@ -116,7 +118,7 @@ const ChangeRightScreen = ({ navigation, route }) => {
 							);
 						}
 					} catch (error) {
-						throw error;
+						utils.handleError(error);
 					}
 				}}
 			>
@@ -133,18 +135,22 @@ const ChangeRightScreen = ({ navigation, route }) => {
 						},
 						events: {
 							onAccept: async () => {
-								const res = await fetch(config.api + "rights/" + route.params.id, {
-									method: "DELETE",
-								}).then((res) => res.json());
+								try {
+									const res = await fetch(config.api + "rights/" + route.params.id, {
+										method: "DELETE",
+									}).then((res) => res.json());
 
-								// Failed to delete
-								if (!res.success) {
-									// Display error
-									setCurrentError(languagesUtils.convertError(data.language, res, {}, "rechten", {}));
-									return;
+									// Failed to delete
+									if (!res.success) {
+										// Display error
+										setCurrentError(languagesUtils.convertError(data.language, res, {}, "rechten", {}));
+										return;
+									}
+
+									navigation.navigate("Rights", { date: Date.now() });
+								} catch (error) {
+									utils.handleError(error);
 								}
-
-								navigation.navigate("Rights", { date: Date.now() });
 							},
 							onCancel: () => {},
 						},

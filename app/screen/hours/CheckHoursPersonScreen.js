@@ -13,6 +13,8 @@ import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
 
+import utils from "../../utils";
+
 const CheckHoursPersonScreen = ({ navigation, route }) => {
 	const [currentError, setCurrentError] = useState(null);
 
@@ -30,7 +32,7 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 			setHours(user.hours);
 			setData({ ...data });
 		} catch (error) {
-			throw error;
+			utils.handleError(error);
 		}
 	};
 

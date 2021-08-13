@@ -9,6 +9,8 @@ import config from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
+import utils from "../../utils";
+
 const CheckHoursScreen = ({ navigation }) => {
 	const [currentError, setCurrentError] = useState(null);
 
@@ -24,7 +26,7 @@ const CheckHoursScreen = ({ navigation }) => {
 				else data.checkHours.users = [];
 				setData({ ...data });
 			} catch (error) {
-				throw error;
+				utils.handleError(error);
 			}
 		})();
 	}, []);

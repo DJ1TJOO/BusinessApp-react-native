@@ -17,6 +17,8 @@ import useFormData from "../../hooks/useFormData";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const defaultFormData = [
 	["firstname", "lastname", "born", "email", "function", "teams", "rightId"],
 	[
@@ -106,7 +108,7 @@ const CreateMemberScreen = ({ navigation }) => {
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
-			throw error;
+			utils.handleError(error);
 		}
 	};
 
@@ -245,7 +247,7 @@ const CreateMemberScreen = ({ navigation }) => {
 								);
 							}
 						} catch (error) {
-							throw error;
+							utils.handleError(error);
 						}
 					}}
 				>

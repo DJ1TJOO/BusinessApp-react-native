@@ -14,6 +14,8 @@ import useFormData from "../hooks/useFormData";
 
 import languagesUtils from "../languages/utils";
 
+import utils from "../utils";
+
 const defaultFormData = [
 	["business_name", "email", "password"],
 	[],
@@ -71,7 +73,7 @@ const LoginScreen = ({ navigation }) => {
 					if (res.success) data.login.businessNames = res.data;
 					else data.login.businessNames = [];
 				} catch (error) {
-					throw error;
+					utils.handleError(error);
 				}
 			})();
 		}
@@ -136,7 +138,7 @@ const LoginScreen = ({ navigation }) => {
 					}
 				}
 			} catch (error) {
-				throw error;
+				utils.handleError(error);
 			}
 		})();
 	}, []);
@@ -218,7 +220,7 @@ const LoginScreen = ({ navigation }) => {
 								}
 							}
 						} catch (error) {
-							throw error;
+							utils.handleError(error);
 						}
 					}}
 				>

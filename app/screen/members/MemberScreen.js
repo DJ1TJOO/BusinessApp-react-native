@@ -13,6 +13,8 @@ import dataContext from "../../contexts/dataContext";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const MemberScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 
@@ -23,7 +25,7 @@ const MemberScreen = ({ navigation, route }) => {
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
-			throw error;
+			utils.handleError(error);
 		}
 	};
 
@@ -81,20 +83,24 @@ const MemberScreen = ({ navigation, route }) => {
 						},
 						events: {
 							onAccept: async () => {
-								const res = await fetch(config.api + "users/" + route.params.id, {
-									method: "DELETE",
-								}).then((res) => res.json());
+								try {
+									const res = await fetch(config.api + "users/" + route.params.id, {
+										method: "DELETE",
+									}).then((res) => res.json());
 
-								// Failed to delete
-								if (!res.success) {
-									// Display error
-									setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
-									return;
+									// Failed to delete
+									if (!res.success) {
+										// Display error
+										setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
+										return;
+									}
+
+									// TODO: delete from all tables (ex: teams, chats)
+
+									navigation.navigate("Members", { date: Date.now() });
+								} catch (error) {
+									utils.handleError(error);
 								}
-
-								// TODO: delete from all tables (ex: teams, chats)
-
-								navigation.navigate("Members", { date: Date.now() });
 							},
 							onCancel: () => {},
 						},

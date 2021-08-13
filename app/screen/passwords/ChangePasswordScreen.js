@@ -12,6 +12,8 @@ import useFormData from "../../hooks/useFormData";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const defaultFormData = [
 	["password", "confirm_password"],
 	[],
@@ -67,8 +69,7 @@ const updatePassword = async (businessId, userId, code, password, setCurrentErro
 		}
 		return res.success;
 	} catch (error) {
-		// TODO: send error to server
-		console.log(error);
+		utils.handleError(error);
 		return false;
 	}
 };

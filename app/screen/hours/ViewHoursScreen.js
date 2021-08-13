@@ -14,6 +14,8 @@ import dataContext from "../../contexts/dataContext";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	return (
 		<View style={styles.column}>
@@ -184,8 +186,7 @@ const ViewHoursScreen = ({ navigation, route }) => {
 							// Update hours
 							navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
 						} catch (error) {
-							// TODO: send error to server
-							console.log(error);
+							utils.handleError(error);
 						}
 					}}
 				>

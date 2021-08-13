@@ -11,6 +11,8 @@ import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
 
+import utils from "../../utils";
+
 const RightsScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 	const [currentError, setCurrentError] = useState();
@@ -22,7 +24,7 @@ const RightsScreen = ({ navigation, route }) => {
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
-			throw error;
+			utils.handleError(error);
 		}
 	};
 

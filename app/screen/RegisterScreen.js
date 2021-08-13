@@ -18,6 +18,8 @@ import useFormData from "../hooks/useFormData";
 
 import languagesUtils from "../languages/utils";
 
+import utils from "../utils";
+
 const defaultFormData = [
 	["business_name", "account_firstname", "account_lastname", "account_born", "account_email", "account_password", "account_confirm_password", "account_function", "image"],
 	[
@@ -353,7 +355,7 @@ const RegisterScreen = ({ navigation }) => {
 								);
 							}
 						} catch (error) {
-							throw error;
+							utils.handleError(error);
 						}
 					}}
 				>

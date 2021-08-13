@@ -13,6 +13,8 @@ import dataContext from "../../contexts/dataContext";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const getWeekNumber = (d) => {
 	// Copy date so don't modify original
 	d = new Date(+d);
@@ -77,7 +79,7 @@ const HoursScreen = ({ navigation, route }) => {
 			// Update data
 			setData({ ...data });
 		} catch (error) {
-			throw error;
+			utils.handleError(error);
 		}
 	};
 
@@ -167,8 +169,7 @@ const HoursScreen = ({ navigation, route }) => {
 
 											navigation.navigate("Hours");
 										} catch (error) {
-											// TODO: send error to server
-											console.log(error);
+											utils.handleError(error);
 										}
 									}}
 								>
@@ -201,8 +202,7 @@ const HoursScreen = ({ navigation, route }) => {
 				if (loading) setLoading(false);
 			})
 			.catch((error) => {
-				// TODO: send error to server
-				console.log(error);
+				utils.handleError(error);
 			});
 	};
 

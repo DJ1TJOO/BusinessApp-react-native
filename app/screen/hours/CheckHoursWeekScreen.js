@@ -14,6 +14,8 @@ import dataContext from "../../contexts/dataContext";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	return (
 		<View style={styles.column}>
@@ -185,8 +187,7 @@ const CheckHoursWeekScreen = ({ navigation, route }) => {
 						// Go back
 						navigation.navigate("CheckHoursPerson", { id: id, date: Date.now() });
 					} catch (error) {
-						// TODO: send error to server
-						console.log(error);
+						utils.handleError(error);
 					}
 				}}
 			>
@@ -218,8 +219,7 @@ const CheckHoursWeekScreen = ({ navigation, route }) => {
 						// Go back
 						navigation.navigate("CheckHoursPerson", { id: id, date: Date.now() });
 					} catch (error) {
-						// TODO: send error to server
-						console.log(error);
+						utils.handleError(error);
 					}
 				}}
 			>

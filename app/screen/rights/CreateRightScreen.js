@@ -14,6 +14,8 @@ import useFormData from "../../hooks/useFormData";
 
 import languagesUtils from "../../languages/utils";
 
+import utils from "../../utils";
+
 const defaultFormData = [
 	["name", "rights"],
 	[],
@@ -45,7 +47,7 @@ const CreateRightScreen = ({ navigation, route }) => {
 			if (res.success) data.availableRights = res.data;
 			setData({ ...data });
 		} catch (error) {
-			throw error;
+			utils.handleError(error);
 		}
 	};
 
@@ -104,7 +106,7 @@ const CreateRightScreen = ({ navigation, route }) => {
 							);
 						}
 					} catch (error) {
-						throw error;
+						utils.handleError(error);
 					}
 				}}
 			>
