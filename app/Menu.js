@@ -100,6 +100,12 @@ const Menu = ({ navigation }) => {
 				]}
 			/>
 			<MenuCard
+				title="Instellingen"
+				onPress={() => {
+					navigation.navigate("Settings");
+				}}
+			/>
+			<MenuCard
 				title="Logout"
 				style={{ backgroundColor: Colors.red }}
 				color={Colors.white}

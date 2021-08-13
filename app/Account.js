@@ -8,6 +8,7 @@ import Menu from "./Menu";
 import Rights from "./Rights";
 
 import HomeScreen from "./screen/HomeScreen";
+import SettingsScreen from "./screen/SettingsScreen";
 
 import CreateMemberScreen from "./screen/members/CreateMemberScreen";
 import CreateRightScreen from "./screen/rights/CreateRightScreen";
@@ -23,6 +24,7 @@ const Account = () => {
 			edgeWidth={50}
 		>
 			<Drawer.Screen name="Home" component={HomeScreen} />
+			<Drawer.Screen name="Settings" component={SettingsScreen} />
 
 			<Drawer.Screen name="Hours" component={Hours} />
 			<Drawer.Screen name="CheckHours" component={CheckHours} />
