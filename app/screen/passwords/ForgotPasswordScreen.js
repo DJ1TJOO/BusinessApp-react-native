@@ -7,6 +7,8 @@ import FormInput from "../../components/form/FormInput";
 import { IconArrowBack } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 
+import config from "../../config/config";
+
 import dataContext from "../../contexts/dataContext";
 
 import useFormData from "../../hooks/useFormData";
@@ -48,9 +50,9 @@ const defaultFormData = [
 	],
 ];
 
-const createCode = async (business, email, setCurrentError, data) => {
+export const createCode = async (business, email, setCurrentError, data) => {
 	try {
-		const res = await fetch(`http://192.168.178.25:8003/v1/users/recover/${business}/${email}`).then((res) => res.json());
+		const res = await fetch(`${config.api}users/recover/${business}/${email}`).then((res) => res.json());
 		if (!res.success) {
 			setCurrentError(languagesUtils.convertError(data.language, res));
 		}

@@ -6,6 +6,8 @@ import FormInput from "../../components/form/FormInput";
 import { IconArrowBack } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 
+import config from "../../config/config";
+
 import dataContext from "../../contexts/dataContext";
 
 import languagesUtils from "../../languages/utils";
@@ -14,7 +16,7 @@ import utils from "../../utils";
 
 const verify = async (businessId, userId, code, setCurrentError, data) => {
 	try {
-		const res = await fetch(`http://192.168.178.25:8003/v1/users/recover/${businessId}/${userId}/${code}`, {
+		const res = await fetch(`${config.api}users/recover/${businessId}/${userId}/${code}`, {
 			method: "POST",
 		}).then((res) => res.json());
 		if (!res.success) {
