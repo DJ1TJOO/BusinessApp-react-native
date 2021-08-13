@@ -9,6 +9,10 @@ const rights = require("./rights");
 
 const images = require("./helpers/images");
 
+const analytics = require("./analytics");
+
+V1.use("/analytics", analytics);
+
 V1.use("/images", images.router);
 
 V1.use("/users", users);
