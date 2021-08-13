@@ -20,7 +20,7 @@ const Form = ({ children, title, onLayout, errorLabel, errorOnPress }) => {
 	}, [errorLabel]);
 
 	return (
-		<View style={styles.form} onLayout={onLayout}>
+		<View onLayout={onLayout}>
 			<Text style={styles.title}>{title}</Text>
 			{currentErrorLabel && (
 				<TouchableOpacity onPress={errorOnPress}>
@@ -37,10 +37,6 @@ const styles = StyleSheet.create({
 		color: Colors.red,
 		fontSize: FontSizes.default,
 		fontFamily: "Segoe-UI",
-	},
-	form: {
-		marginHorizontal: 10,
-		marginVertical: 5,
 	},
 	title: {
 		color: Colors.textPrimary,
