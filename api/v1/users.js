@@ -686,6 +686,8 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 	// Hash new password
 	pwd = bcrypt.hashSync(newPassword, 12);
 
+	// TODO: invalidate tokens
+
 	try {
 		// Insert user into db
 		await db.query(
@@ -780,6 +782,8 @@ users.patch("/:id", async (req, res) => {
 
 				// Hash new password
 				pwd = bcrypt.hashSync(newPassword, 12);
+
+				// TODO: invalidate tokens
 
 				hasPassword = true;
 			}
