@@ -150,12 +150,6 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 							if (e.nativeEvent.contentOffset.y > 20) StatusBar.setBarStyle("light-content");
 							else StatusBar.setBarStyle("dark-content");
 
-							if (Platform.OS === "android") {
-								const procent = (Math.min(Math.max(offset._value, 5), 55) - 5) / 50;
-								StatusBar.setBackgroundColor(interpolation(procent));
-								setLastStatusBarColor(interpolation(procent));
-							}
-
 							if (typeof hitBottom === "function") {
 								if (e.nativeEvent.layoutMeasurement.height + e.nativeEvent.contentOffset.y >= e.nativeEvent.contentSize.height - 20) {
 									hasHitBottom = true;
@@ -173,7 +167,6 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 						{...refreshControl}
 					>
 						{children}
-						<View style={{ height: 50, width: "100%", backgroundColor: Colors.white }} />
 					</KeyboardAwareScrollView>
 				)}
 			</wrapperScrollViewContext.Provider>
