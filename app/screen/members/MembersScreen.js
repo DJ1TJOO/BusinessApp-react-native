@@ -38,9 +38,8 @@ const MembersScreen = ({ navigation, route }) => {
 		getUsers();
 	}, [route]);
 
-	// TODO: add loading
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getUsers}>
+		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getUsers} loading={!data.members}>
 			<Heading title="Alle gebruikers" />
 			{data.members &&
 				data.members.length > 0 &&

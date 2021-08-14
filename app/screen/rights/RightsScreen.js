@@ -33,9 +33,8 @@ const RightsScreen = ({ navigation, route }) => {
 		getRights();
 	}, [route]);
 
-	// TODO: add loading
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getRights}>
+		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getRights} loading={!data.rights}>
 			<Heading title="Alle rechten" />
 			{data.rights &&
 				data.rights.length > 0 &&

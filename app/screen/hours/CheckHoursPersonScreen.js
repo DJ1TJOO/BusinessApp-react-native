@@ -41,9 +41,19 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 		getHours();
 	}, [route]);
 
-	// TODO: add loading
 	return (
-		<Wrapper navigation={navigation} showHeader={true} error={currentError} refresh={getHours}>
+		<Wrapper
+			navigation={navigation}
+			showHeader={true}
+			error={currentError}
+			refresh={getHours}
+			loading={
+				!data.checkHours ||
+				!data.checkHours.users ||
+				!data.checkHours.users.find((x) => x.id === route.params.id) ||
+				!data.checkHours.users.find((x) => x.id === route.params.id).hours
+			}
+		>
 			<Heading title="Uren" style={styles.heading} />
 			{hours.length > 0 &&
 				hours.map((x, index) => (

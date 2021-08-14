@@ -19,6 +19,7 @@ const CheckHoursScreen = ({ navigation }) => {
 	useEffect(() => {
 		// Get user names
 		if (!data.checkHours) data.checkHours = {};
+
 		(async () => {
 			try {
 				const res = await fetch(config.api + "users/business/" + data.user.business_id).then((res) => res.json());
@@ -31,9 +32,8 @@ const CheckHoursScreen = ({ navigation }) => {
 		})();
 	}, []);
 
-	// TODO: add loading
 	return (
-		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
+		<Wrapper navigation={navigation} showHeader={true} error={currentError} loading={!data.checkHours || !data.checkHours.users}>
 			<Heading title="Uren controleren" style={styles.heading} />
 			{data.checkHours &&
 				data.checkHours.users &&

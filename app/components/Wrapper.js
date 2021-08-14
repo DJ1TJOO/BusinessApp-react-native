@@ -37,7 +37,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 			<RefreshControl
 				refreshing={refreshing}
 				onTouchMove={(e) => {
-					setShowRefreshing(true);
+					if (offset < 5) setShowRefreshing(true);
 				}}
 				onRefresh={() => {
 					setShowRefreshing(true);
@@ -52,7 +52,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 				tintColor="transparent"
 				colors={["transparent"]}
 				progressBackgroundColor="transparent"
-				progressViewOffset={-200}
+				progressViewOffset={-500}
 				style={{ backgroundColor: "transparent" }}
 			/>
 		);
