@@ -17,7 +17,6 @@ login.post("/", async (req, res) => {
 			});
 		}
 
-		// TODO: fix born date
 		const [results] = await db.query(`SELECT * FROM users WHERE email = ? AND business_id = ?`, [email, business_results[0].id]);
 		if (results.length < 1) {
 			return res.status(401).send({
@@ -61,7 +60,6 @@ login.post("/validate", authToken, async (req, res) => {
 		expiresIn: "1d",
 	});
 
-	// TODO: fix born date
 	const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [req.token.id]);
 	if (results.length < 1) {
 		return res.send({
