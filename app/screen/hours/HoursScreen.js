@@ -84,6 +84,7 @@ const HoursScreen = ({ navigation, route }) => {
 	};
 
 	const getYear = (year) => {
+		let startTime = Date.now();
 		// Get hours data
 		return getData(year)
 			.then(() => {
@@ -234,20 +235,17 @@ const HoursScreen = ({ navigation, route }) => {
 				setLatestYear(latestYear - 1);
 			}}
 			loading={!data.hours}
-			refresh={async () =>
-				new Promise((res, rej) => {
+			refresh={() =>
+				new Promise(async (res, rej) => {
 					// Reset hours
 					data.hours = [];
 					setData({ ...data });
-					const promise = Promise.resolve();
 
 					for (let i = latestYear; i <= currentYear; i++) {
-						promise.then(() => getYear(i));
+						await getYear(i);
 					}
 
-					promise.then(() => {
-						res();
-					});
+					res();
 				})
 			}
 		>

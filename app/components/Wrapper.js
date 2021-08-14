@@ -1,12 +1,8 @@
-import interpolate from "color-interpolate";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Animated, Dimensions, Platform, RefreshControl, StatusBar, StyleSheet, View } from "react-native";
+import { Animated, Dimensions, RefreshControl, StatusBar, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import Colors from "../config/Colors";
-
-import lastStatusBarColorContext from "../contexts/lastStatusBarColorContext";
 import wrapperScrollViewContext from "../contexts/wrapperScrollViewContext";
 
 import useConfirmationModal from "../hooks/useConfirmationModal";
@@ -17,10 +13,7 @@ import { IconLoading } from "./Icons";
 import Loading from "./Loading";
 import SafeView from "./SafeView";
 
-const interpolation = interpolate([Colors.white, Colors.primary]);
 const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError, confirmation, setConfirmation }) => {
-	const [lastStatusBarColor, setLastStatusBarColor] = useContext(lastStatusBarColorContext);
-
 	const insets = useSafeAreaInsets();
 
 	const offset = useRef(new Animated.Value(0)).current;
@@ -29,20 +22,13 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 
 	const [headerLayout, setHeaderLayout] = useState({ x: 0, y: 0, height: 0, width: 0 });
 
+	const [showRefreshing, setShowRefreshing] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
 	const endRefresh = () => {
 		setTimeout(() => {
 			setRefreshing(false);
+			setShowRefreshing(false);
 		}, 500);
-	};
-	const doRefresh = () => {
-		setRefreshing(true);
-		const res = refresh();
-		if (res instanceof Promise) {
-			res.then(endRefresh);
-		} else {
-			endRefresh();
-		}
 	};
 
 	const refreshControl = {};
@@ -50,7 +36,19 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 		refreshControl.refreshControl = (
 			<RefreshControl
 				refreshing={refreshing}
-				onRefresh={doRefresh}
+				onTouchMove={(e) => {
+					setShowRefreshing(true);
+				}}
+				onRefresh={() => {
+					setShowRefreshing(true);
+					setRefreshing(true);
+					const res = refresh();
+					if (res instanceof Promise) {
+						res.then(endRefresh);
+					} else {
+						endRefresh();
+					}
+				}}
 				tintColor="transparent"
 				colors={["transparent"]}
 				progressBackgroundColor="transparent"
@@ -112,7 +110,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 						}}
 					/>
 				)}
-				{!isLoading && refreshControl.refreshControl && refreshing && (
+				{!isLoading && refreshControl.refreshControl && showRefreshing && (
 					<IconLoading
 						style={{
 							position: "absolute",
@@ -124,6 +122,9 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 							top: headerLayout.height + insets.top,
 						}}
 					/>
+				)}
+				{Platform.OS === "android" && !isLoading && refreshControl.refreshControl && showRefreshing && (
+					<View style={{ height: 60, width: "100%", backgroundColor: "transparent" }}></View>
 				)}
 				{!isLoading && (
 					<KeyboardAwareScrollView
@@ -157,6 +158,8 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 							}
 						}}
 						onScrollEndDrag={() => {
+							if (!refreshing) setShowRefreshing(false);
+
 							if (!hasHitBottom) return;
 							hasHitBottom = false;
 							hitBottom();
