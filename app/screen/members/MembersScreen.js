@@ -20,7 +20,12 @@ const MembersScreen = ({ navigation, route }) => {
 	const getUsers = async () => {
 		if (!data.members) data.members = [];
 		try {
-			const res = await fetch(config.api + "users/business/" + data.user.business_id).then((res) => res.json());
+			// TODO: add token to each fetch
+			const res = await fetch(config.api + "users/business/" + data.user.business_id, {
+				headers: {
+					authorization: "Token " + data.token,
+				},
+			}).then((res) => res.json());
 			if (res.success) data.members = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -48,7 +53,6 @@ const MembersScreen = ({ navigation, route }) => {
 						//TODO: add teams
 						teams: [],
 						email: member.email,
-						//TODO: get rights
 						rights: member.right_id,
 						id: member.id,
 					}))

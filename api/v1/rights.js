@@ -12,6 +12,8 @@ const availableRights = {
 	RIGHT5: 4,
 };
 
+module.exports.availableRights = availableRights;
+
 rights.get("/available", (req, res) => {
 	return res.send({
 		success: true,
