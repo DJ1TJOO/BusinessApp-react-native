@@ -1,7 +1,7 @@
 {
 	"expo": {
 		"name": "BusinessApp",
-		"slug": "businessapptest",
+		"slug": "businessapp",
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./app/assets/icon.png",
@@ -21,7 +21,8 @@
 			"adaptiveIcon": {
 				"foregroundImage": "./app/assets/adaptive-icon.png",
 				"backgroundColor": "#FFFFFF"
-			}
+			},
+			"package": "com.dj1tjoo.businessapp"
 		},
 		"web": {
 			"favicon": "./app/assets/favicon.png"
