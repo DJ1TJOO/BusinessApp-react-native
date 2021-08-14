@@ -17,9 +17,11 @@ import lastStatusBarColorContext from "./app/contexts/lastStatusBarColorContext"
 import dutch from "./app/languages/dutch";
 
 import LoginScreen from "./app/screen/LoginScreen";
+
 import ChangePasswordScreen from "./app/screen/passwords/ChangePasswordScreen";
 import ForgotPasswordScreen from "./app/screen/passwords/ForgotPasswordScreen";
 import VerifyCodeScreen from "./app/screen/passwords/VerifyCodeScreen";
+
 import RegisterScreen from "./app/screen/RegisterScreen";
 import WelcomeScreen from "./app/screen/WelcomeScreen";
 
@@ -34,8 +36,7 @@ export default function App() {
 		language: dutch,
 	});
 	const [linkData, setLinkData] = useState(null);
-	const [lastStatusBarColor, setLastStatusBarColor] = useState(Colors.white);
-	StatusBar.setBackgroundColor(lastStatusBarColor);
+	const [lastStatusBarColor, setLastStatusBarColor] = useState(Colors.primary);
 
 	const linking = {
 		prefixes: [prefix],
@@ -88,6 +89,8 @@ export default function App() {
 		// only android needs polyfill
 		require("intl"); // import intl object
 		require("intl/locale-data/jsonp/en-IN"); // load the required locale details
+
+		StatusBar.setBackgroundColor(lastStatusBarColor);
 	}
 
 	let [fontsLoaded] = useFonts({
