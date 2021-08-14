@@ -68,9 +68,8 @@ const getHours = async (params) => {
  */
 const addProjectHours = async (hours) => {
 	try {
-		// TODO: mysql name as projectName
 		const [hoursResults] = await db.query(
-			`SELECT project_hours.id,project_hours.project,project_hours.project_id,project_hours.description,project_hours.monday,project_hours.tuesday,project_hours.wednesday,project_hours.thursday,project_hours.friday,project_hours.saturday,project_hours.sunday,projects.name FROM project_hours LEFT JOIN projects ON project_hours.project_id = projects.id WHERE hours_id = ?`,
+			`SELECT project_hours.id,project_hours.project,project_hours.project_id,project_hours.description,project_hours.monday,project_hours.tuesday,project_hours.wednesday,project_hours.thursday,project_hours.friday,project_hours.saturday,project_hours.sunday,projects.name AS projectName FROM project_hours LEFT JOIN projects ON project_hours.project_id = projects.id WHERE hours_id = ?`,
 			[hours.id]
 		);
 
@@ -78,11 +77,7 @@ const addProjectHours = async (hours) => {
 			success: true,
 			data: {
 				...hours,
-				hours: hoursResults.map((x) => {
-					const { hours_id, name, ...hours } = x;
-					hours.projectName = name;
-					return hours;
-				}),
+				hours: hoursResults,
 			},
 		};
 	} catch (error) {
