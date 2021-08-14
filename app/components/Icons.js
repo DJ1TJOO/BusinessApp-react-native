@@ -55,7 +55,6 @@ const styles = StyleSheet.create({
 	},
 });
 
-// TODO: fix on android
 const IconLoading = ({ style, color, secondColor }) => {
 	const { style: anitmateStyle } = animateTransform({
 		type: "rotate",
@@ -84,7 +83,6 @@ const IconLoading = ({ style, color, secondColor }) => {
 				height={"100%"}
 				viewBox="0 0 100 100"
 				preserveAspectRatio="xMidYMid"
-				display="block"
 			>
 				<AnimatedCircle
 					cx={50}
