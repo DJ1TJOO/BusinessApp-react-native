@@ -69,17 +69,8 @@ const FormInput = ({
 
 	const input = (
 		<View>
-			{isValid === true && (
-				<IconCheck
-					style={[
-						styles.icon,
-						{
-							marginLeft: -35,
-						},
-					]}
-				/>
-			)}
-			{isValid === false && <IconCross style={[styles.icon]} />}
+			{isValid === true && <IconCheck style={[styles.iconCheck]} />}
+			{isValid === false && <IconCross style={[styles.iconCross]} />}
 			<TextInput
 				ref={innerRef}
 				clearTextOnFocus={false}
@@ -145,13 +136,21 @@ const styles = StyleSheet.create({
 		fontSize: FontSizes.default,
 		fontFamily: "Segoe-UI",
 	},
-	icon: {
+	iconCheck: {
 		position: "absolute",
-		top: 10,
+		top: 5,
 		left: "100%",
-		marginLeft: -28,
+		marginLeft: -35,
 		width: 30,
 		height: 30,
+	},
+	iconCross: {
+		position: "absolute",
+		top: 5,
+		left: "100%",
+		marginLeft: -28,
+		width: 26,
+		height: 26,
 	},
 	input: {
 		color: Colors.textSecondary,
