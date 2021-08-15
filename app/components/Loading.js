@@ -21,7 +21,7 @@ const Loading = ({ size = 50, text, textStyle, direction, isActive, style }) => 
 				style,
 			]}
 		>
-			<IconLoading style={{ width: size, height: size, alignSelf: "center" }} />
+			<IconLoading style={{ width: size, height: size, top: "-10%" }} />
 			{text ? <Text style={textStyle}>{text}</Text> : null}
 		</View>
 	) : null;
