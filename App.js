@@ -1,13 +1,20 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { useFonts } from "@use-expo/font";
 import AppLoading from "expo-app-loading";
+import { Asset } from "expo-asset";
+import Constants from "expo-constants";
+import * as Font from "expo-font";
 import * as Linking from "expo-linking";
-import React, { useEffect, useState } from "react";
-import { Platform, StatusBar } from "react-native";
+import * as SplashScreen from "expo-splash-screen";
+import React, { useEffect, useMemo, useState } from "react";
+import { Animated, Dimensions, Platform, StatusBar, StyleSheet, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 
 import Account from "./app/Account";
+
+import icon from "./app/assets/icon-without-circles.png";
+
+import { IconLoading } from "./app/components/Icons";
 
 import Colors from "./app/config/Colors";
 
@@ -86,23 +93,12 @@ export default function App() {
 	}, []);
 
 	if (Platform.OS === "android") {
-		// only android needs polyfill
-		require("intl"); // import intl object
-		require("intl/locale-data/jsonp/en-IN"); // load the required locale details
-
 		StatusBar.setBackgroundColor(lastStatusBarColor);
 	}
-
-	let [fontsLoaded] = useFonts({
-		"Segoe-UI": require("./app/assets/fonts/Segoe-UI.ttf"),
-	});
-
 	StatusBar.setBarStyle("dark-content");
 
-	if (!fontsLoaded) {
-		return <AppLoading />;
-	} else {
-		return (
+	return (
+		<AnimatedAppLoader image={icon}>
 			<RootSiblingParent>
 				<dataContext.Provider value={[data, setData]}>
 					<lastStatusBarColorContext.Provider value={[lastStatusBarColor, setLastStatusBarColor]}>
@@ -126,6 +122,124 @@ export default function App() {
 					</lastStatusBarColorContext.Provider>
 				</dataContext.Provider>
 			</RootSiblingParent>
+		</AnimatedAppLoader>
+	);
+}
+
+function AnimatedAppLoader({ children, image }) {
+	const [isSplashReady, setSplashReady] = useState(false);
+
+	const startAsync = useMemo(
+		// If you use a local image with require(...), use `Asset.fromModule`
+		() => () => Asset.fromModule(image).downloadAsync(),
+		[image]
+	);
+
+	const onFinish = useMemo(() => setSplashReady(true), []);
+
+	if (!isSplashReady) {
+		return (
+			<AppLoading
+				// Instruct SplashScreen not to hide yet, we want to do this manually
+				autoHideSplash={false}
+				startAsync={startAsync}
+				onError={console.error}
+				onFinish={onFinish}
+			/>
 		);
 	}
+
+	return <AnimatedSplashScreen image={image}>{children}</AnimatedSplashScreen>;
+}
+
+function AnimatedSplashScreen({ children, image }) {
+	const animation = useMemo(() => new Animated.Value(1), []);
+	const [isAppReady, setAppReady] = useState(false);
+	const [isSplashAnimationComplete, setAnimationComplete] = useState(false);
+
+	useEffect(() => {
+		if (isAppReady) {
+			Animated.timing(animation, {
+				toValue: 0,
+				duration: 200,
+				useNativeDriver: true,
+			}).start(() => setAnimationComplete(true));
+		}
+	}, [isAppReady]);
+
+	const onImageLoaded = async () => {
+		try {
+			await SplashScreen.hideAsync();
+
+			// Load stuff
+			await Promise.all([
+				// only android needs polyfill
+				Platform.OS === "android" &&
+					new Promise((res) => {
+						require("intl"); // import intl object
+						require("intl/locale-data/jsonp/en-IN"); // load the required locale details
+						res();
+					}),
+				Font.loadAsync({
+					"Segoe-UI": require("./app/assets/fonts/Segoe-UI.ttf"),
+				}),
+			]);
+		} catch (e) {
+			// handle errors
+		} finally {
+			setAppReady(true);
+		}
+	};
+
+	return (
+		<View style={{ flex: 1 }}>
+			{isAppReady && children}
+			{!isSplashAnimationComplete && (
+				<Animated.View
+					pointerEvents="none"
+					style={[
+						StyleSheet.absoluteFill,
+						{
+							backgroundColor: Constants.manifest.splash.backgroundColor,
+							opacity: animation,
+						},
+					]}
+				>
+					<IconLoading
+						animated={true}
+						style={{
+							position: "absolute",
+							top: (Dimensions.get("window").height / 2778) * 560,
+							left: (Dimensions.get("window").width / 1284) * 335,
+							width: (Dimensions.get("window").width / 1284) * 646,
+							height: (Dimensions.get("window").height / 2778) * 646,
+							transform: [
+								{
+									scale: animation,
+								},
+							],
+						}}
+					/>
+					<Animated.Image
+						style={{
+							position: "absolute",
+							top: (Dimensions.get("window").height / 2778) * 560,
+							left: (Dimensions.get("window").width / 1284) * 335,
+							width: (Dimensions.get("window").width / 1284) * 646,
+							height: (Dimensions.get("window").height / 2778) * 646,
+							resizeMode: Constants.manifest.splash.resizeMode || "contain",
+							transform: [
+								{
+									scale: animation,
+								},
+							],
+						}}
+						source={image}
+						onLoadEnd={onImageLoaded}
+						fadeDuration={0}
+					/>
+				</Animated.View>
+			)}
+		</View>
+	);
 }
