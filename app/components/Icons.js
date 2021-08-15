@@ -240,7 +240,7 @@ const IconCheck = ({ style, color, animated = false }) => {
 
 	return (
 		<ViewForm style={[styles.icon, style]}>
-			<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 20 20">
+			<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="-1 0 18 10">
 				<Path
 					data-name="Union 8"
 					d="M.5 5.229L5.771 10.5zM15.771.5l-10 10z"
@@ -259,7 +259,7 @@ const IconCross = ({ style, color, animated = false }) => {
 
 	return (
 		<ViewForm style={[styles.icon, style]}>
-			<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 20 20">
+			<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="-1 -1 18 12">
 				<Path
 					data-name="Union 9"
 					d="M5.617 5.872L.5 11l5.117-5.128L.5.5l5.117 5.372L10.979.5 5.617 5.872 10.5 11z"

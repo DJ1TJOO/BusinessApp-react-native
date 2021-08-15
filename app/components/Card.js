@@ -38,10 +38,12 @@ const styles = StyleSheet.create({
 	},
 	header: {
 		flexDirection: "row",
+		alignItems: "center",
 	},
 	icon: {
 		width: 25,
 		height: 25,
+		top: 0,
 		marginLeft: 10,
 	},
 	title: {
