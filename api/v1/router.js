@@ -11,6 +11,8 @@ const images = require("./helpers/images");
 
 const analytics = require("./analytics");
 
+V1.get("/", (req, res) => res.send({ success: true }));
+
 V1.use("/analytics", analytics);
 
 V1.use("/images", images.router);

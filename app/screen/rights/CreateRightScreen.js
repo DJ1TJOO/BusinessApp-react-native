@@ -43,7 +43,7 @@ const CreateRightScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.availableRights) data.availableRights = {};
 		try {
-			const res = await fetch(config.api + "rights/available").then((res) => res.json());
+			const res = await utils.fetchWithTimeout(config.api + "rights/available").then((res) => res.json());
 			if (res.success) data.availableRights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -85,14 +85,16 @@ const CreateRightScreen = ({ navigation, route }) => {
 							rights: formData.rights.value.map((x) => rights.find((y) => y.name === x)?.id),
 						};
 
-						const resRight = await fetch(config.api + "rights/", {
-							method: "POST",
-							headers: {
-								Accept: "application/json",
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify(bodyRight),
-						}).then((res) => res.json());
+						const resRight = await utils
+							.fetchWithTimeout(config.api + "rights/", {
+								method: "POST",
+								headers: {
+									Accept: "application/json",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify(bodyRight),
+							})
+							.then((res) => res.json());
 
 						if (resRight.success) {
 							navigation.navigate("Rights", { date: Date.now() });

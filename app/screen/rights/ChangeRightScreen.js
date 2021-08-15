@@ -44,7 +44,7 @@ const ChangeRightScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.availableRights) data.availableRights = {};
 		try {
-			const res = await fetch(config.api + "rights/available").then((res) => res.json());
+			const res = await utils.fetchWithTimeout(config.api + "rights/available").then((res) => res.json());
 			if (res.success) data.availableRights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -97,14 +97,16 @@ const ChangeRightScreen = ({ navigation, route }) => {
 							rights: updatedRights !== route.params.rights ? updatedRights : undefined,
 						};
 
-						const resRight = await fetch(config.api + "rights/" + route.params.id, {
-							method: "PATCH",
-							headers: {
-								Accept: "application/json",
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify(bodyRight),
-						}).then((res) => res.json());
+						const resRight = await utils
+							.fetchWithTimeout(config.api + "rights/" + route.params.id, {
+								method: "PATCH",
+								headers: {
+									Accept: "application/json",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify(bodyRight),
+							})
+							.then((res) => res.json());
 
 						if (resRight.success) {
 							navigation.navigate("Rights", { date: Date.now() });
@@ -136,9 +138,11 @@ const ChangeRightScreen = ({ navigation, route }) => {
 						events: {
 							onAccept: async () => {
 								try {
-									const res = await fetch(config.api + "rights/" + route.params.id, {
-										method: "DELETE",
-									}).then((res) => res.json());
+									const res = await utils
+										.fetchWithTimeout(config.api + "rights/" + route.params.id, {
+											method: "DELETE",
+										})
+										.then((res) => res.json());
 
 									// Failed to delete
 									if (!res.success) {

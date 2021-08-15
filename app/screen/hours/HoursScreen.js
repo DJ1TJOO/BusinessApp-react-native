@@ -65,7 +65,7 @@ const HoursScreen = ({ navigation, route }) => {
 			data.hours = data.hours.filter((x) => x.year !== year);
 
 			// Get hours from current year
-			const res = await fetch(`${config.api}hours/users/${data.user.id}/${year}`).then((res) => res.json());
+			const res = await utils.fetchWithTimeout(`${config.api}hours/users/${data.user.id}/${year}`).then((res) => res.json());
 
 			// Add to data
 			if (res.success) {
@@ -139,17 +139,19 @@ const HoursScreen = ({ navigation, route }) => {
 									onPress={async () => {
 										try {
 											// Submit hours
-											const res = await fetch(`${config.api}hours/${hours.id}`, {
-												method: "PATCH",
-												headers: {
-													Accept: "application/json",
-													"Content-Type": "application/json",
-												},
-												body: JSON.stringify({
-													submitted: true,
-													valid: null,
-												}),
-											}).then((res) => res.json());
+											const res = await utils
+												.fetchWithTimeout(`${config.api}hours/${hours.id}`, {
+													method: "PATCH",
+													headers: {
+														Accept: "application/json",
+														"Content-Type": "application/json",
+													},
+													body: JSON.stringify({
+														submitted: true,
+														valid: null,
+													}),
+												})
+												.then((res) => res.json());
 											if (!res.success) {
 												setCurrentError(
 													languagesUtils.convertError(data.language, res, { submitted: true, valid: null }, "uren", {

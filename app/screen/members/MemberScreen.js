@@ -21,7 +21,7 @@ const MemberScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await fetch(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await utils.fetchWithTimeout(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -84,9 +84,11 @@ const MemberScreen = ({ navigation, route }) => {
 						events: {
 							onAccept: async () => {
 								try {
-									const res = await fetch(config.api + "users/" + route.params.id, {
-										method: "DELETE",
-									}).then((res) => res.json());
+									const res = await utils
+										.fetchWithTimeout(config.api + "users/" + route.params.id, {
+											method: "DELETE",
+										})
+										.then((res) => res.json());
 
 									// Failed to delete
 									if (!res.success) {

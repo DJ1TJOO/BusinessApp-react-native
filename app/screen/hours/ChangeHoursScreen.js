@@ -139,19 +139,21 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 		// Check if hours exists
 		if (!currentHours.id) {
 			// Create hours
-			const res = await fetch(`${config.api}hours/`, {
-				method: "POST",
-				headers: {
-					Accept: "application/json",
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					userId: data.user.id,
-					businessId: data.user.business_id,
-					week: currentHours.week,
-					year: currentHours.year,
-				}),
-			}).then((res) => res.json());
+			const res = await utils
+				.fetchWithTimeout(`${config.api}hours/`, {
+					method: "POST",
+					headers: {
+						Accept: "application/json",
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						userId: data.user.id,
+						businessId: data.user.business_id,
+						week: currentHours.week,
+						year: currentHours.year,
+					}),
+				})
+				.then((res) => res.json());
 			if (res.success) {
 				currentHours.id = res.data.id;
 			} else {
@@ -183,14 +185,16 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 			const current = currentHours.hours.find((x) => x.id === update.id);
 			if (!current || !update.id) {
 				// Create
-				const res = await fetch(`${config.api}hours/${currentHours.id}`, {
-					method: "POST",
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify(update),
-				}).then((res) => res.json());
+				const res = await utils
+					.fetchWithTimeout(`${config.api}hours/${currentHours.id}`, {
+						method: "POST",
+						headers: {
+							Accept: "application/json",
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(update),
+					})
+					.then((res) => res.json());
 				if (res.success) {
 					update.id = res.data.id;
 				} else {
@@ -213,14 +217,16 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 				}
 			} else if (update !== current) {
 				// Update existing
-				const res = await fetch(`${config.api}hours/project/${update.id}`, {
-					method: "PATCH",
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify(update),
-				}).then((res) => res.json());
+				const res = await utils
+					.fetchWithTimeout(`${config.api}hours/project/${update.id}`, {
+						method: "PATCH",
+						headers: {
+							Accept: "application/json",
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(update),
+					})
+					.then((res) => res.json());
 				if (!res.success) {
 					setCurrentError(
 						languagesUtils.convertError(data.language, res, update, "project uren", {
@@ -245,9 +251,11 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 		// Remove existing project hours
 		const toRemove = currentHours.hours.filter((x) => !hoursData.some((y) => y.id === x.id));
 		for (let i = 0; i < toRemove.length; i++) {
-			const res = await fetch(`${config.api}hours/project/${toRemove[i].id}`, {
-				method: "DELETE",
-			}).then((res) => res.json());
+			const res = await utils
+				.fetchWithTimeout(`${config.api}hours/project/${toRemove[i].id}`, {
+					method: "DELETE",
+				})
+				.then((res) => res.json());
 			if (!res.success) {
 				setCurrentError(languagesUtils.convertError(data.language, res, {}, "project uren", {}));
 
@@ -459,17 +467,19 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 							if (!(await update(data, currentHours, hours, setCurrentError))) return;
 
 							// Submit hours
-							const res = await fetch(`${config.api}hours/${currentHours.id}`, {
-								method: "PATCH",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify({
-									submitted: true,
-									valid: null,
-								}),
-							}).then((res) => res.json());
+							const res = await utils
+								.fetchWithTimeout(`${config.api}hours/${currentHours.id}`, {
+									method: "PATCH",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify({
+										submitted: true,
+										valid: null,
+									}),
+								})
+								.then((res) => res.json());
 							if (!res.success) {
 								setCurrentError(
 									languagesUtils.convertError(data.language, res, { submitted: true, valid: null }, "uren", {

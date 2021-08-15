@@ -314,6 +314,33 @@ const IconEarth = ({ style, color, animated = false }) => {
 	);
 };
 
+const IconServers = ({ style, color, animated = false }) => {
+	const ViewForm = animated ? Animated.View : View;
+
+	return (
+		<ViewForm style={[styles.icon, style]}>
+			<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 64 64">
+				<Path fill={color || "#108BDD"} d="M28 9.014H8a.986.986 0 100 1.972h20a.986.986 0 100-1.972z" />
+				<Circle fill={color || "#108BDD"} cx={52.999} cy={9.999} r={2.999} />
+				<Path
+					fill={color || "#108BDD"}
+					d="M60 0H4a4 4 0 00-4 4v12a4 4 0 004 4h56a4 4 0 004-4V4a4 4 0 00-4-4zm2 16c0 1.103-.897 2-2 2H4c-1.103 0-2-.897-2-2V4c0-1.103.897-2 2-2h56c1.103 0 2 .897 2 2v12zM28 31.014H8a.986.986 0 100 1.972h20a.986.986 0 100-1.972z"
+				/>
+				<Circle fill={color || "#108BDD"} cx={52.999} cy={31.999} r={2.999} />
+				<Path
+					fill={color || "#108BDD"}
+					d="M60 22H4a4 4 0 00-4 4v12a4 4 0 004 4h56a4 4 0 004-4V26a4 4 0 00-4-4zm2 16c0 1.103-.897 2-2 2H4c-1.103 0-2-.897-2-2V26c0-1.103.897-2 2-2h56c1.103 0 2 .897 2 2v12zM28 53.014H8a.986.986 0 100 1.972h20a.986.986 0 100-1.972z"
+				/>
+				<Circle fill={color || "#108BDD"} cx={52.999} cy={53.999} r={2.999} />
+				<Path
+					fill={color || "#108BDD"}
+					d="M60 44H4a4 4 0 00-4 4v12a4 4 0 004 4h56a4 4 0 004-4V48a4 4 0 00-4-4zm2 16c0 1.103-.897 2-2 2H4c-1.103 0-2-.897-2-2V48c0-1.103.897-2 2-2h56c1.103 0 2 .897 2 2v12z"
+				/>
+			</Svg>
+		</ViewForm>
+	);
+};
+
 export {
 	IconLoading,
 	IconArrowBack,
@@ -329,4 +356,5 @@ export {
 	IconRemove,
 	IconAdd,
 	IconEarth,
+	IconServers,
 };

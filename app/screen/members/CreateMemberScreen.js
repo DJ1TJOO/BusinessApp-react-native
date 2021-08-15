@@ -104,7 +104,7 @@ const CreateMemberScreen = ({ navigation }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await fetch(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await utils.fetchWithTimeout(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -192,14 +192,16 @@ const CreateMemberScreen = ({ navigation }) => {
 
 							if (formData.function.value) bodyUser.functionDescription = formData.function.value;
 
-							const resUser = await fetch(config.api + "users/", {
-								method: "POST",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify(bodyUser),
-							}).then((res) => res.json());
+							const resUser = await utils
+								.fetchWithTimeout(config.api + "users/", {
+									method: "POST",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(bodyUser),
+								})
+								.then((res) => res.json());
 							if (resUser.success) {
 								// Add user to teams
 								if (formData.teams.value) {
@@ -208,16 +210,18 @@ const CreateMemberScreen = ({ navigation }) => {
 										if (!team) continue;
 
 										// Add user to team
-										const resTeam = await fetch(config.api + "teams/" + team.id, {
-											method: "POST",
-											headers: {
-												Accept: "application/json",
-												"Content-Type": "application/json",
-											},
-											body: JSON.stringify({
-												userId: resUser.data.id,
-											}),
-										}).then((res) => res.json());
+										const resTeam = await utils
+											.fetchWithTimeout(config.api + "teams/" + team.id, {
+												method: "POST",
+												headers: {
+													Accept: "application/json",
+													"Content-Type": "application/json",
+												},
+												body: JSON.stringify({
+													userId: resUser.data.id,
+												}),
+											})
+											.then((res) => res.json());
 
 										// Failed to add to team
 										if (!resTeam.success) {

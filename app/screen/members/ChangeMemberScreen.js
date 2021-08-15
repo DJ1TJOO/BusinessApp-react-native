@@ -108,7 +108,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await fetch(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await utils.fetchWithTimeout(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -209,14 +209,16 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 
 						if (formData.function.value && formData.function.value !== route.params.function) bodyUser.functionDescription = formData.function.value;
 
-						const resUser = await fetch(config.api + "users/" + route.params.id, {
-							method: "PATCH",
-							headers: {
-								Accept: "application/json",
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify(bodyUser),
-						}).then((res) => res.json());
+						const resUser = await utils
+							.fetchWithTimeout(config.api + "users/" + route.params.id, {
+								method: "PATCH",
+								headers: {
+									Accept: "application/json",
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify(bodyUser),
+							})
+							.then((res) => res.json());
 
 						if (resUser.success) {
 							// Add/Remove user to/from teams
@@ -229,16 +231,18 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 									if (!team) continue;
 
 									// Add user to team
-									const resTeam = await fetch(config.api + "teams/" + team.id, {
-										method: "POST",
-										headers: {
-											Accept: "application/json",
-											"Content-Type": "application/json",
-										},
-										body: JSON.stringify({
-											userId: resUser.data.id,
-										}),
-									}).then((res) => res.json());
+									const resTeam = await utils
+										.fetchWithTimeout(config.api + "teams/" + team.id, {
+											method: "POST",
+											headers: {
+												Accept: "application/json",
+												"Content-Type": "application/json",
+											},
+											body: JSON.stringify({
+												userId: resUser.data.id,
+											}),
+										})
+										.then((res) => res.json());
 
 									// Failed to add to team
 									if (!resTeam.success) {
@@ -257,9 +261,11 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 									if (!team) continue;
 
 									// Remove user from team
-									const resTeam = await fetch(config.api + "teams/" + team.id + "/" + route.params.id, {
-										method: "DELETE",
-									}).then((res) => res.json());
+									const resTeam = await utils
+										.fetchWithTimeout(config.api + "teams/" + team.id + "/" + route.params.id, {
+											method: "DELETE",
+										})
+										.then((res) => res.json());
 
 									// Failed to remove from team
 									if (!resTeam.success) {
@@ -302,9 +308,11 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 						events: {
 							onAccept: async () => {
 								try {
-									const res = await fetch(config.api + "users/" + route.params.id, {
-										method: "DELETE",
-									}).then((res) => res.json());
+									const res = await utils
+										.fetchWithTimeout(config.api + "users/" + route.params.id, {
+											method: "DELETE",
+										})
+										.then((res) => res.json());
 
 									// Failed to delete
 									if (!res.success) {

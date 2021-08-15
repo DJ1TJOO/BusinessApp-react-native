@@ -36,6 +36,10 @@ import VerifyCodeScreen from "./app/screen/passwords/VerifyCodeScreen";
 import RegisterScreen from "./app/screen/RegisterScreen";
 import WelcomeScreen from "./app/screen/WelcomeScreen";
 
+import config from "./app/config/config";
+
+import utils from "./app/utils";
+
 const prefix = Linking.makeUrl("/");
 
 const Stack = createStackNavigator();
@@ -102,16 +106,24 @@ export default function App() {
 	StatusBar.setBarStyle("dark-content");
 
 	useEffect(() => {
-		const unsubscribe = NetInfo.addEventListener((state) => {
+		const unsubscribe = NetInfo.addEventListener(async (state) => {
 			if (!isAvailable()) return;
-			// TODO: check if the servers are reachable
 
 			if (!state.isConnected) {
 				navigate("NoConnection");
 			} else {
-				const routeState = getState();
-				const currentRoute = routeState.routes[routeState.index];
-				if (currentRoute.name === "NoConnection") goBack();
+				try {
+					const res = await utils.fetchWithTimeout(config.api).then((res) => res.json());
+					if (res.success) {
+						const routeState = getState();
+						const currentRoute = routeState.routes[routeState.index];
+						if (currentRoute.name === "NoConnection") goBack();
+					} else {
+						navigate("NoConnection", { servers: true });
+					}
+				} catch (error) {
+					navigate("NoConnection", { servers: true });
+				}
 			}
 		});
 		return unsubscribe;

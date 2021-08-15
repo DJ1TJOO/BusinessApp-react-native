@@ -16,9 +16,11 @@ import utils from "../../utils";
 
 const verify = async (businessId, userId, code, setCurrentError, data) => {
 	try {
-		const res = await fetch(`${config.api}users/recover/${businessId}/${userId}/${code}`, {
-			method: "POST",
-		}).then((res) => res.json());
+		const res = await utils
+			.fetchWithTimeout(`${config.api}users/recover/${businessId}/${userId}/${code}`, {
+				method: "POST",
+			})
+			.then((res) => res.json());
 		if (!res.success) {
 			setCurrentError(
 				languagesUtils.convertError(

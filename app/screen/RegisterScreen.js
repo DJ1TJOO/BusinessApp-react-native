@@ -277,14 +277,16 @@ const RegisterScreen = ({ navigation }) => {
 								name: formData.business_name.value,
 								image: "data:image/png;base64," + formData.image.value.base64,
 							};
-							const res = await fetch(config.api + "business/", {
-								method: "POST",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify(body),
-							}).then((res) => res.json());
+							const res = await utils
+								.fetchWithTimeout(config.api + "business/", {
+									method: "POST",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(body),
+								})
+								.then((res) => res.json());
 							// Business created
 							if (res.success) {
 								setCurrentError(null);
@@ -302,25 +304,29 @@ const RegisterScreen = ({ navigation }) => {
 
 								if (formData.account_function.value) bodyUser.functionDescription = formData.account_function.value;
 
-								const resUser = await fetch(config.api + "users/", {
-									method: "POST",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(bodyUser),
-								}).then((res) => res.json());
-								if (resUser.success) {
-									// Make user owner of business
-									const bodyBusiness = { ownerCode: res.data.ownerCode, owner: resUser.data.id };
-									const resBusiness = await fetch(config.api + "business/" + res.data.business.id, {
-										method: "PATCH",
+								const resUser = await utils
+									.fetchWithTimeout(config.api + "users/", {
+										method: "POST",
 										headers: {
 											Accept: "application/json",
 											"Content-Type": "application/json",
 										},
-										body: JSON.stringify(bodyBusiness),
-									}).then((res) => res.json());
+										body: JSON.stringify(bodyUser),
+									})
+									.then((res) => res.json());
+								if (resUser.success) {
+									// Make user owner of business
+									const bodyBusiness = { ownerCode: res.data.ownerCode, owner: resUser.data.id };
+									const resBusiness = await utils
+										.fetchWithTimeout(config.api + "business/" + res.data.business.id, {
+											method: "PATCH",
+											headers: {
+												Accept: "application/json",
+												"Content-Type": "application/json",
+											},
+											body: JSON.stringify(bodyBusiness),
+										})
+										.then((res) => res.json());
 									if (resBusiness.success) {
 										navigation.navigate("Login");
 									} else {

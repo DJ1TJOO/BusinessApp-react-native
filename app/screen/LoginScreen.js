@@ -69,7 +69,7 @@ const LoginScreen = ({ navigation }) => {
 		if (!data.login.businessNames || data.login.businessNames.length < 1) {
 			(async () => {
 				try {
-					const res = await fetch(config.api + "business/names").then((res) => res.json());
+					const res = await utils.fetchWithTimeout(config.api + "business/names").then((res) => res.json());
 					if (res.success) data.login.businessNames = res.data;
 					else data.login.businessNames = [];
 				} catch (error) {
@@ -92,16 +92,18 @@ const LoginScreen = ({ navigation }) => {
 				}
 
 				if (token && user) {
-					const res = await fetch(config.api + "login/validate", {
-						method: "POST",
-						headers: {
-							Accept: "application/json",
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							token,
-						}),
-					}).then((res) => res.json());
+					const res = await utils
+						.fetchWithTimeout(config.api + "login/validate", {
+							method: "POST",
+							headers: {
+								Accept: "application/json",
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								token,
+							}),
+						})
+						.then((res) => res.json());
 
 					// Token valid, login
 					if (res.success) {
@@ -117,7 +119,7 @@ const LoginScreen = ({ navigation }) => {
 							);
 						}
 
-						const businessRes = await fetch(config.api + "business/" + user.business_id).then((res) => res.json());
+						const businessRes = await utils.fetchWithTimeout(config.api + "business/" + user.business_id).then((res) => res.json());
 
 						if (businessRes.success) {
 							// Store in data
@@ -171,18 +173,20 @@ const LoginScreen = ({ navigation }) => {
 						}
 
 						try {
-							const res = await fetch(config.api + "login", {
-								method: "POST",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify({
-									business: formData.business_name.value,
-									email: formData.email.value,
-									password: formData.password.value,
-								}),
-							}).then((res) => res.json());
+							const res = await utils
+								.fetchWithTimeout(config.api + "login", {
+									method: "POST",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify({
+										business: formData.business_name.value,
+										email: formData.email.value,
+										password: formData.password.value,
+									}),
+								})
+								.then((res) => res.json());
 							if (res.success) {
 								setFormValue("password")("", false);
 
@@ -196,7 +200,7 @@ const LoginScreen = ({ navigation }) => {
 									})
 								);
 
-								const businessRes = await fetch(config.api + "business/" + res.data.user.business_id).then((res) => res.json());
+								const businessRes = await utils.fetchWithTimeout(config.api + "business/" + res.data.user.business_id).then((res) => res.json());
 
 								if (businessRes.success) {
 									// Store in data

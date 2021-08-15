@@ -44,16 +44,18 @@ const defaultFormData = [
 
 const updatePassword = async (businessId, userId, code, password, setCurrentError, data) => {
 	try {
-		const res = await fetch(`${config.api}users/recover/${businessId}/${userId}/${code}`, {
-			method: "POST",
-			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				newPassword: password,
-			}),
-		}).then((res) => res.json());
+		const res = await utils
+			.fetchWithTimeout(`${config.api}users/recover/${businessId}/${userId}/${code}`, {
+				method: "POST",
+				headers: {
+					Accept: "application/json",
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					newPassword: password,
+				}),
+			})
+			.then((res) => res.json());
 		if (!res.success) {
 			setCurrentError(
 				languagesUtils.convertError(

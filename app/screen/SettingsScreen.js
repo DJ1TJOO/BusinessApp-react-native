@@ -79,14 +79,16 @@ const SettingsScreen = ({ navigation, route }) => {
 									email: formData.email.value,
 								};
 
-								const resUser = await fetch(config.api + "users/" + data.user.id, {
-									method: "PATCH",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(bodyUser),
-								}).then((res) => res.json());
+								const resUser = await utils
+									.fetchWithTimeout(config.api + "users/" + data.user.id, {
+										method: "PATCH",
+										headers: {
+											Accept: "application/json",
+											"Content-Type": "application/json",
+										},
+										body: JSON.stringify(bodyUser),
+									})
+									.then((res) => res.json());
 
 								if (resUser.success) {
 									data.user.email = formData.email.value;

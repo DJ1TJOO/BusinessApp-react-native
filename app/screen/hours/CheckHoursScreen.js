@@ -22,7 +22,7 @@ const CheckHoursScreen = ({ navigation }) => {
 
 		(async () => {
 			try {
-				const res = await fetch(config.api + "users/business/" + data.user.business_id).then((res) => res.json());
+				const res = await utils.fetchWithTimeout(config.api + "users/business/" + data.user.business_id).then((res) => res.json());
 				if (res.success) data.checkHours.users = res.data;
 				else data.checkHours.users = [];
 				setData({ ...data });

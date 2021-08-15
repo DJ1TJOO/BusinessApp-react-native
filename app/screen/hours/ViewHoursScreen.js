@@ -164,16 +164,18 @@ const ViewHoursScreen = ({ navigation, route }) => {
 					onPress={async () => {
 						try {
 							// Submit hours
-							const res = await fetch(`${config.api}hours/${currentHours.id}`, {
-								method: "PATCH",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify({
-									submitted: null,
-								}),
-							}).then((res) => res.json());
+							const res = await utils
+								.fetchWithTimeout(`${config.api}hours/${currentHours.id}`, {
+									method: "PATCH",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify({
+										submitted: null,
+									}),
+								})
+								.then((res) => res.json());
 							if (!res.success) {
 								setCurrentError(
 									languagesUtils.convertError(data.language, res, { submitted: null }, "uren", {
