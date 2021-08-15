@@ -32,6 +32,7 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 						currentText = currentText.replace(/^([^.]*\.)(.*)$/, function (a, b, c) {
 							return b + c.replace(/\./g, "");
 						});
+						currentText = currentText.replace(/[^0-9.]/g, "");
 						hours[index].hours[hoursIndex] = currentText;
 						setHours([...hours]);
 					}}
@@ -42,14 +43,16 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 							currentText = currentText.replace(/^([^.]*\.)(.*)$/, function (a, b, c) {
 								return b + c.replace(/\./g, "");
 							});
+							currentText = currentText.replace(/[^0-9.]/g, "");
 							hours[index].hours[hoursIndex] = Number(currentText).toString();
 							setHours([...hours]);
 						} catch (error) {}
 					}}
-					keyboardType={"numeric"}
+					keyboardType={"decimal-pad"}
 					key={index}
 					style={styles.hours}
 					value={project.hours[hoursIndex]}
+					autoCapitalize="words"
 				/>
 			))}
 			<View
