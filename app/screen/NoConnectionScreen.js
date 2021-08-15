@@ -1,12 +1,16 @@
 import NetInfo from "@react-native-community/netinfo";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+
 import FormButton from "../components/form/FormButton";
 import { IconCross, IconEarth, IconServers } from "../components/Icons";
+
 import Colors from "../config/Colors";
 import config from "../config/config";
 import FontSizes from "../config/FontSizes";
+
 import useErrorModal from "../hooks/useErrorModal";
+
 import utils from "../utils";
 
 const NoConnectionScreen = ({ navigation, route }) => {

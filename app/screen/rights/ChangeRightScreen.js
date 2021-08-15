@@ -33,7 +33,6 @@ const defaultFormData = (params) => [
 ];
 
 const ChangeRightScreen = ({ navigation, route }) => {
-	// TODO: test
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData(route.params));
 	const [currentError, setCurrentError] = useState(null);
 
