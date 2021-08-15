@@ -1,5 +1,5 @@
 import NetInfo from "@react-native-community/netinfo";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import FormButton from "../components/form/FormButton";
@@ -16,8 +16,23 @@ import utils from "../utils";
 const NoConnectionScreen = ({ navigation, route }) => {
 	const [currentError, setCurrentError, ErrorModal] = useErrorModal();
 
-	const servers = !!route.params?.servers;
+	const [servers, setServers] = useState(false);
 	const Icon = servers ? IconServers : IconEarth;
+
+	const state = NetInfo.useNetInfo();
+
+	useEffect(() => {
+		if (!state.isConnected) {
+			setServers(false);
+		} else {
+			if (route.params && route.params.servers) {
+				setServers(true);
+			} else {
+				setServers(false);
+			}
+		}
+	}, [route, state]);
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.iconContainer}>
@@ -38,12 +53,17 @@ const NoConnectionScreen = ({ navigation, route }) => {
 								if (res.success) {
 									navigation.goBack();
 								} else {
-									navigation.navigate("NoConnection", { servers: true });
+									if (!servers) setServers(true);
+									else setCurrentError("Geen verbinding");
 								}
 							} catch (error) {
-								navigation.navigate("NoConnection", { servers: true });
+								if (!servers) setServers(true);
+								else setCurrentError("Geen verbinding");
 							}
-						} else setCurrentError("Geen verbinding");
+						} else {
+							if (servers) setServers(false);
+							setCurrentError("Geen verbinding");
+						}
 					});
 				}}
 			>

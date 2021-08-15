@@ -110,7 +110,7 @@ export default function App() {
 			if (!isAvailable()) return;
 
 			if (!state.isConnected) {
-				navigate("NoConnection");
+				navigate("NoConnection", { servers: false });
 			} else {
 				try {
 					const res = await utils.fetchWithTimeout(config.api).then((res) => res.json());
