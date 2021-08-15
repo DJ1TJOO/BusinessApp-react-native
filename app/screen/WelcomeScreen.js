@@ -7,8 +7,6 @@ import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";
 
 //TODO: ugly
-// TODO: check if connected to the internet and if the servers are reachable
-// check https://github.com/react-native-community/react-native-netinfo
 const WelcomeScreen = ({ navigation }) => {
 	return (
 		<SafeView style={styles.center}>

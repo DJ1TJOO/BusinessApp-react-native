@@ -1,3 +1,4 @@
+import NetInfo from "@react-native-community/netinfo";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import AppLoading from "expo-app-loading";
@@ -9,6 +10,8 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useMemo, useState } from "react";
 import { Animated, Dimensions, Platform, StatusBar, StyleSheet, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
+
+import { getState, goBack, isAvailable, navigate, navigationRef } from "./RootNavigation";
 
 import Account from "./app/Account";
 
@@ -24,6 +27,7 @@ import lastStatusBarColorContext from "./app/contexts/lastStatusBarColorContext"
 import dutch from "./app/languages/dutch";
 
 import LoginScreen from "./app/screen/LoginScreen";
+import NoConnectionScreen from "./app/screen/NoConnectionScreen";
 
 import ChangePasswordScreen from "./app/screen/passwords/ChangePasswordScreen";
 import ForgotPasswordScreen from "./app/screen/passwords/ForgotPasswordScreen";
@@ -97,14 +101,31 @@ export default function App() {
 	}
 	StatusBar.setBarStyle("dark-content");
 
+	useEffect(() => {
+		const unsubscribe = NetInfo.addEventListener((state) => {
+			if (!isAvailable()) return;
+			// TODO: check if the servers are reachable
+
+			if (!state.isConnected) {
+				navigate("NoConnection");
+			} else {
+				const routeState = getState();
+				const currentRoute = routeState.routes[routeState.index];
+				if (currentRoute.name === "NoConnection") goBack();
+			}
+		});
+		return unsubscribe;
+	}, []);
+
 	return (
 		<AnimatedAppLoader image={icon}>
 			<RootSiblingParent>
 				<dataContext.Provider value={[data, setData]}>
 					<lastStatusBarColorContext.Provider value={[lastStatusBarColor, setLastStatusBarColor]}>
-						<NavigationContainer linking={linking}>
+						<NavigationContainer linking={linking} ref={navigationRef}>
 							<Stack.Navigator mode="modal" headerMode="none">
 								<Stack.Screen name="Welcome" component={WelcomeScreen} />
+								<Stack.Screen name="NoConnection" component={NoConnectionScreen} options={{ gestureEnabled: false }} />
 								<Stack.Screen name="Login" component={LoginScreen} />
 								<Stack.Screen name="Register" component={RegisterScreen} />
 								<Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
