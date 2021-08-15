@@ -1,6 +1,6 @@
 import React from "react";
 import { Animated, Easing, StyleSheet, View } from "react-native";
-import Svg, { Circle, G, Path } from "react-native-svg";
+import Svg, { Circle, G, LinearGradient, Path, Stop } from "react-native-svg";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -240,10 +240,10 @@ const IconCheck = ({ style, color, animated = false }) => {
 
 	return (
 		<ViewForm style={[styles.icon, style]}>
-			<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="-1 0 18 10">
+			<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 16.5 10">
 				<Path
 					data-name="Union 8"
-					d="M.5 5.229L5.771 10.5zM15.771.5l-10 10z"
+					d="M.5 5.229 L5.771 10.5z M15.771.5 l-10 10z"
 					fill="rgba(0,0,0,0)"
 					stroke={color || "#108bdd"}
 					strokeLinecap="round"
@@ -259,15 +259,8 @@ const IconCross = ({ style, color, animated = false }) => {
 
 	return (
 		<ViewForm style={[styles.icon, style]}>
-			<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="-1 -1 18 12">
-				<Path
-					data-name="Union 9"
-					d="M5.617 5.872L.5 11l5.117-5.128L.5.5l5.117 5.372L10.979.5 5.617 5.872 10.5 11z"
-					fill="rgba(0,0,0,0)"
-					stroke={color || "#dd1010"}
-					strokeLinecap="round"
-					strokeLinejoin="round"
-				/>
+			<Svg xmlns="http://www.w3.org/2000/svg" top={"15%"} width={"80%"} height={"80%"} viewBox="0 0 10.5 10.5">
+				<Path data-name="Union 9" d="M .5,.5 l 9.5,9.5 M 10,.5 l -9.5,9.5" fill="rgba(0,0,0,0)" stroke={color || "#dd1010"} strokeLinecap="round" strokeLinejoin="round" />
 			</Svg>
 		</ViewForm>
 	);
@@ -303,4 +296,37 @@ const IconAdd = ({ style, color, animated = false }) => {
 	);
 };
 
-export { IconLoading, IconArrowBack, IconArrowForward, IconArrowUp, IconArrowDown, IconUp, IconDown, IconAgenda, IconAgendaSelected, IconCheck, IconCross, IconRemove, IconAdd };
+const IconEarth = ({ style, color, animated = false }) => {
+	const ViewForm = animated ? Animated.View : View;
+
+	return (
+		<ViewForm style={[styles.icon, style]}>
+			<Svg xmlns="http://www.w3.org/2000/svg" width={"100%"} height={"100%"} viewBox="0 0 512 512">
+				<LinearGradient y2={0} y1={512} x2={256} gradientUnits="userSpaceOnUse" id="prefix__a" x1={256}>
+					<Stop offset={1} stopColor={color || "#108BDD"} />
+				</LinearGradient>
+				<Path
+					d="M256 0C114.841 0 0 114.841 0 256s114.841 256 256 256 256-114.841 256-256S397.159 0 256 0zm-92.831 49.955l37.568 28.274-24.788 9.813a15.003 15.003 0 00-8.135 7.742l-13.253 29.173-55.268 27.625a15 15 0 00-8.22 11.937l-4.833 48.726-24.583-16.389-11.414-34.306c22.719-49.828 63.018-90.02 112.926-112.595zm-12.326 261.937L113.7 273.699v-19.316l32.885-.435 38.316 42.143a15.004 15.004 0 008.156 4.618l24.205 4.843-13.29 13.294a15 15 0 00-4.392 10.605v17.33l-27.109 20.33a15 15 0 00-6 11.946l-11.38-13.656V322.35a15.006 15.006 0 00-4.248-10.458zM256 482C131.383 482 30 380.617 30 256c0-15.565 1.582-30.768 4.593-45.456l.224.672a15 15 0 005.913 7.745l42.97 28.647v32.182c0 3.906 1.523 7.658 4.247 10.458l37.143 38.193v42.389c0 3.509 1.23 6.907 3.477 9.603l41.38 49.656a15.003 15.003 0 0016.63 4.501 15 15 0 009.894-14.104V386.61l27.109-20.33c3.777-2.833 6-7.279 6-12v-18.618l28.708-28.717a14.999 14.999 0 00-7.666-25.313l-46.843-9.372-39.541-43.49c-2.889-3.177-6.998-4.946-11.297-4.908l-37.658.498 4.826-48.642 52.617-26.3a14.998 14.998 0 006.95-7.213l12.946-28.497 44.029-17.431a15.001 15.001 0 003.499-25.931L196.96 37.84A225.485 225.485 0 01256 30c78.182 0 147.212 39.91 187.806 100.422l-31.873 10.977-39.499-6.586-12.956-19.426c-4.259-6.386-12.651-8.526-19.449-4.96l-104.49 54.83a15 15 0 003.503 27.877l67.614 16.064 19.46 30.231a14.999 14.999 0 0016.253 6.433l26.663-6.67 12.627 8.417v25.081a15 15 0 003.98 10.177l43.93 47.571.005 70.127C388.086 450.296 325.679 482 256 482zm203.57-157.431a15 15 0 00-3.98-10.176l-43.93-47.57V239.58c0-5.016-2.507-9.7-6.681-12.481l-24.83-16.55a14.994 14.994 0 00-11.959-2.07l-22.668 5.67-16.909-26.268a15 15 0 00-9.146-6.475l-34.512-8.199 57.058-29.94 9.067 13.596a15.003 15.003 0 0010.013 6.473l49.66 8.28c2.463.411 4.991.2 7.351-.613l40.971-14.11C473.747 186.834 482 220.469 482 256c0 35.135-8.061 68.421-22.428 98.11z"
+					fill="url(#prefix__a)"
+				/>
+			</Svg>
+		</ViewForm>
+	);
+};
+
+export {
+	IconLoading,
+	IconArrowBack,
+	IconArrowForward,
+	IconArrowUp,
+	IconArrowDown,
+	IconUp,
+	IconDown,
+	IconAgenda,
+	IconAgendaSelected,
+	IconCheck,
+	IconCross,
+	IconRemove,
+	IconAdd,
+	IconEarth,
+};

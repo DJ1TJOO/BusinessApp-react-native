@@ -52,9 +52,11 @@ const styles = StyleSheet.create({
 		alignSelf: "center",
 	},
 	errorCross: {
-		height: 35,
-		width: 35,
-		marginTop: -5,
+		height: 30,
+		width: 30,
+		marginTop: -3,
+		marginLeft: -1,
+		top: 0,
 	},
 });
 
