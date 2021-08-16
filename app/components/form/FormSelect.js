@@ -77,7 +77,7 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 
 	useEffect(() => {
 		const newValue = getValueToSet(value, defaultValue, multiple);
-		if (currentValue !== newValue) checkValue(newValue);
+		if (currentValue !== newValue) checkValue(newValue, false);
 	}, [value]);
 
 	useEffect(() => {
@@ -89,10 +89,10 @@ const FormSelect = ({ data, value, onItemSelected, allowsCustomValue, selected, 
 		else setInputValue(currentValue);
 	}, [currentValue]);
 
-	const checkValue = (value) => {
+	const checkValue = (value, callOnChange = true) => {
 		setCurrentValue(value);
 		const valid = validate(true, value);
-		if (onChange) onChange(value, valid);
+		if (onChange && callOnChange) onChange(value, valid);
 	};
 
 	const validate = (feedback = false, value = null) => {

@@ -38,13 +38,13 @@ const FormInput = ({
 	}, [errorLabel]);
 
 	useEffect(() => {
-		if (currentValue !== value) checkValue(value);
+		if (currentValue !== value) checkValue(value, false);
 	}, [value]);
 
-	const checkValue = (text) => {
+	const checkValue = (text, callOnChange = true) => {
 		setCurrentValue(text);
 		const valid = validate(true, text);
-		if (onChange) onChange(text, valid);
+		if (onChange && callOnChange) onChange(text, valid);
 	};
 
 	const validate = (feedback = false, value = null) => {
