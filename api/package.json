@@ -7,7 +7,7 @@
 	"private": true,
 	"scripts": {
 		"start": "node server",
-		"dev": "nodemon server",
+		"dev": "nodemon --ignore ./storage/ server",
 		"secret": "node generateSecret",
 		"uuid": "node generateUuid"
 	},

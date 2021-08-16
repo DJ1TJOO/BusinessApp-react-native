@@ -683,7 +683,33 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 	// Hash new password
 	pwd = bcrypt.hashSync(newPassword, 12);
 
-	// TODO: invalidate tokens
+	// Check if invalid tokens file exists
+	if (!fs.existsSync(process.env.INVALID_TOKENS_LOCATION)) {
+		// Make dir
+		const dirname = path.dirname(process.env.INVALID_TOKENS_LOCATION);
+		if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, { recursive: true });
+
+		// Make file
+		fs.writeFileSync(process.env.INVALID_TOKENS_LOCATION, JSON.stringify({ invalid_tokens: [] }));
+	}
+
+	// Make tokens invalid
+	const invalidTokens = JSON.parse(fs.readFileSync(process.env.INVALID_TOKENS_LOCATION));
+
+	// Remove existing
+	const invalidToken = invalidTokens.invalid_tokens.findIndex((x) => x.id === userId);
+	if (invalidToken >= 0) {
+		invalidTokens.invalid_tokens.splice(invalidToken, 1);
+	}
+
+	// Add
+	invalidTokens.invalid_tokens.push({
+		id: userId,
+		date: Date.now(),
+	});
+
+	// Update json
+	fs.writeFileSync(process.env.INVALID_TOKENS_LOCATION, JSON.stringify(invalidTokens));
 
 	try {
 		// Insert user into db
@@ -778,7 +804,33 @@ users.patch("/:id", async (req, res) => {
 				// Hash new password
 				pwd = bcrypt.hashSync(newPassword, 12);
 
-				// TODO: invalidate tokens
+				// Check if invalid tokens file exists
+				if (!fs.existsSync(process.env.INVALID_TOKENS_LOCATION)) {
+					// Make dir
+					const dirname = path.dirname(process.env.INVALID_TOKENS_LOCATION);
+					if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, { recursive: true });
+
+					// Make file
+					fs.writeFileSync(process.env.INVALID_TOKENS_LOCATION, JSON.stringify({ invalid_tokens: [] }));
+				}
+
+				// Make tokens invalid
+				const invalidTokens = JSON.parse(fs.readFileSync(process.env.INVALID_TOKENS_LOCATION));
+
+				// Remove existing
+				const invalidToken = invalidTokens.invalid_tokens.findIndex((x) => x.id === id);
+				if (invalidToken >= 0) {
+					invalidTokens.invalid_tokens.splice(invalidToken, 1);
+				}
+
+				// Add
+				invalidTokens.invalid_tokens.push({
+					id: id,
+					date: Date.now(),
+				});
+
+				// Update json
+				fs.writeFileSync(process.env.INVALID_TOKENS_LOCATION, JSON.stringify(invalidTokens));
 
 				hasPassword = true;
 			}

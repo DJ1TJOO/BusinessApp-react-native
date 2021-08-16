@@ -1,3 +1,4 @@
+const fs = require("fs");
 const jwt = require("jsonwebtoken");
 
 const { promisePool: db } = require("./db");
@@ -21,6 +22,39 @@ const authToken = async (req, res, next) => {
 		}
 
 		const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+		// Check if invalid tokens file exists
+		if (!fs.existsSync(process.env.INVALID_TOKENS_LOCATION)) {
+			// Make dir
+			const dirname = path.dirname(process.env.INVALID_TOKENS_LOCATION);
+			if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, { recursive: true });
+
+			// Make file
+			fs.writeFileSync(process.env.INVALID_TOKENS_LOCATION, JSON.stringify({ invalid_tokens: [] }));
+		}
+
+		// Check if token is still valid
+		const invalidTokens = JSON.parse(fs.readFileSync(process.env.INVALID_TOKENS_LOCATION));
+		const invalidToken = invalidTokens.invalid_tokens.find((x) => x.id === decodedToken.id);
+		if (invalidToken) {
+			// Check if all invalid tokens must be expired
+			if (Date.now() - invalidToken.date > 1000 * 60 * 60 * 24 * process.env.JWT_TOKEN_EXPIRATION) {
+				// Delete from list
+				invalidTokens.invalid_tokens.splice(invalidTokens.invalid_tokens.indexOf(invalidToken), 1);
+			}
+
+			// Update json
+			fs.writeFileSync(process.env.INVALID_TOKENS_LOCATION, JSON.stringify(invalidTokens));
+
+			if (invalidToken.date > decodedToken.iat * 1000) {
+				// Something changed on the user token is not valid
+				// Return status 401 (failed authentication)
+				return res.status(401).json({
+					success: false,
+					error: "failed_authentication",
+				});
+			}
+		}
 
 		const [results] = await db.query(`SELECT count(*) FROM users WHERE id = ?`, [decodedToken.id]);
 

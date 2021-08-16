@@ -34,7 +34,7 @@ login.post("/", async (req, res) => {
 		}
 
 		const token = jwt.sign({ id: user.id, email: user.email, businessId: business_results[0].id }, process.env.JWT_SECRET, {
-			expiresIn: "1d",
+			expiresIn: `${process.env.JWT_TOKEN_EXPIRATION}d`,
 		});
 
 		res.send({
@@ -57,7 +57,7 @@ login.post("/", async (req, res) => {
 
 login.post("/validate", authToken, async (req, res) => {
 	const token = jwt.sign({ id: req.token.id, email: req.token.email, businessId: req.token.businessId }, process.env.JWT_SECRET, {
-		expiresIn: "1d",
+		expiresIn: `${process.env.JWT_TOKEN_EXPIRATION}d`,
 	});
 
 	const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [req.token.id]);
