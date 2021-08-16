@@ -40,4 +40,11 @@ const handleError = async (error) => {
 const fetchWithTimeout = async (url, options = null, timeout = 10000) =>
 	Promise.race([fetch(url, options), new Promise((_, reject) => setTimeout(() => reject(new Error("servers-timeout")), timeout))]);
 
-export default { handleError, fetchWithTimeout };
+const uuidv4 = () =>
+	"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+		var r = (Math.random() * 16) | 0,
+			v = c == "x" ? r : (r & 0x3) | 0x8;
+		return v.toString(16);
+	});
+
+export default { handleError, fetchWithTimeout, uuidv4 };

@@ -19,6 +19,29 @@ import languagesUtils from "../../languages/utils";
 
 import utils from "../../utils";
 
+/**
+ *
+ * @param {{
+ * 	name: String,
+ * 	hours: Array<{
+ * 	id: String,
+ * 	hours_id: String,
+ *	project: String,
+ *	description: String,
+ *	hours: Array<String>
+ * }>}>,
+ * setHours: (hours: Array<{
+ * 	id: String,
+ * 	hours_id: String,
+ *	project: String,
+ *	description: String,
+ *	hours: Array<String>
+ * }>}>) => void,
+ * hoursIndex: Number,
+ * canSelect: Boolean
+ * }} param0
+ * @returns
+ */
 const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 	return (
 		<View style={styles.column}>
@@ -34,7 +57,20 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 							return b + c.replace(/\./g, "");
 						});
 						currentText = currentText.replace(/[^0-9.]/g, "");
-						hours[index].hours[hoursIndex] = currentText;
+
+						hours = hours.map((x) => {
+							if (x.id === project.id) {
+								const newHours = [...x.hours];
+								newHours[hoursIndex] = currentText;
+								return {
+									...x,
+									hours: newHours,
+								};
+							} else {
+								return x;
+							}
+						});
+
 						setHours([...hours]);
 					}}
 					onEndEditing={(e) => {
@@ -45,14 +81,28 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 								return b + c.replace(/\./g, "");
 							});
 							currentText = currentText.replace(/[^0-9.]/g, "");
-							hours[index].hours[hoursIndex] = Number(currentText).toString();
+
+							hours = hours.map((x) => {
+								if (x.id === project.id) {
+									const newHours = [...x.hours];
+									newHours[hoursIndex] = Number(currentText).toString();
+									return {
+										...x,
+										hours: newHours,
+									};
+								} else {
+									return x;
+								}
+							});
+
 							setHours([...hours]);
 						} catch (error) {}
 					}}
 					keyboardType={"decimal-pad"}
-					key={index}
+					key={project.id}
+					test={index}
 					style={styles.hours}
-					value={project.hours[hoursIndex]}
+					value={hours[index].hours[hoursIndex]}
 					autoCapitalize="words"
 				/>
 			))}
@@ -70,6 +120,30 @@ const HoursColumn = ({ name, hours, setHours, hoursIndex, canSelect }) => {
 
 const emptyProject = { project: "Project", description: "", hours: ["0", "0", "0", "0", "0", "0", "0"] };
 
+/**
+ *
+ * @param {Array<{
+ * 	id: String,
+ *	hours_id: String,
+ *	project: String,
+ *	projectName: String,
+ *	description: String,
+ *	monday: Number,
+ *	tuesday: Number,
+ *	wednesday: Number,
+ *	thursday: Number,
+ *	friday: Number,
+ *	saturday: Number,
+ *	sunday: Number,
+ * }>} currentHours
+ * @returns {Array<{
+ * 	id: String,
+ * 	hours_id: String,
+ *	project: String,
+ *	description: String,
+ *	hours: Array<String>
+ * }>}
+ */
 const convertDataToHours = (currentHours) => {
 	return currentHours.hours.map((x) => ({
 		id: x.id,
@@ -280,21 +354,12 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 	const [currentError, setCurrentError] = useState();
 
 	// TODO: get projects
-	const projects = [
-		"Huizen - 113133",
-		"Maarsen - 123431",
-		"Amsterdam - 534654",
-		"Rotterdam - 976354",
-		"Den Haag - 145263",
-		"Groningen - 235175",
-		"Amsterdam - 3637474",
-		"Rotterdam - 2636575",
-	];
+	const projects = ["Huizen - testproject", "Maarsen", "Amsterdam - testproject", "Rotterdam", "Den Haag", "Groningen", "Amsterdam", "Rotterdam - 2636575"];
 
 	const { year, week } = route.params;
 	const currentHours = data.hours.find((x) => x.year === year && x.week === week);
 
-	const [hours, setHours] = useState(currentHours ? convertDataToHours(currentHours) : [{ ...emptyProject }]);
+	const [hours, setHours] = useState(currentHours ? convertDataToHours(currentHours) : [{ ...emptyProject, id: utils.uuidv4() }]);
 	const [currentProjectSelector, setCurrentProjectSelector] = useState(-1);
 	const [canSelect, setCanSelect] = useState(true);
 
@@ -334,7 +399,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 							<Text style={styles.name}>Project</Text>
 							{hours.map((project, index) => {
 								return (
-									<View key={index}>
+									<View key={project.id}>
 										<FormSelect
 											allowsCustomValue={true}
 											editable={canSelect}
@@ -376,7 +441,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 										hours[index].description = e.nativeEvent.text || "";
 										setHours([...hours]);
 									}}
-									key={index}
+									key={project.id}
 									style={[styles.project, { width: Dimensions.get("window").width - 20 }]}
 									value={project.description}
 								/>
@@ -400,7 +465,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 						<View style={styles.column}>
 							<Text style={styles.total}>Totaal</Text>
 							{hours.map((project, index) => (
-								<View key={index}>
+								<View key={project.id}>
 									<View
 										style={{
 											backgroundColor: Colors.primary,
@@ -430,12 +495,10 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 							<Text style={styles.name}> </Text>
 							{hours.map((project, index) => (
 								<TouchableOpacity
-									key={index}
+									key={project.id}
 									style={styles.remove}
 									onPress={() => {
 										if (!canSelect) return;
-
-										// TODO: fix project name on delete
 
 										hours.splice(index, 1);
 										setHours([...hours]);
@@ -450,7 +513,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 				<TouchableOpacity
 					style={styles.add}
 					onPress={() => {
-						hours.push({ ...emptyProject });
+						hours.push({ ...emptyProject, id: utils.uuidv4() });
 						setHours([...hours]);
 					}}
 				>
