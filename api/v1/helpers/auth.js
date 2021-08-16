@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const { promisePool: db } = require("./db");
 
-const authToken = (req, res, next) => {
+const authToken = async (req, res, next) => {
 	try {
 		let token = req.body.token;
 
@@ -21,6 +21,18 @@ const authToken = (req, res, next) => {
 		}
 
 		const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+		const [results] = await db.query(`SELECT count(*) FROM users WHERE id = ?`, [decodedToken.id]);
+
+		// User not found
+		if (results[0]["count(*)"] < 1) {
+			// Return status 401 (failed authentication)
+			return res.status(401).json({
+				success: false,
+				error: "failed_authentication",
+			});
+		}
+
 		req.token = decodedToken;
 
 		next();
