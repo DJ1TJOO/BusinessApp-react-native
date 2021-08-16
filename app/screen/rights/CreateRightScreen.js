@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormInput from "../../components/form/FormInput";
 import FormSelect from "../../components/form/FormSelect";
-import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
 
 import config from "../../config/config";
@@ -64,56 +64,57 @@ const CreateRightScreen = ({ navigation, route }) => {
 
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
-			<Heading title="Recht toevoegen" />
-			<FormInput label="Naam" textContentType="name" {...getFormProps("name")} />
-			<FormSelect label="Rechten" multiple={true} defaultValue={["Geen rechten"]} data={rights.map((x) => x.name)} {...getFormProps("rights")} />
-			<FormButton
-				onPress={async () => {
-					const valid = validate();
-					if (valid !== true) {
-						setCurrentError(valid.error);
-						return;
-					}
-
-					try {
-						setCurrentError(null);
-
-						// Create right
-						const bodyRight = {
-							businessId: data.user.business_id,
-							name: formData.name.value,
-							rights: formData.rights.value.map((x) => rights.find((y) => y.name === x)?.id),
-						};
-
-						const resRight = await utils
-							.fetchWithTimeout(config.api + "rights/", {
-								method: "POST",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify(bodyRight),
-							})
-							.then((res) => res.json());
-
-						if (resRight.success) {
-							navigation.navigate("Rights", { date: Date.now() });
-						} else {
-							// Display error
-							setCurrentError(
-								languagesUtils.convertError(data.language, resRight, bodyRight, "rechten", {
-									name: "de naam",
-									rights: "de rechten",
-								})
-							);
+			<Form title="Recht toevoegen">
+				<FormInput label="Naam" textContentType="name" {...getFormProps("name")} />
+				<FormSelect label="Rechten" multiple={true} defaultValue={["Geen rechten"]} data={rights.map((x) => x.name)} {...getFormProps("rights")} />
+				<FormButton
+					onPress={async () => {
+						const valid = validate();
+						if (valid !== true) {
+							setCurrentError(valid.error);
+							return;
 						}
-					} catch (error) {
-						utils.handleError(error);
-					}
-				}}
-			>
-				Recht toevoegen
-			</FormButton>
+
+						try {
+							setCurrentError(null);
+
+							// Create right
+							const bodyRight = {
+								businessId: data.user.business_id,
+								name: formData.name.value,
+								rights: formData.rights.value.map((x) => rights.find((y) => y.name === x)?.id),
+							};
+
+							const resRight = await utils
+								.fetchWithTimeout(config.api + "rights/", {
+									method: "POST",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(bodyRight),
+								})
+								.then((res) => res.json());
+
+							if (resRight.success) {
+								navigation.navigate("Rights", { date: Date.now() });
+							} else {
+								// Display error
+								setCurrentError(
+									languagesUtils.convertError(data.language, resRight, bodyRight, "rechten", {
+										name: "de naam",
+										rights: "de rechten",
+									})
+								);
+							}
+						} catch (error) {
+							utils.handleError(error);
+						}
+					}}
+				>
+					Recht toevoegen
+				</FormButton>
+			</Form>
 		</Wrapper>
 	);
 };

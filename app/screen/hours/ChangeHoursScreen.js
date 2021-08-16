@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Form from "../../components/form/Form";
 
 import FormButton from "../../components/form/FormButton";
 import FormInput from "../../components/form/FormInput";
@@ -305,208 +306,213 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError} setError={setCurrentError}>
-			<View style={styles.header}>
-				<Heading title={`Uren week ${currentHours.week} (${currentHours.year})`} />
-				{hours.valid === true ? <IconCheck style={styles.icon} /> : hours.valid === false ? <IconCross style={styles.icon} /> : null}
-			</View>
-			{hours.length > 0 && (
-				<ScrollView
-					onScrollBeginDrag={() => {
-						setCurrentProjectSelector(-1);
-						setCanSelect(false);
-					}}
-					onScrollEndDrag={() => {
-						setCanSelect(true);
-					}}
-					keyboardShouldPersistTaps="handled"
-					nestedScrollEnabled={true}
-					horizontal={true}
-					style={styles.row}
-					decelerationRate={0}
-					snapToOffsets={offsets}
-				>
-					<View style={styles.column}>
-						<Text style={styles.name}>Project</Text>
-						{hours.map((project, index) => {
-							return (
-								<View key={index}>
-									<FormSelect
-										allowsCustomValue={true}
-										editable={canSelect}
-										style={[styles.project, { width: Dimensions.get("window").width - 20 }]}
-										data={projects}
-										value={project.project}
-										onChange={(text) => {
-											hours[index].project = text;
-											setHours([...hours]);
-										}}
-										selected={currentProjectSelector === index}
-										onSelected={(selected) => {
-											if (selected) setCurrentProjectSelector(index);
-											else setCurrentProjectSelector(-1);
-										}}
-									/>
-								</View>
-							);
-						})}
-						<View
-							style={{
-								backgroundColor: Colors.primary,
-								height: 2,
-								width: "100%",
-							}}
-						/>
-						<Text style={styles.total}>Totaal</Text>
+			<Form
+				header={
+					<View style={styles.header}>
+						<Heading title={`Uren week ${currentHours.week} (${currentHours.year})`} />
+						{currentHours.valid === true ? <IconCheck style={styles.icon} /> : currentHours.valid === false ? <IconCross style={styles.icon} /> : null}
 					</View>
-					<View style={styles.column}>
-						<Text style={styles.name}>Omschrijving</Text>
-						{hours.map((project, index) => (
-							<FormInput
-								editable={canSelect}
-								onChange={(text) => {
-									hours[index].description = text;
-									setHours([...hours]);
+				}
+			>
+				{hours.length > 0 && (
+					<ScrollView
+						onScrollBeginDrag={() => {
+							setCurrentProjectSelector(-1);
+							setCanSelect(false);
+						}}
+						onScrollEndDrag={() => {
+							setCanSelect(true);
+						}}
+						keyboardShouldPersistTaps="handled"
+						nestedScrollEnabled={true}
+						horizontal={true}
+						style={styles.row}
+						decelerationRate={0}
+						snapToOffsets={offsets}
+					>
+						<View style={styles.column}>
+							<Text style={styles.name}>Project</Text>
+							{hours.map((project, index) => {
+								return (
+									<View key={index}>
+										<FormSelect
+											allowsCustomValue={true}
+											editable={canSelect}
+											style={[styles.project, { width: Dimensions.get("window").width - 20 }]}
+											data={projects}
+											value={project.project}
+											onChange={(text) => {
+												hours[index].project = text;
+												setHours([...hours]);
+											}}
+											selected={currentProjectSelector === index}
+											onSelected={(selected) => {
+												if (selected) setCurrentProjectSelector(index);
+												else setCurrentProjectSelector(-1);
+											}}
+										/>
+									</View>
+								);
+							})}
+							<View
+								style={{
+									backgroundColor: Colors.primary,
+									height: 2,
+									width: "100%",
 								}}
-								onEndEditing={(e) => {
-									hours[index].description = e.nativeEvent.text || "";
-									setHours([...hours]);
-								}}
-								key={index}
-								style={[styles.project, { width: Dimensions.get("window").width - 20 }]}
-								value={project.description}
 							/>
-						))}
-						<View
-							style={{
-								backgroundColor: Colors.primary,
-								height: 2,
-								width: "100%",
-							}}
-						/>
-					</View>
-					<HoursColumn hours={hours} setHours={setHours} hoursIndex={0} name="Maandag" canSelect={canSelect} />
-					<HoursColumn hours={hours} setHours={setHours} hoursIndex={1} name="Dinsdag" canSelect={canSelect} />
-					<HoursColumn hours={hours} setHours={setHours} hoursIndex={2} name="Woensdag" canSelect={canSelect} />
-					<HoursColumn hours={hours} setHours={setHours} hoursIndex={3} name="Donderdag" canSelect={canSelect} />
-					<HoursColumn hours={hours} setHours={setHours} hoursIndex={4} name="Vrijdag" canSelect={canSelect} />
-					<HoursColumn hours={hours} setHours={setHours} hoursIndex={5} name="Zaterdag" canSelect={canSelect} />
-					<HoursColumn hours={hours} setHours={setHours} hoursIndex={6} name="Zondag" canSelect={canSelect} />
+							<Text style={styles.total}>Totaal</Text>
+						</View>
+						<View style={styles.column}>
+							<Text style={styles.name}>Omschrijving</Text>
+							{hours.map((project, index) => (
+								<FormInput
+									editable={canSelect}
+									onChange={(text) => {
+										hours[index].description = text;
+										setHours([...hours]);
+									}}
+									onEndEditing={(e) => {
+										hours[index].description = e.nativeEvent.text || "";
+										setHours([...hours]);
+									}}
+									key={index}
+									style={[styles.project, { width: Dimensions.get("window").width - 20 }]}
+									value={project.description}
+								/>
+							))}
+							<View
+								style={{
+									backgroundColor: Colors.primary,
+									height: 2,
+									width: "100%",
+								}}
+							/>
+						</View>
+						<HoursColumn hours={hours} setHours={setHours} hoursIndex={0} name="Maandag" canSelect={canSelect} />
+						<HoursColumn hours={hours} setHours={setHours} hoursIndex={1} name="Dinsdag" canSelect={canSelect} />
+						<HoursColumn hours={hours} setHours={setHours} hoursIndex={2} name="Woensdag" canSelect={canSelect} />
+						<HoursColumn hours={hours} setHours={setHours} hoursIndex={3} name="Donderdag" canSelect={canSelect} />
+						<HoursColumn hours={hours} setHours={setHours} hoursIndex={4} name="Vrijdag" canSelect={canSelect} />
+						<HoursColumn hours={hours} setHours={setHours} hoursIndex={5} name="Zaterdag" canSelect={canSelect} />
+						<HoursColumn hours={hours} setHours={setHours} hoursIndex={6} name="Zondag" canSelect={canSelect} />
 
-					<View style={styles.column}>
-						<Text style={styles.total}>Totaal</Text>
-						{hours.map((project, index) => (
-							<View key={index}>
-								<View
-									style={{
-										backgroundColor: Colors.primary,
-										height: 38,
-										width: 2,
-										marginTop: -5,
-										marginBottom: 10,
+						<View style={styles.column}>
+							<Text style={styles.total}>Totaal</Text>
+							{hours.map((project, index) => (
+								<View key={index}>
+									<View
+										style={{
+											backgroundColor: Colors.primary,
+											height: 38,
+											width: 2,
+											marginTop: -5,
+											marginBottom: 10,
+										}}
+									>
+										<Text style={styles.totalValue}>{project.hours.reduce((currentValue, hours) => (currentValue += Number(hours)), 0)}</Text>
+									</View>
+								</View>
+							))}
+							<View
+								style={{
+									backgroundColor: Colors.primary,
+									height: 2,
+									width: "100%",
+									marginTop: -5,
+								}}
+							/>
+							<Text style={styles.totalValue}>
+								{hours.reduce((currentValue, project) => (currentValue += project.hours.reduce((currentValue, hours) => (currentValue += Number(hours)), 0)), 0)}
+							</Text>
+						</View>
+						<View style={styles.column}>
+							<Text style={styles.name}> </Text>
+							{hours.map((project, index) => (
+								<TouchableOpacity
+									key={index}
+									style={styles.remove}
+									onPress={() => {
+										if (!canSelect) return;
+
+										// TODO: fix project name on delete
+
+										hours.splice(index, 1);
+										setHours([...hours]);
 									}}
 								>
-									<Text style={styles.totalValue}>{project.hours.reduce((currentValue, hours) => (currentValue += Number(hours)), 0)}</Text>
-								</View>
-							</View>
-						))}
-						<View
-							style={{
-								backgroundColor: Colors.primary,
-								height: 2,
-								width: "100%",
-								marginTop: -5,
-							}}
-						/>
-						<Text style={styles.totalValue}>
-							{hours.reduce((currentValue, project) => (currentValue += project.hours.reduce((currentValue, hours) => (currentValue += Number(hours)), 0)), 0)}
-						</Text>
-					</View>
-					<View style={styles.column}>
-						<Text style={styles.name}> </Text>
-						{hours.map((project, index) => (
-							<TouchableOpacity
-								key={index}
-								style={styles.remove}
-								onPress={() => {
-									if (!canSelect) return;
-
-									// TODO: fix project name on delete
-
-									hours.splice(index, 1);
-									setHours([...hours]);
-								}}
-							>
-								<IconRemove style={styles.removeIcon} />
-							</TouchableOpacity>
-						))}
-					</View>
-				</ScrollView>
-			)}
-			<TouchableOpacity
-				style={styles.add}
-				onPress={() => {
-					hours.push({ ...emptyProject });
-					setHours([...hours]);
-				}}
-			>
-				<IconAdd style={styles.addIcon} />
-			</TouchableOpacity>
-			<FormButton
-				invert={true}
-				onPress={async () => {
-					if (!(await update(data, currentHours, hours, setCurrentError))) return;
-					navigation.navigate("Hours");
-				}}
-			>
-				Aanpassen
-			</FormButton>
-			{hours.length > 0 && convertHoursToData(hours).length > 0 && (
-				<FormButton
-					onPress={async () => {
-						try {
-							if (!(await update(data, currentHours, hours, setCurrentError))) return;
-
-							// Submit hours
-							const res = await utils
-								.fetchWithTimeout(`${config.api}hours/${currentHours.id}`, {
-									method: "PATCH",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify({
-										submitted: true,
-										valid: null,
-									}),
-								})
-								.then((res) => res.json());
-							if (!res.success) {
-								setCurrentError(
-									languagesUtils.convertError(data.language, res, { submitted: true, valid: null }, "uren", {
-										submitted: "ingediend",
-										valid: "valide",
-									})
-								);
-
-								return;
-							}
-
-							// Set submitted
-							currentHours.submitted = true;
-
-							// Update data
-							setData({ ...data });
-
-							// Update hours
-							navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
-						} catch (error) {
-							utils.handleError(error);
-						}
+									<IconRemove style={styles.removeIcon} />
+								</TouchableOpacity>
+							))}
+						</View>
+					</ScrollView>
+				)}
+				<TouchableOpacity
+					style={styles.add}
+					onPress={() => {
+						hours.push({ ...emptyProject });
+						setHours([...hours]);
 					}}
 				>
-					Inleveren
+					<IconAdd style={styles.addIcon} />
+				</TouchableOpacity>
+				<FormButton
+					invert={true}
+					onPress={async () => {
+						if (!(await update(data, currentHours, hours, setCurrentError))) return;
+						navigation.navigate("Hours");
+					}}
+				>
+					Aanpassen
 				</FormButton>
-			)}
+				{hours.length > 0 && convertHoursToData(hours).length > 0 && (
+					<FormButton
+						onPress={async () => {
+							try {
+								if (!(await update(data, currentHours, hours, setCurrentError))) return;
+
+								// Submit hours
+								const res = await utils
+									.fetchWithTimeout(`${config.api}hours/${currentHours.id}`, {
+										method: "PATCH",
+										headers: {
+											Accept: "application/json",
+											"Content-Type": "application/json",
+										},
+										body: JSON.stringify({
+											submitted: true,
+											valid: null,
+										}),
+									})
+									.then((res) => res.json());
+								if (!res.success) {
+									setCurrentError(
+										languagesUtils.convertError(data.language, res, { submitted: true, valid: null }, "uren", {
+											submitted: "ingediend",
+											valid: "valide",
+										})
+									);
+
+									return;
+								}
+
+								// Set submitted
+								currentHours.submitted = true;
+
+								// Update data
+								setData({ ...data });
+
+								// Update hours
+								navigation.navigate("Hours", { update: [currentHours.year], date: Date.now() });
+							} catch (error) {
+								utils.handleError(error);
+							}
+						}}
+					>
+						Inleveren
+					</FormButton>
+				)}
+			</Form>
 		</Wrapper>
 	);
 };
@@ -526,8 +532,9 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 	},
 	icon: {
-		width: 35,
-		height: 35,
+		width: 30,
+		height: 30,
+		top: 5,
 		marginLeft: 10,
 		marginTop: 2,
 	},

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormDate from "../../components/form/FormDate";
 import FormInput from "../../components/form/FormInput";
@@ -135,206 +136,207 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError} confirmation={currentConfirmation}>
-			<Heading
+			<Form
 				icon={Heading.BACK_ICON}
 				title={route.params?.firstname + " " + route.params?.lastname}
 				onPress={() => {
 					navigation.navigate("Member", route.params);
 				}}
-			/>
-			<FormInput label="Voornaam" textContentType="name" {...getFormProps("firstname")} />
-			<FormInput label="Achternaam" textContentType="name" {...getFormProps("lastname")} />
-			<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
-			<FormDate
-				label="Geboorte datum"
-				links={[
-					{
-						text: () => "1960",
-						date: function () {
-							return new Date("1960");
-						},
-					},
-					{
-						text: () => "1970",
-						date: function () {
-							return new Date("1970");
-						},
-					},
-					{
-						text: () => "1980",
-						date: function () {
-							return new Date("1980");
-						},
-					},
-					{
-						text: () => "1990",
-						date: function () {
-							return new Date("1990");
-						},
-					},
-					{
-						text: () => "2000",
-						date: function () {
-							return new Date("2000");
-						},
-					},
-				]}
-				{...getFormProps("born")}
-			/>
-			<FormInput label="Functie omschrijving" textContentType="jobTitle" {...getFormProps("function")} />
-			<FormSelect label="Team(s)" multiple={true} defaultValue={["Geen team"]} data={teams.map((x) => x.name)} {...getFormProps("teams")} />
-			<FormSelect label="Rechten" defaultValue={"Geen rechten"} data={rights.map((x) => x.name)} {...getFormProps("rightId")} />
-			<FormButton
-				onPress={async () => {
-					const valid = validate();
-					if (valid !== true) {
-						setCurrentError(valid.error);
-						return;
-					}
-
-					try {
-						setCurrentError(null);
-
-						// Update user
-						const bodyUser = {
-							firstName: formData.firstname.value !== route.params.firstname ? formData.firstname.value : undefined,
-							lastName: formData.lastname.value !== route.params.lastname ? formData.lastname.value : undefined,
-							email: formData.email.value !== route.params.email ? formData.email.value : undefined,
-							born: formData.born.value !== new Date(route.params.born) ? formData.born.value : undefined,
-							rightId:
-								rights.find((x) => x.name === formData.rightId.value)?.id !== route.params.rightId
-									? rights.find((x) => x.name === formData.rightId.value)?.id
-									: undefined,
-						};
-
-						if (formData.function.value && formData.function.value !== route.params.function) bodyUser.functionDescription = formData.function.value;
-
-						const resUser = await utils
-							.fetchWithTimeout(config.api + "users/" + route.params.id, {
-								method: "PATCH",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify(bodyUser),
-							})
-							.then((res) => res.json());
-
-						if (resUser.success) {
-							// Add/Remove user to/from teams
-							if (formData.teams.value && formData.teams.value !== route.params.teams) {
-								const teamsToAdd = formData.teams.value.filter((x) => !route.params.teams.includes(x));
-								const teamsToRemove = route.params.teams.filter((x) => !formData.teams.value.includes(x));
-
-								for (let i = 0; i < teamsToAdd.length; i++) {
-									const team = teams.find((x) => x.name === teamsToAdd[i]);
-									if (!team) continue;
-
-									// Add user to team
-									const resTeam = await utils
-										.fetchWithTimeout(config.api + "teams/" + team.id, {
-											method: "POST",
-											headers: {
-												Accept: "application/json",
-												"Content-Type": "application/json",
-											},
-											body: JSON.stringify({
-												userId: resUser.data.id,
-											}),
-										})
-										.then((res) => res.json());
-
-									// Failed to add to team
-									if (!resTeam.success) {
-										// Display error
-										setCurrentError(
-											languagesUtils.convertError(data.language, resTeam, { userId: resUser.data.id }, "teams", {
-												userId: "gebruiker",
-											})
-										);
-										return;
-									}
-								}
-
-								for (let i = 0; i < teamsToRemove.length; i++) {
-									const team = teams.find((x) => x.name === teamsToRemove[i]);
-									if (!team) continue;
-
-									// Remove user from team
-									const resTeam = await utils
-										.fetchWithTimeout(config.api + "teams/" + team.id + "/" + route.params.id, {
-											method: "DELETE",
-										})
-										.then((res) => res.json());
-
-									// Failed to remove from team
-									if (!resTeam.success) {
-										// Display error
-										setCurrentError(languagesUtils.convertError(data.language, resTeam, {}, "teams", {}));
-										return;
-									}
-								}
-							}
-
-							navigation.navigate("Members", { date: Date.now() });
-						} else {
-							// Display error
-							setCurrentError(
-								languagesUtils.convertError(data.language, resUser, bodyUser, "gebruiker", {
-									firstName: "de voornaam",
-									lastName: "de achternaam",
-									email: "de email",
-									born: "de geboorte datum",
-									functionDescription: "de functie omschrijving",
-								})
-							);
-						}
-					} catch (error) {
-						utils.handleError(error);
-					}
-				}}
 			>
-				Aanpassen
-			</FormButton>
-			<FormButton
-				bad={true}
-				onPress={() => {
-					setCurrentConfirmation({
-						question: "Weet u zeker dat u de gebruiker '" + route.params?.firstname + " " + route.params?.lastname + "' wilt verwijderen?",
-						buttons: {
-							accept: "Verwijder",
-							cancel: "Annuleer",
-						},
-						events: {
-							onAccept: async () => {
-								try {
-									const res = await utils
-										.fetchWithTimeout(config.api + "users/" + route.params.id, {
-											method: "DELETE",
-										})
-										.then((res) => res.json());
-
-									// Failed to delete
-									if (!res.success) {
-										// Display error
-										setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
-										return;
-									}
-
-									// TODO: delete from all tables (ex: teams, chats)
-
-									navigation.navigate("Members", { date: Date.now() });
-								} catch (error) {
-									utils.handleError(error);
-								}
+				<FormInput label="Voornaam" textContentType="name" {...getFormProps("firstname")} />
+				<FormInput label="Achternaam" textContentType="name" {...getFormProps("lastname")} />
+				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
+				<FormDate
+					label="Geboorte datum"
+					links={[
+						{
+							text: () => "1960",
+							date: function () {
+								return new Date("1960");
 							},
-							onCancel: () => {},
 						},
-					});
-				}}
-			>
-				Verwijderen
-			</FormButton>
+						{
+							text: () => "1970",
+							date: function () {
+								return new Date("1970");
+							},
+						},
+						{
+							text: () => "1980",
+							date: function () {
+								return new Date("1980");
+							},
+						},
+						{
+							text: () => "1990",
+							date: function () {
+								return new Date("1990");
+							},
+						},
+						{
+							text: () => "2000",
+							date: function () {
+								return new Date("2000");
+							},
+						},
+					]}
+					{...getFormProps("born")}
+				/>
+				<FormInput label="Functie omschrijving" textContentType="jobTitle" {...getFormProps("function")} />
+				<FormSelect label="Team(s)" multiple={true} defaultValue={["Geen team"]} data={teams.map((x) => x.name)} {...getFormProps("teams")} />
+				<FormSelect label="Rechten" defaultValue={"Geen rechten"} data={rights.map((x) => x.name)} {...getFormProps("rightId")} />
+				<FormButton
+					onPress={async () => {
+						const valid = validate();
+						if (valid !== true) {
+							setCurrentError(valid.error);
+							return;
+						}
+
+						try {
+							setCurrentError(null);
+
+							// Update user
+							const bodyUser = {
+								firstName: formData.firstname.value !== route.params.firstname ? formData.firstname.value : undefined,
+								lastName: formData.lastname.value !== route.params.lastname ? formData.lastname.value : undefined,
+								email: formData.email.value !== route.params.email ? formData.email.value : undefined,
+								born: formData.born.value !== new Date(route.params.born) ? formData.born.value : undefined,
+								rightId:
+									rights.find((x) => x.name === formData.rightId.value)?.id !== route.params.rightId
+										? rights.find((x) => x.name === formData.rightId.value)?.id
+										: undefined,
+							};
+
+							if (formData.function.value && formData.function.value !== route.params.function) bodyUser.functionDescription = formData.function.value;
+
+							const resUser = await utils
+								.fetchWithTimeout(config.api + "users/" + route.params.id, {
+									method: "PATCH",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(bodyUser),
+								})
+								.then((res) => res.json());
+
+							if (resUser.success) {
+								// Add/Remove user to/from teams
+								if (formData.teams.value && formData.teams.value !== route.params.teams) {
+									const teamsToAdd = formData.teams.value.filter((x) => !route.params.teams.includes(x));
+									const teamsToRemove = route.params.teams.filter((x) => !formData.teams.value.includes(x));
+
+									for (let i = 0; i < teamsToAdd.length; i++) {
+										const team = teams.find((x) => x.name === teamsToAdd[i]);
+										if (!team) continue;
+
+										// Add user to team
+										const resTeam = await utils
+											.fetchWithTimeout(config.api + "teams/" + team.id, {
+												method: "POST",
+												headers: {
+													Accept: "application/json",
+													"Content-Type": "application/json",
+												},
+												body: JSON.stringify({
+													userId: resUser.data.id,
+												}),
+											})
+											.then((res) => res.json());
+
+										// Failed to add to team
+										if (!resTeam.success) {
+											// Display error
+											setCurrentError(
+												languagesUtils.convertError(data.language, resTeam, { userId: resUser.data.id }, "teams", {
+													userId: "gebruiker",
+												})
+											);
+											return;
+										}
+									}
+
+									for (let i = 0; i < teamsToRemove.length; i++) {
+										const team = teams.find((x) => x.name === teamsToRemove[i]);
+										if (!team) continue;
+
+										// Remove user from team
+										const resTeam = await utils
+											.fetchWithTimeout(config.api + "teams/" + team.id + "/" + route.params.id, {
+												method: "DELETE",
+											})
+											.then((res) => res.json());
+
+										// Failed to remove from team
+										if (!resTeam.success) {
+											// Display error
+											setCurrentError(languagesUtils.convertError(data.language, resTeam, {}, "teams", {}));
+											return;
+										}
+									}
+								}
+
+								navigation.navigate("Members", { date: Date.now() });
+							} else {
+								// Display error
+								setCurrentError(
+									languagesUtils.convertError(data.language, resUser, bodyUser, "gebruiker", {
+										firstName: "de voornaam",
+										lastName: "de achternaam",
+										email: "de email",
+										born: "de geboorte datum",
+										functionDescription: "de functie omschrijving",
+									})
+								);
+							}
+						} catch (error) {
+							utils.handleError(error);
+						}
+					}}
+				>
+					Aanpassen
+				</FormButton>
+				<FormButton
+					bad={true}
+					onPress={() => {
+						setCurrentConfirmation({
+							question: "Weet u zeker dat u de gebruiker '" + route.params?.firstname + " " + route.params?.lastname + "' wilt verwijderen?",
+							buttons: {
+								accept: "Verwijder",
+								cancel: "Annuleer",
+							},
+							events: {
+								onAccept: async () => {
+									try {
+										const res = await utils
+											.fetchWithTimeout(config.api + "users/" + route.params.id, {
+												method: "DELETE",
+											})
+											.then((res) => res.json());
+
+										// Failed to delete
+										if (!res.success) {
+											// Display error
+											setCurrentError(languagesUtils.convertError(data.language, res, {}, "gebruiker", {}));
+											return;
+										}
+
+										// TODO: delete from all tables (ex: teams, chats)
+
+										navigation.navigate("Members", { date: Date.now() });
+									} catch (error) {
+										utils.handleError(error);
+									}
+								},
+								onCancel: () => {},
+							},
+						});
+					}}
+				>
+					Verwijderen
+				</FormButton>
+			</Form>
 		</Wrapper>
 	);
 };

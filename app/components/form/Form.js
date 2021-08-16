@@ -6,7 +6,9 @@ import FontSizes from "../../config/FontSizes";
 
 import wrapperScrollViewContext from "../../contexts/wrapperScrollViewContext";
 
-const Form = ({ children, title, onLayout, errorLabel, errorOnPress }) => {
+import Heading from "../Heading";
+
+const Form = ({ children, title, style, containerStyle, icon, onPress, onLayout, errorLabel, errorOnPress, header = null }) => {
 	const [currentErrorLabel, setCurrentErrorLabel] = useState(errorLabel);
 
 	const wrapperScrollView = useContext(wrapperScrollViewContext);
@@ -21,7 +23,8 @@ const Form = ({ children, title, onLayout, errorLabel, errorOnPress }) => {
 
 	return (
 		<View onLayout={onLayout}>
-			<Text style={styles.title}>{title}</Text>
+			{!header && <Heading title={title} style={style} style={containerStyle} icon={icon} onPress={onPress} />}
+			{header && header}
 			{currentErrorLabel && (
 				<TouchableOpacity onPress={errorOnPress}>
 					<Text style={styles.errorButtonText}>{currentErrorLabel}</Text>
@@ -36,11 +39,6 @@ const styles = StyleSheet.create({
 	errorButtonText: {
 		color: Colors.red,
 		fontSize: FontSizes.default,
-		fontFamily: "Segoe-UI",
-	},
-	title: {
-		color: Colors.textPrimary,
-		fontSize: FontSizes.heading,
 		fontFamily: "Segoe-UI",
 	},
 });

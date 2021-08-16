@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormInput from "../../components/form/FormInput";
 import FormSelect from "../../components/form/FormSelect";
@@ -68,100 +69,101 @@ const ChangeRightScreen = ({ navigation, route }) => {
 
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError} confirmation={currentConfirmation}>
-			<Heading
+			<Form
 				icon={Heading.BACK_ICON}
 				title={route.params?.name}
 				onPress={() => {
 					navigation.navigate("Right", route.params);
 				}}
-			/>
-			<FormInput label="Naam" textContentType="name" {...getFormProps("name")} />
-			<FormSelect label="Rechten" multiple={true} defaultValue={["Geen rechten"]} data={rights.map((x) => x.name)} {...getFormProps("rights")} />
-			<FormButton
-				onPress={async () => {
-					const valid = validate();
-					if (valid !== true) {
-						setCurrentError(valid.error);
-						return;
-					}
-
-					try {
-						setCurrentError(null);
-
-						let updatedRights = formData.rights.value.map((x) => rights.find((y) => y.name === x)?.id);
-
-						// Update right
-						const bodyRight = {
-							name: formData.name.value !== route.params.name ? formData.name.value : undefined,
-							rights: updatedRights !== route.params.rights ? updatedRights : undefined,
-						};
-
-						const resRight = await utils
-							.fetchWithTimeout(config.api + "rights/" + route.params.id, {
-								method: "PATCH",
-								headers: {
-									Accept: "application/json",
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify(bodyRight),
-							})
-							.then((res) => res.json());
-
-						if (resRight.success) {
-							navigation.navigate("Rights", { date: Date.now() });
-						} else {
-							// Display error
-							setCurrentError(
-								languagesUtils.convertError(data.language, resRight, bodyRight, "rechten", {
-									name: "de naam",
-									rights: "de rechten",
-								})
-							);
+			>
+				<FormInput label="Naam" textContentType="name" {...getFormProps("name")} />
+				<FormSelect label="Rechten" multiple={true} defaultValue={["Geen rechten"]} data={rights.map((x) => x.name)} {...getFormProps("rights")} />
+				<FormButton
+					onPress={async () => {
+						const valid = validate();
+						if (valid !== true) {
+							setCurrentError(valid.error);
+							return;
 						}
-					} catch (error) {
-						utils.handleError(error);
-					}
-				}}
-			>
-				Aanpassen
-			</FormButton>
-			<FormButton
-				bad={true}
-				onPress={() => {
-					setCurrentConfirmation({
-						question: "Weet u zeker dat u het recht '" + route.params?.name + "' wilt verwijderen?",
-						buttons: {
-							accept: "Verwijder",
-							cancel: "Annuleer",
-						},
-						events: {
-							onAccept: async () => {
-								try {
-									const res = await utils
-										.fetchWithTimeout(config.api + "rights/" + route.params.id, {
-											method: "DELETE",
-										})
-										.then((res) => res.json());
 
-									// Failed to delete
-									if (!res.success) {
-										// Display error
-										setCurrentError(languagesUtils.convertError(data.language, res, {}, "rechten", {}));
-										return;
-									}
+						try {
+							setCurrentError(null);
 
-									navigation.navigate("Rights", { date: Date.now() });
-								} catch (error) {
-									utils.handleError(error);
-								}
+							let updatedRights = formData.rights.value.map((x) => rights.find((y) => y.name === x)?.id);
+
+							// Update right
+							const bodyRight = {
+								name: formData.name.value !== route.params.name ? formData.name.value : undefined,
+								rights: updatedRights !== route.params.rights ? updatedRights : undefined,
+							};
+
+							const resRight = await utils
+								.fetchWithTimeout(config.api + "rights/" + route.params.id, {
+									method: "PATCH",
+									headers: {
+										Accept: "application/json",
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify(bodyRight),
+								})
+								.then((res) => res.json());
+
+							if (resRight.success) {
+								navigation.navigate("Rights", { date: Date.now() });
+							} else {
+								// Display error
+								setCurrentError(
+									languagesUtils.convertError(data.language, resRight, bodyRight, "rechten", {
+										name: "de naam",
+										rights: "de rechten",
+									})
+								);
+							}
+						} catch (error) {
+							utils.handleError(error);
+						}
+					}}
+				>
+					Aanpassen
+				</FormButton>
+				<FormButton
+					bad={true}
+					onPress={() => {
+						setCurrentConfirmation({
+							question: "Weet u zeker dat u het recht '" + route.params?.name + "' wilt verwijderen?",
+							buttons: {
+								accept: "Verwijder",
+								cancel: "Annuleer",
 							},
-							onCancel: () => {},
-						},
-					});
-				}}
-			>
-				Verwijderen
-			</FormButton>
+							events: {
+								onAccept: async () => {
+									try {
+										const res = await utils
+											.fetchWithTimeout(config.api + "rights/" + route.params.id, {
+												method: "DELETE",
+											})
+											.then((res) => res.json());
+
+										// Failed to delete
+										if (!res.success) {
+											// Display error
+											setCurrentError(languagesUtils.convertError(data.language, res, {}, "rechten", {}));
+											return;
+										}
+
+										navigation.navigate("Rights", { date: Date.now() });
+									} catch (error) {
+										utils.handleError(error);
+									}
+								},
+								onCancel: () => {},
+							},
+						});
+					}}
+				>
+					Verwijderen
+				</FormButton>
+			</Form>
 		</Wrapper>
 	);
 };

@@ -44,7 +44,6 @@ const prefix = Linking.makeUrl("/");
 
 const Stack = createStackNavigator();
 
-// TODO: replace heading with form in some places
 // TODO: destink between pop up errors and form errors
 export default function App() {
 	const [data, setData] = useState({

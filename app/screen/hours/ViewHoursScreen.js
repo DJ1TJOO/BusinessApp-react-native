@@ -3,7 +3,7 @@ import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import FormButton from "../../components/form/FormButton";
 import Heading from "../../components/Heading";
-import { IconArrowBack, IconCross } from "../../components/Icons";
+import { IconArrowBack, IconCheck, IconCross } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
@@ -71,7 +71,7 @@ const ViewHoursScreen = ({ navigation, route }) => {
 		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
 			<View style={styles.header}>
 				<Heading title={`Uren week ${week} (${year})`} />
-				{hours.valid === true ? <IconCheck style={styles.icon} /> : hours.valid === false ? <IconCross style={styles.icon} /> : null}
+				{currentHours.valid === true ? <IconCheck style={styles.icon} /> : currentHours.valid === false ? <IconCross style={styles.icon} /> : null}
 			</View>
 			{hours.length > 0 && (
 				<ScrollView
@@ -211,8 +211,9 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 	},
 	icon: {
-		width: 35,
-		height: 35,
+		width: 30,
+		height: 30,
+		top: 5,
 		marginLeft: 10,
 		marginTop: 2,
 	},

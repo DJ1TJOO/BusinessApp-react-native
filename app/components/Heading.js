@@ -20,7 +20,7 @@ const Heading = ({ title, style, containerStyle, icon, onPress }) => {
 const styles = StyleSheet.create({
 	backIcon: {
 		marginRight: 10,
-		marginTop: -2,
+		marginTop: 2,
 	},
 	container: {
 		flexDirection: "row",
