@@ -15,7 +15,6 @@ import utils from "../../utils";
 
 const MembersScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
-	const [currentError, setCurrentError] = useState();
 
 	const getUsers = async () => {
 		if (!data.members) data.members = [];
@@ -41,7 +40,7 @@ const MembersScreen = ({ navigation, route }) => {
 	}, [route]);
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getUsers} loading={!data.members}>
+		<Wrapper showHeader={true} navigation={navigation} refresh={getUsers} loading={!data.members}>
 			<Heading title="Alle gebruikers" />
 			{data.members &&
 				data.members.length > 0 &&

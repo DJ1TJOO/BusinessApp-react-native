@@ -129,6 +129,8 @@ const RegisterScreen = ({ navigation }) => {
 	const [formLayout, setFormLayout] = useState(null);
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 	const [currentError, setCurrentError] = useState(null);
+	const [currentFormError, setCurrentFormError] = useState(null);
+
 	const [isLogoSet, setIsLogoSet] = useState(false);
 
 	const [data, setData] = useContext(dataContext);
@@ -203,8 +205,8 @@ const RegisterScreen = ({ navigation }) => {
 	};
 
 	return (
-		<Wrapper navigation={navigation} showHeader={true}>
-			<Form title="Registeer bedrijf" onLayout={(e) => setFormLayout(e.nativeEvent.layout)} errorLabel={currentError}>
+		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
+			<Form title="Registeer bedrijf" onLayout={(e) => setFormLayout(e.nativeEvent.layout)} errorLabel={currentFormError}>
 				<FormInput label="Bedrijfsnaam" textContentType="name" {...getFormProps("business_name")} />
 				<FormHeading title="Hoofdaccount" />
 				<FormInput label="Voornaam" textContentType="name" {...getFormProps("account_firstname")} />
@@ -269,10 +271,12 @@ const RegisterScreen = ({ navigation }) => {
 					onPress={async () => {
 						const valid = validate();
 						if (valid !== true) {
-							setCurrentError(valid.error);
+							setCurrentFormError(valid.error);
 							return;
 						}
 						try {
+							setCurrentFormError(null);
+
 							const body = {
 								name: formData.business_name.value,
 								image: "data:image/png;base64," + formData.image.value.base64,
@@ -289,8 +293,6 @@ const RegisterScreen = ({ navigation }) => {
 								.then((res) => res.json());
 							// Business created
 							if (res.success) {
-								setCurrentError(null);
-
 								// Create user
 								const bodyUser = {
 									businessId: res.data.business.id,

@@ -113,26 +113,27 @@ const ForgotPasswordScreen = ({ navigation, route }) => {
 		})();
 	}, []);
 
-	const [currentErrorLabel, setCurrentErrorLabel] = useState(null);
+	const [currentFormError, setCurrentFormError] = useState(null);
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 
 	return (
 		<Wrapper showHeader={true} error={currentError}>
-			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord vergeten?"} errorLabel={currentErrorLabel}>
+			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord vergeten?"} errorLabel={currentFormError}>
 				<FormInput label="Bedrijf" textContentType="name" {...getFormProps("business")} />
 				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
 				<FormButton
 					onPress={async () => {
 						const valid = validate();
 						if (valid !== true) {
-							setCurrentErrorLabel(valid.error);
+							setCurrentFormError(valid.error);
 							return;
 						}
+						setCurrentFormError(null);
 
 						try {
 							const res = await createCode(formData.business.value, formData.email.value, setCurrentError, data);
 							if (!res.success) {
-								return setCurrentErrorLabel("Account niet gevonden. Controleer de business naam en email address");
+								return setCurrentFormError("Account niet gevonden. Controleer de business naam en email address");
 							}
 
 							navigation.navigate("VerifyCode", { isCreating, userId: res.data.userId, businessId: res.data.businessId });

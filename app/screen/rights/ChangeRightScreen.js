@@ -36,6 +36,7 @@ const defaultFormData = (params) => [
 const ChangeRightScreen = ({ navigation, route }) => {
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData(route.params));
 	const [currentError, setCurrentError] = useState(null);
+	const [currentFormError, setCurrentFormError] = useState(null);
 
 	const [data, setData] = useContext(dataContext);
 
@@ -75,6 +76,7 @@ const ChangeRightScreen = ({ navigation, route }) => {
 				onPress={() => {
 					navigation.navigate("Right", route.params);
 				}}
+				errorLabel={currentFormError}
 			>
 				<FormInput label="Naam" textContentType="name" {...getFormProps("name")} />
 				<FormSelect label="Rechten" multiple={true} defaultValue={["Geen rechten"]} data={rights.map((x) => x.name)} {...getFormProps("rights")} />
@@ -82,12 +84,12 @@ const ChangeRightScreen = ({ navigation, route }) => {
 					onPress={async () => {
 						const valid = validate();
 						if (valid !== true) {
-							setCurrentError(valid.error);
+							setCurrentFormError(valid.error);
 							return;
 						}
 
 						try {
-							setCurrentError(null);
+							setCurrentFormError(null);
 
 							let updatedRights = formData.rights.value.map((x) => rights.find((y) => y.name === x)?.id);
 

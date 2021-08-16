@@ -55,7 +55,6 @@ const VerifyCodeScreen = ({ navigation, route }) => {
 	const isCreating = route.params?.isCreating;
 
 	const [currentCode, setCurrentCode] = useState(null);
-	const [currentErrorLabel, setCurrentErrorLabel] = useState(null);
 
 	useEffect(() => {
 		if (code) {
@@ -65,7 +64,7 @@ const VerifyCodeScreen = ({ navigation, route }) => {
 				if (valid) {
 					navigation.navigate("ChangePassword", { isCreating, userId, businessId, code });
 				} else {
-					setCurrentErrorLabel("De code is onjuist");
+					setCurrentError("De code is onjuist");
 				}
 			};
 			validate();
@@ -74,13 +73,13 @@ const VerifyCodeScreen = ({ navigation, route }) => {
 	return (
 		<Wrapper showHeader={true} error={currentError}>
 			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord vergeten?"}>
-				<FormInput label="Verificatie code" onChange={setCurrentCode} errorLabel={currentErrorLabel} />
+				<FormInput label="Verificatie code" onChange={setCurrentCode} />
 				<FormButton
 					onPress={async () => {
 						if (await verify(businessId, userId, currentCode, setCurrentError, data)) {
 							navigation.navigate("ChangePassword", { isCreating, userId, businessId, code: currentCode });
 						} else {
-							setCurrentErrorLabel("De code is onjuist");
+							setCurrentError("De code is onjuist");
 						}
 					}}
 				>

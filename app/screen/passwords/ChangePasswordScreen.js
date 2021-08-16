@@ -85,11 +85,11 @@ const ChangePasswordScreen = ({ navigation, route }) => {
 	const { code, userId, businessId } = route.params;
 	const isCreating = route.params?.isCreating;
 
-	const [currentErrorLabel, setCurrentErrorLabel] = useState(null);
+	const [currentFormError, setCurrentFormError] = useState(null);
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 	return (
 		<Wrapper showHeader={true} error={currentError}>
-			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord veranderen"} errorLabel={currentErrorLabel}>
+			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord veranderen"} errorLabel={currentFormError}>
 				<FormInput label={isCreating ? "Wachtwoord" : "Nieuw wachtwoord"} hideText={true} textContentType="password" {...getFormProps("password")} />
 				<FormInput
 					label={isCreating ? "Bevestig wachtwoord" : "Bevestig nieuw wachtwoord"}
@@ -102,18 +102,19 @@ const ChangePasswordScreen = ({ navigation, route }) => {
 					onPress={async () => {
 						const valid = validate();
 						if (valid !== true) {
-							setCurrentErrorLabel(valid.error);
+							setCurrentFormError(valid.error);
 							return;
 						}
+						setCurrentFormError(null);
 
 						try {
 							if (await updatePassword(businessId, userId, code, formData.password.value, setCurrentError, data)) {
 								navigation.navigate("Login");
 							} else {
-								setCurrentErrorLabel("Er is iets misgegaan. Vraag een nieuwe code aan.");
+								setCurrentError("Er is iets misgegaan. Vraag een nieuwe code aan.");
 							}
 						} catch (error) {
-							setCurrentErrorLabel("Er is iets misgegaan. Vraag een nieuwe code aan.");
+							setCurrentError("Er is iets misgegaan. Vraag een nieuwe code aan.");
 						}
 					}}
 				>

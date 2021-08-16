@@ -15,7 +15,6 @@ import utils from "../../utils";
 
 const RightsScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
-	const [currentError, setCurrentError] = useState();
 
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
@@ -34,7 +33,7 @@ const RightsScreen = ({ navigation, route }) => {
 	}, [route]);
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError} refresh={getRights} loading={!data.rights}>
+		<Wrapper showHeader={true} navigation={navigation} refresh={getRights} loading={!data.rights}>
 			<Heading title="Alle rechten" />
 			{data.rights &&
 				data.rights.length > 0 &&

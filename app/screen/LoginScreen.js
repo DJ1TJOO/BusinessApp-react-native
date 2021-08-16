@@ -58,6 +58,7 @@ const defaultFormData = [
 
 const LoginScreen = ({ navigation }) => {
 	const [currentError, setCurrentError] = useState(null);
+	const [currentFormError, setCurrentFormError] = useState(null);
 
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 
@@ -146,8 +147,8 @@ const LoginScreen = ({ navigation }) => {
 	}, []);
 
 	return (
-		<Wrapper navigation={navigation} showHeader={true}>
-			<Form title="Login" errorLabel={currentError}>
+		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
+			<Form title="Login" errorLabel={currentFormError}>
 				<FormInput label="Bedrijf" textContentType="name" {...getFormProps("business_name")} />
 				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
 				<FormInput
@@ -168,11 +169,13 @@ const LoginScreen = ({ navigation }) => {
 					onPress={async () => {
 						const valid = validate();
 						if (valid !== true) {
-							setCurrentError(valid.error);
+							setCurrentFormError(valid.error);
 							return;
 						}
 
 						try {
+							setCurrentFormError(null);
+
 							const res = await utils
 								.fetchWithTimeout(config.api + "login", {
 									method: "POST",
@@ -220,7 +223,7 @@ const LoginScreen = ({ navigation }) => {
 									// Display error
 									setCurrentError(languagesUtils.convertError(data.language, res));
 								} else {
-									setCurrentError("Het email address of wachtwoord is incorrect");
+									setCurrentFormError("Het email address of wachtwoord is incorrect");
 								}
 							}
 						} catch (error) {

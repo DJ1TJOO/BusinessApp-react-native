@@ -12,8 +12,6 @@ import dataContext from "../../contexts/dataContext";
 import utils from "../../utils";
 
 const CheckHoursScreen = ({ navigation }) => {
-	const [currentError, setCurrentError] = useState(null);
-
 	const [data, setData] = useContext(dataContext);
 
 	useEffect(() => {
@@ -33,7 +31,7 @@ const CheckHoursScreen = ({ navigation }) => {
 	}, []);
 
 	return (
-		<Wrapper navigation={navigation} showHeader={true} error={currentError} loading={!data.checkHours || !data.checkHours.users}>
+		<Wrapper navigation={navigation} showHeader={true} loading={!data.checkHours || !data.checkHours.users}>
 			<Heading title="Uren controleren" style={styles.heading} />
 			{data.checkHours &&
 				data.checkHours.users &&

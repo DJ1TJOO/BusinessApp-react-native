@@ -17,6 +17,7 @@ import utils from "../../utils";
 
 const RightScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
+	const [currentError, setCurrentError] = useState(null);
 
 	const [rights, setRights] = useState([]);
 
@@ -46,7 +47,7 @@ const RightScreen = ({ navigation, route }) => {
 	const [currentConfirmation, setCurrentConfirmation] = useState(null);
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} confirmation={currentConfirmation}>
+		<Wrapper showHeader={true} navigation={navigation} confirmation={currentConfirmation} error={currentError}>
 			<Heading
 				icon={Heading.BACK_ICON}
 				title={route.params?.name}

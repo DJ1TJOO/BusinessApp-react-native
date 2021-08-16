@@ -35,6 +35,7 @@ const defaultFormData = [
 const CreateRightScreen = ({ navigation, route }) => {
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 	const [currentError, setCurrentError] = useState(null);
+	const [currentFormError, setCurrentFormError] = useState(null);
 
 	const [data, setData] = useContext(dataContext);
 
@@ -64,19 +65,19 @@ const CreateRightScreen = ({ navigation, route }) => {
 
 	return (
 		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
-			<Form title="Recht toevoegen">
+			<Form title="Recht toevoegen" errorLabel={currentFormError}>
 				<FormInput label="Naam" textContentType="name" {...getFormProps("name")} />
 				<FormSelect label="Rechten" multiple={true} defaultValue={["Geen rechten"]} data={rights.map((x) => x.name)} {...getFormProps("rights")} />
 				<FormButton
 					onPress={async () => {
 						const valid = validate();
 						if (valid !== true) {
-							setCurrentError(valid.error);
+							setCurrentFormError(valid.error);
 							return;
 						}
 
 						try {
-							setCurrentError(null);
+							setCurrentFormError(null);
 
 							// Create right
 							const bodyRight = {

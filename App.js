@@ -44,7 +44,6 @@ const prefix = Linking.makeUrl("/");
 
 const Stack = createStackNavigator();
 
-// TODO: destink between pop up errors and form errors
 export default function App() {
 	const [data, setData] = useState({
 		language: dutch,

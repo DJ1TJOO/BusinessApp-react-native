@@ -16,8 +16,6 @@ import dataContext from "../../contexts/dataContext";
 import utils from "../../utils";
 
 const CheckHoursPersonScreen = ({ navigation, route }) => {
-	const [currentError, setCurrentError] = useState(null);
-
 	const [data, setData] = useContext(dataContext);
 
 	const [hours, setHours] = useState([]);
@@ -45,7 +43,6 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 		<Wrapper
 			navigation={navigation}
 			showHeader={true}
-			error={currentError}
 			refresh={getHours}
 			loading={
 				!data.checkHours ||

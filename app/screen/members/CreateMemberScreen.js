@@ -89,6 +89,7 @@ const CreateMemberScreen = ({ navigation }) => {
 	// TODO: test teams
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 	const [currentError, setCurrentError] = useState(null);
+	const [currentFormError, setCurrentFormError] = useState(null);
 
 	const [data, setData] = useContext(dataContext);
 
@@ -124,8 +125,8 @@ const CreateMemberScreen = ({ navigation }) => {
 	}, []);
 
 	return (
-		<Wrapper navigation={navigation} showHeader={true}>
-			<Form title="Gebruiker toevoegen" errorLabel={currentError}>
+		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
+			<Form title="Gebruiker toevoegen" errorLabel={currentFormError}>
 				<FormInput label="Voornaam" textContentType="name" {...getFormProps("firstname")} />
 				<FormInput label="Achternaam" textContentType="name" {...getFormProps("lastname")} />
 				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
@@ -173,11 +174,11 @@ const CreateMemberScreen = ({ navigation }) => {
 					onPress={async () => {
 						const valid = validate();
 						if (valid !== true) {
-							setCurrentError(valid.error);
+							setCurrentFormError(valid.error);
 							return;
 						}
 						try {
-							setCurrentError(null);
+							setCurrentFormError(null);
 
 							// Create user
 							const bodyUser = {

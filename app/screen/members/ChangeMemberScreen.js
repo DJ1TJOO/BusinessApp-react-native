@@ -94,6 +94,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 	// TODO: test teams
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData(route.params));
 	const [currentError, setCurrentError] = useState(null);
+	const [currentFormError, setCurrentFormError] = useState(null);
 
 	const [data, setData] = useContext(dataContext);
 
@@ -142,6 +143,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 				onPress={() => {
 					navigation.navigate("Member", route.params);
 				}}
+				errorLabel={currentFormError}
 			>
 				<FormInput label="Voornaam" textContentType="name" {...getFormProps("firstname")} />
 				<FormInput label="Achternaam" textContentType="name" {...getFormProps("lastname")} />
@@ -189,12 +191,12 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 					onPress={async () => {
 						const valid = validate();
 						if (valid !== true) {
-							setCurrentError(valid.error);
+							setCurrentFormError(valid.error);
 							return;
 						}
 
 						try {
-							setCurrentError(null);
+							setCurrentFormError(null);
 
 							// Update user
 							const bodyUser = {
