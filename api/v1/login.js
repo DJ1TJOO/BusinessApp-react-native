@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const authToken = require("./helpers/auth");
+const { authToken } = require("./helpers/auth");
 
 const { promisePool: db } = require("./helpers/db");
 

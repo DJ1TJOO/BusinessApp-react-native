@@ -1,7 +1,8 @@
 const { promisePool: db, escape } = require("./helpers/db");
-const { dbGenerateUniqueId } = require("./helpers/utils");
+const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 const { saveImage, deleteImage } = require("./helpers/images");
-const { authBusinessOwner } = require("./helpers/auth");
+const { authRights, authToken } = require("./helpers/auth");
+const { availableRights } = require("./rights");
 
 const business = require("express").Router();
 
@@ -24,7 +25,7 @@ business.get("/names", async (req, res) => {
 	}
 });
 
-business.get("/:id", async (req, res) => {
+business.get("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
 	try {
 		const [results] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
@@ -34,6 +35,10 @@ business.get("/:id", async (req, res) => {
 				error: "business_not_found",
 			});
 		}
+
+		// Check if user is from business
+		const auth = await authRights([], req.token, id);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		return res.send({
 			success: true,
@@ -267,9 +272,10 @@ business.post("/", async (req, res) => {
 	}
 });
 
-business.patch("/:id", authBusinessOwner, async (req, res) => {
+business.patch("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
 	const { name, image, owner, ownerCode } = req.body;
+
 	try {
 		// Check if business exists
 		const [getResults] = await db.query(`SELECT logo,name FROM business WHERE id = ?`, [id]);
@@ -278,6 +284,12 @@ business.patch("/:id", authBusinessOwner, async (req, res) => {
 				success: false,
 				error: "business_not_found",
 			});
+		}
+
+		// Check if allowed
+		if (!ownerCode) {
+			const auth = await authRights(availableRights.UPDATE_BUSINESS, req.token, id);
+			if (!auth.success) return objectToResponse(res, auth);
 		}
 
 		// Check if owner is specified
@@ -504,8 +516,9 @@ business.patch("/:id", authBusinessOwner, async (req, res) => {
 	}
 });
 
-business.delete("/:id", authBusinessOwner, async (req, res) => {
+business.delete("/:id", authToken, async (req, res) => {
 	const id = req.params.id;
+
 	try {
 		const [get_results] = await db.query(`SELECT * FROM business WHERE id = ?`, [id]);
 		if (get_results.length < 1) {
@@ -514,6 +527,10 @@ business.delete("/:id", authBusinessOwner, async (req, res) => {
 				error: "business_not_found",
 			});
 		}
+
+		// Check if user is owner
+		const auth = await authRights(availableRights.UPDATE_BUSINESS, req.token, id);
+		if (!auth.success || !auth.owner) return objectToResponse(res, auth);
 
 		const [delete_results] = await db.query(`DELETE FROM business WHERE id = ?`, [id]);
 

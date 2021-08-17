@@ -5,11 +5,12 @@ const path = require("path");
 const sendEmail = require("./helpers/mailer");
 const { promisePool: db } = require("./helpers/db");
 const { dbGenerateUniqueId } = require("./helpers/utils");
+const { availableRights } = require("./rights");
+const { authToken, authRights } = require("./helpers/auth");
 
 const users = require("express").Router();
 
-// TODO: authorization
-users.get("/:id", async (req, res) => {
+users.get("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
 	try {
 		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [id]);
@@ -18,6 +19,13 @@ users.get("/:id", async (req, res) => {
 				success: false,
 				error: "user_not_found",
 			});
+		}
+
+		// Users can get them selves
+		if (results[0].id !== req.token.id) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.GET_MEMBERS], req.token, results[0].business_id);
+			if (!auth.success) return objectToResponse(res, auth);
 		}
 
 		return res.send({
@@ -35,19 +43,23 @@ users.get("/:id", async (req, res) => {
 	}
 });
 
-users.get("/business/:businessId", async (req, res) => {
+users.get("/business/:businessId", authToken, async (req, res) => {
 	const { businessId } = req.params;
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
 
 		// Business does not exists
 		if (business_result[0]["count(*)"] < 1) {
-			// Return status 404 (not found) chat not found
+			// Return status 404 (not found) business not found
 			return res.status(404).send({
 				success: false,
 				error: "business_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.GET_MEMBERS], req.token, businessId);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE business_id = ?`, [businessId]);
 
@@ -79,6 +91,24 @@ users.post("/", async (req, res) => {
 				success: false,
 				error: "business_not_found",
 			});
+		}
+
+		// Auth
+		if (req.headers.authorization || req.body.token) {
+			const validToken = await authToken.promise(req, res);
+			if (!validToken) return;
+
+			// Check if user has rights
+			const auth = await authRights([availableRights.ADD_MEMBERS], req.token, businessId);
+			if (!auth.success) return objectToResponse(res, auth);
+		} else {
+			const [users_result] = await db.query(`SELECT count(*) FROM users WHERE business_id = ?`, [businessId]);
+
+			// Already users
+			if (users_result[0]["count(*)"] > 0) {
+				// Return status 401 (forbidden)
+				return res.status(401).send({ success: false, error: "forbidden" });
+			}
 		}
 
 		// Check if email is email
@@ -745,7 +775,7 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 	}
 });
 
-users.patch("/:id", async (req, res) => {
+users.patch("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
 	const { rightId, firstName, lastName, email, born, functionDescription, password, newPassword } = req.body;
 
@@ -757,6 +787,13 @@ users.patch("/:id", async (req, res) => {
 				success: false,
 				error: "user_not_found",
 			});
+		}
+
+		// Users can change them selves
+		if (getResults[0].id !== req.token.id) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.CHANGE_MEMBERS], req.token, getResults[0].business_id);
+			if (!auth.success) return objectToResponse(res, auth);
 		}
 
 		const currentUser = getResults[0];
@@ -1085,7 +1122,7 @@ users.patch("/:id", async (req, res) => {
 	}
 });
 
-users.delete("/:id", async (req, res) => {
+users.delete("/:id", authToken, async (req, res) => {
 	const id = req.params.id;
 	try {
 		const [get_results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [id]);
@@ -1095,6 +1132,10 @@ users.delete("/:id", async (req, res) => {
 				error: "user_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.DELETE_MEMBERS], req.token, get_results[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		const [delete_results] = await db.query(`DELETE FROM users WHERE id = ?`, [id]);
 

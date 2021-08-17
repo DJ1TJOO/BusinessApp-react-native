@@ -5,11 +5,11 @@ const rights = require("express").Router();
 
 // TOOD: add rights
 const availableRights = {
-	RIGHT: 0,
-	RIGHT2: 1,
-	RIGHT3: 2,
-	RIGHT4: 3,
-	RIGHT5: 4,
+	UPDATE_BUSINESS: 0,
+	GET_MEMBERS: 1,
+	ADD_MEMBERS: 2,
+	CHANGE_MEMBERS: 3,
+	DELETE_MEMBERS: 4,
 };
 
 module.exports.availableRights = availableRights;
@@ -22,7 +22,6 @@ rights.get("/available", (req, res) => {
 });
 
 // TODO: authorization
-// TODO: test
 rights.get("/:id", async (req, res) => {
 	const { id } = req.params;
 	try {
@@ -224,7 +223,7 @@ rights.patch("/:id", async (req, res) => {
 	const { name, rights } = req.body;
 
 	try {
-		const [get_results] = await db.query(`SELECT name,rights FROM rights WHERE id = ?`, [id]);
+		const [get_results] = await db.query(`SELECT name,rights,business_id FROM rights WHERE id = ?`, [id]);
 		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
