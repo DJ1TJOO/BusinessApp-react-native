@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const { promisePool: db } = require("./db");
 
-const authToken = async (req, res, next) => {
+module.exports.authToken = async (req, res, next) => {
 	try {
 		let token = req.body.token;
 
@@ -78,9 +78,26 @@ const authToken = async (req, res, next) => {
 	}
 };
 
-module.exports = authToken;
+const timeoutPromise = new Promise((resolve) => setTimeout(resolve.bind(undefined, false), 1000 * 10));
+module.exports.authToken.promise = (req, res) =>
+	Promise.race([
+		new Promise((resolve) => {
+			authToken(req, res, () => {
+				resolve(true);
+			});
+		}),
+		timeoutPromise,
+	]);
 
-module.exports.authRights = (rights) => {
+module.exports.authRights = async (rights, token, businessId = null) => {
+	if (!token) {
+		return {
+			status: 401,
+			success: false,
+			error: "failed_authentication",
+		};
+	}
+
 	// Make sure rights is an array of numbers
 	if (!Array.isArray(rights)) {
 		// If not array and not number no rights required
@@ -92,62 +109,56 @@ module.exports.authRights = (rights) => {
 		rights = rights.map((x) => (Array.isArray(x) ? x.filter((y) => typeof y === "number") : x)).filter((x) => typeof x === "number" || Array.isArray(x));
 	}
 
-	return (req, res, next) => {
-		// No rights required
-		if (rights.length < 1) return next();
+	try {
+		// Get rights
+		const [results] = await db.query(
+			`SELECT rights.rights,users.business_id,business.owner_id FROM rights INNER JOIN users ON rights.id = users.right_id INNER JOIN business ON users.business_id = business.id WHERE users.id = ?`,
+			[req.token.id]
+		);
 
-		// Handle rights
-		const authRights = async () => {
-			// Get rights
-			const [results] = await db.query(`SELECT rights.rights FROM rights INNER JOIN users ON rights.id = users.right_id WHERE users.id = ?`, [req.token.id]);
-
-			// Rights not found
-			if (results.length < 1) {
-				return res.status(401).json({
-					success: false,
-					error: "failed_authentication",
-				});
-			}
-
-			const userRights = results[0].rights.split(",").map(Number);
-
-			// User does not have all rights
-			if (rights.some((x) => (Array.isArray(x) ? x.filter((y) => userRights.includes(y)).length < 1 : !userRights.includes(x)))) {
-				return res.status(403).json({
-					success: false,
-					error: "forbidden",
-				});
-			}
-
-			next();
-		};
-
-		// Make sure there is a token
-		if (!req.token) authToken(req, res, authRights);
-		else authRights();
-	};
-};
-
-module.exports.authBusinessOwner = (req, res, next) => {
-	authToken(req, res, async () => {
-		if (req.body.ownerCode) return next();
-
-		// Check if business exists
-		const [getResults] = await db.query(`SELECT owner_id FROM business WHERE id = ?`, [req.params.id]);
-		if (getResults.length < 1) {
-			return res.status(404).send({
+		// Rights not found
+		if (results.length < 1) {
+			return {
+				status: 401,
 				success: false,
-				error: "business_not_found",
-			});
+				error: "failed_authentication",
+			};
 		}
 
-		if (getResults[0].owner_id !== req.token.id) {
-			return res.status(403).json({
+		// Trying to modify other business
+		if (results[0].business_id !== businessId) {
+			return {
+				status: 403,
 				success: false,
 				error: "forbidden",
-			});
+			};
 		}
 
-		next();
-	});
+		// Owner of business
+		if (results[0].owner_id === req.token.id) {
+			return { success: true, owner: true };
+		}
+
+		const userRights = results[0].rights.split(",").map(Number);
+
+		// User does not have all rights
+		if (rights.some((x) => (Array.isArray(x) ? x.filter((y) => userRights.includes(y)).length < 1 : !userRights.includes(x)))) {
+			return {
+				status: 403,
+				success: false,
+				error: "forbidden",
+			};
+		}
+
+		return {
+			success: true,
+			owner: false,
+		};
+	} catch (error) {
+		return {
+			status: 401,
+			success: false,
+			error: "failed_authentication",
+		};
+	}
 };
