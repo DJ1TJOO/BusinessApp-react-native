@@ -112,8 +112,8 @@ module.exports.authRights = async (rights, token, businessId = null) => {
 	try {
 		// Get rights
 		const [results] = await db.query(
-			`SELECT rights.rights,users.business_id,business.owner_id FROM rights INNER JOIN users ON rights.id = users.right_id INNER JOIN business ON users.business_id = business.id WHERE users.id = ?`,
-			[req.token.id]
+			`SELECT rights.rights,users.business_id,business.owner_id FROM users LEFT JOIN rights ON users.right_id = rights.id INNER JOIN business ON users.business_id = business.id WHERE users.id = ?`,
+			[token.id]
 		);
 
 		// Rights not found
@@ -134,9 +134,21 @@ module.exports.authRights = async (rights, token, businessId = null) => {
 			};
 		}
 
-		// Owner of business
-		if (results[0].owner_id === req.token.id) {
+		//	Owner of business
+		if (results[0].owner_id === token.id) {
 			return { success: true, owner: true };
+		}
+
+		if (rights.length < 1) {
+			return { success: true };
+		}
+
+		if (!results[0].rights) {
+			return {
+				status: 403,
+				success: false,
+				error: "forbidden",
+			};
 		}
 
 		const userRights = results[0].rights.split(",").map(Number);
@@ -155,6 +167,7 @@ module.exports.authRights = async (rights, token, businessId = null) => {
 			owner: false,
 		};
 	} catch (error) {
+		console.log(error);
 		return {
 			status: 401,
 			success: false,
