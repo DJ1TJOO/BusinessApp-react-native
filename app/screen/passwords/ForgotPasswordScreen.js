@@ -117,7 +117,7 @@ const ForgotPasswordScreen = ({ navigation, route }) => {
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 
 	return (
-		<Wrapper showHeader={true} error={currentError}>
+		<Wrapper showHeader={true} error={currentError} setError={setCurrentError}>
 			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord vergeten?"} errorLabel={currentFormError}>
 				<FormInput label="Bedrijf" textContentType="name" {...getFormProps("business")} />
 				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />

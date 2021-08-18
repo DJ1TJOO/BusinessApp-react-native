@@ -125,7 +125,7 @@ const CreateMemberScreen = ({ navigation }) => {
 	}, []);
 
 	return (
-		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
+		<Wrapper navigation={navigation} showHeader={true} error={currentError} setError={setCurrentError}>
 			<Form title="Gebruiker toevoegen" errorLabel={currentFormError}>
 				<FormInput label="Voornaam" textContentType="name" {...getFormProps("firstname")} />
 				<FormInput label="Achternaam" textContentType="name" {...getFormProps("lastname")} />

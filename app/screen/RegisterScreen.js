@@ -205,7 +205,7 @@ const RegisterScreen = ({ navigation }) => {
 	};
 
 	return (
-		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
+		<Wrapper navigation={navigation} showHeader={true} error={currentError} setError={setCurrentError}>
 			<Form title="Registeer bedrijf" onLayout={(e) => setFormLayout(e.nativeEvent.layout)} errorLabel={currentFormError}>
 				<FormInput label="Bedrijfsnaam" textContentType="name" {...getFormProps("business_name")} />
 				<FormHeading title="Hoofdaccount" />

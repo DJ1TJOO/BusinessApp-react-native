@@ -136,7 +136,14 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 	const [currentConfirmation, setCurrentConfirmation] = useState(null);
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError} confirmation={currentConfirmation}>
+		<Wrapper
+			showHeader={true}
+			navigation={navigation}
+			error={currentError}
+			confirmation={currentConfirmation}
+			setError={setCurrentError}
+			setConfirmation={setCurrentConfirmation}
+		>
 			<Form
 				icon={Heading.BACK_ICON}
 				title={route.params?.firstname + " " + route.params?.lastname}

@@ -147,7 +147,7 @@ const LoginScreen = ({ navigation }) => {
 	}, []);
 
 	return (
-		<Wrapper navigation={navigation} showHeader={true} error={currentError}>
+		<Wrapper navigation={navigation} showHeader={true} error={currentError} setError={setCurrentError}>
 			<Form title="Login" errorLabel={currentFormError}>
 				<FormInput label="Bedrijf" textContentType="name" {...getFormProps("business_name")} />
 				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
@@ -190,6 +190,7 @@ const LoginScreen = ({ navigation }) => {
 									}),
 								})
 								.then((res) => res.json());
+
 							if (res.success) {
 								setFormValue("password")("", false);
 

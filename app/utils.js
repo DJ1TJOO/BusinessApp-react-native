@@ -49,25 +49,28 @@ const fetchTimeout = async (url, options = null, timeout = 10000) =>
  * @returns
  */
 const fetchToken = async (url, options = null, timeout = 10000) => {
-	const token = await AsyncStorage.getItem("token");
-
-	if (!options && token) {
-		options = {
-			headers: {
-				authorization: "Token " + token,
-			},
-		};
-	} else if (options && token) {
-		if (options.headers) {
-			options.headers.authorization = "Token " + token;
-		} else {
-			options.headers = {
-				authorization: "Token " + token,
+	try {
+		const token = await AsyncStorage.getItem("token");
+		if (!options && token) {
+			options = {
+				headers: {
+					authorization: "Token " + token,
+				},
 			};
+		} else if (options && token) {
+			if (options.headers) {
+				options.headers.authorization = "Token " + token;
+			} else {
+				options.headers = {
+					authorization: "Token " + token,
+				};
+			}
 		}
-	}
 
-	return fetchTimeout(url, options, timeout);
+		return fetchTimeout(url, options, timeout);
+	} catch (error) {
+		handleError(error);
+	}
 };
 
 const uuidv4 = () =>

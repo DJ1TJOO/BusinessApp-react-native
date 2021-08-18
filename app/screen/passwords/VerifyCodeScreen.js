@@ -71,7 +71,7 @@ const VerifyCodeScreen = ({ navigation, route }) => {
 		}
 	}, [route.params]);
 	return (
-		<Wrapper showHeader={true} error={currentError}>
+		<Wrapper showHeader={true} error={currentError} setError={setCurrentError}>
 			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord vergeten?"}>
 				<FormInput label="Verificatie code" onChange={setCurrentCode} />
 				<FormButton

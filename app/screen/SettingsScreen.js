@@ -51,7 +51,14 @@ const SettingsScreen = ({ navigation, route }) => {
 	const [currentInfo, setCurrentInfo, InfoModal] = useInfoModal();
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError} confirmation={currentConfirmation}>
+		<Wrapper
+			showHeader={true}
+			navigation={navigation}
+			error={currentError}
+			confirmation={currentConfirmation}
+			setError={setCurrentError}
+			setConfirmation={setCurrentConfirmation}
+		>
 			{InfoModal}
 			<Form title="Instellingen" errorLabel={currentFormError}>
 				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />

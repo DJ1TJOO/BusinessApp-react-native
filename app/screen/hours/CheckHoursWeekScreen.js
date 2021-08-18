@@ -68,7 +68,7 @@ const CheckHoursWeekScreen = ({ navigation, route }) => {
 	}
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
+		<Wrapper showHeader={true} navigation={navigation} error={currentError} setError={setCurrentError}>
 			<View style={styles.header}>
 				<Heading title={`Uren week ${week} (${year})`} />
 				{hours.valid === true ? <IconCheck style={styles.icon} /> : hours.valid === false ? <IconCross style={styles.icon} /> : null}

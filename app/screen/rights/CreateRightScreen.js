@@ -66,7 +66,7 @@ const CreateRightScreen = ({ navigation, route }) => {
 	}, []);
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} error={currentError}>
+		<Wrapper showHeader={true} navigation={navigation} error={currentError} setError={setCurrentError}>
 			<Form title="Recht toevoegen" errorLabel={currentFormError}>
 				<FormInput label="Naam" textContentType="name" {...getFormProps("name")} />
 				<FormSelect label="Rechten" multiple={true} defaultValue={["Geen rechten"]} data={rights.map((x) => x.name)} {...getFormProps("rights")} />

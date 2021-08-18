@@ -40,7 +40,14 @@ const MemberScreen = ({ navigation, route }) => {
 	const [currentConfirmation, setCurrentConfirmation] = useState(null);
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} confirmation={currentConfirmation} error={currentError}>
+		<Wrapper
+			showHeader={true}
+			navigation={navigation}
+			confirmation={currentConfirmation}
+			error={currentError}
+			setError={setCurrentError}
+			setConfirmation={setCurrentConfirmation}
+		>
 			<Heading
 				icon={Heading.BACK_ICON}
 				title={route.params?.firstname + " " + route.params?.lastname}

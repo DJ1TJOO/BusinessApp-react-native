@@ -88,7 +88,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
 	const [currentFormError, setCurrentFormError] = useState(null);
 	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
 	return (
-		<Wrapper showHeader={true} error={currentError}>
+		<Wrapper showHeader={true} error={currentError} setError={setCurrentError}>
 			<Form title={isCreating ? "Wachtwoord creëren" : "Wachtwoord veranderen"} errorLabel={currentFormError}>
 				<FormInput label={isCreating ? "Wachtwoord" : "Nieuw wachtwoord"} hideText={true} textContentType="password" {...getFormProps("password")} />
 				<FormInput
