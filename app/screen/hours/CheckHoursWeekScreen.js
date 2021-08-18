@@ -164,7 +164,7 @@ const CheckHoursWeekScreen = ({ navigation, route }) => {
 					try {
 						// Validate hours
 						const res = await utils
-							.fetchWithTimeout(`${config.api}hours/${currentHours.id}`, {
+							.fetchToken(`${config.api}hours/${currentHours.id}`, {
 								method: "PATCH",
 								headers: {
 									Accept: "application/json",
@@ -200,7 +200,7 @@ const CheckHoursWeekScreen = ({ navigation, route }) => {
 					try {
 						// Validate hours
 						const res = await utils
-							.fetchWithTimeout(`${config.api}hours/${currentHours.id}`, {
+							.fetchToken(`${config.api}hours/${currentHours.id}`, {
 								method: "PATCH",
 								headers: {
 									Accept: "application/json",

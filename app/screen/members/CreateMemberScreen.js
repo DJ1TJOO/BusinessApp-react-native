@@ -105,7 +105,7 @@ const CreateMemberScreen = ({ navigation }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await utils.fetchWithTimeout(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await utils.fetchToken(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -194,7 +194,7 @@ const CreateMemberScreen = ({ navigation }) => {
 							if (formData.function.value) bodyUser.functionDescription = formData.function.value;
 
 							const resUser = await utils
-								.fetchWithTimeout(config.api + "users/", {
+								.fetchToken(config.api + "users/", {
 									method: "POST",
 									headers: {
 										Accept: "application/json",
@@ -212,7 +212,7 @@ const CreateMemberScreen = ({ navigation }) => {
 
 										// Add user to team
 										const resTeam = await utils
-											.fetchWithTimeout(config.api + "teams/" + team.id, {
+											.fetchToken(config.api + "teams/" + team.id, {
 												method: "POST",
 												headers: {
 													Accept: "application/json",

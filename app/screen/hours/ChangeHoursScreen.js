@@ -215,7 +215,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 		if (!currentHours.id) {
 			// Create hours
 			const res = await utils
-				.fetchWithTimeout(`${config.api}hours/`, {
+				.fetchToken(`${config.api}hours/`, {
 					method: "POST",
 					headers: {
 						Accept: "application/json",
@@ -261,7 +261,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 			if (!current || !update.id) {
 				// Create
 				const res = await utils
-					.fetchWithTimeout(`${config.api}hours/${currentHours.id}`, {
+					.fetchToken(`${config.api}hours/${currentHours.id}`, {
 						method: "POST",
 						headers: {
 							Accept: "application/json",
@@ -293,7 +293,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 			} else if (update !== current) {
 				// Update existing
 				const res = await utils
-					.fetchWithTimeout(`${config.api}hours/project/${update.id}`, {
+					.fetchToken(`${config.api}hours/project/${update.id}`, {
 						method: "PATCH",
 						headers: {
 							Accept: "application/json",
@@ -327,7 +327,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 		const toRemove = currentHours.hours.filter((x) => !hoursData.some((y) => y.id === x.id));
 		for (let i = 0; i < toRemove.length; i++) {
 			const res = await utils
-				.fetchWithTimeout(`${config.api}hours/project/${toRemove[i].id}`, {
+				.fetchToken(`${config.api}hours/project/${toRemove[i].id}`, {
 					method: "DELETE",
 				})
 				.then((res) => res.json());
@@ -536,7 +536,7 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 
 								// Submit hours
 								const res = await utils
-									.fetchWithTimeout(`${config.api}hours/${currentHours.id}`, {
+									.fetchToken(`${config.api}hours/${currentHours.id}`, {
 										method: "PATCH",
 										headers: {
 											Accept: "application/json",

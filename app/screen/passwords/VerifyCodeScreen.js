@@ -17,7 +17,7 @@ import utils from "../../utils";
 const verify = async (businessId, userId, code, setCurrentError, data) => {
 	try {
 		const res = await utils
-			.fetchWithTimeout(`${config.api}users/recover/${businessId}/${userId}/${code}`, {
+			.fetchToken(`${config.api}users/recover/${businessId}/${userId}/${code}`, {
 				method: "POST",
 			})
 			.then((res) => res.json());

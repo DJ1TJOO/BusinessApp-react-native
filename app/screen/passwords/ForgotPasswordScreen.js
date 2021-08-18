@@ -52,7 +52,7 @@ const defaultFormData = [
 
 export const createCode = async (business, email, setCurrentError, data) => {
 	try {
-		const res = await utils.fetchWithTimeout(`${config.api}users/recover/${business}/${email}`).then((res) => res.json());
+		const res = await utils.fetchToken(`${config.api}users/recover/${business}/${email}`).then((res) => res.json());
 		if (!res.success) {
 			setCurrentError(languagesUtils.convertError(data.language, res));
 		}
@@ -82,7 +82,7 @@ const ForgotPasswordScreen = ({ navigation, route }) => {
 		if (!data.login.businessNames || data.login.businessNames.length < 1) {
 			(async () => {
 				try {
-					const res = await utils.fetchWithTimeout(config.api + "business/names").then((res) => res.json());
+					const res = await utils.fetchToken(config.api + "business/names").then((res) => res.json());
 					if (res.success) data.login.businessNames = res.data;
 					else data.login.businessNames = [];
 				} catch (error) {

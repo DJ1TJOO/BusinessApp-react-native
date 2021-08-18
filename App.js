@@ -111,7 +111,7 @@ export default function App() {
 				navigate("NoConnection", { servers: false });
 			} else {
 				try {
-					const res = await utils.fetchWithTimeout(config.api).then((res) => res.json());
+					const res = await utils.fetchToken(config.api).then((res) => res.json());
 					if (res.success) {
 						const routeState = getState();
 						const currentRoute = routeState.routes[routeState.index];

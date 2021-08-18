@@ -110,7 +110,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await utils.fetchWithTimeout(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await utils.fetchToken(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -213,7 +213,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 							if (formData.function.value && formData.function.value !== route.params.function) bodyUser.functionDescription = formData.function.value;
 
 							const resUser = await utils
-								.fetchWithTimeout(config.api + "users/" + route.params.id, {
+								.fetchToken(config.api + "users/" + route.params.id, {
 									method: "PATCH",
 									headers: {
 										Accept: "application/json",
@@ -235,7 +235,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 
 										// Add user to team
 										const resTeam = await utils
-											.fetchWithTimeout(config.api + "teams/" + team.id, {
+											.fetchToken(config.api + "teams/" + team.id, {
 												method: "POST",
 												headers: {
 													Accept: "application/json",
@@ -265,7 +265,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 
 										// Remove user from team
 										const resTeam = await utils
-											.fetchWithTimeout(config.api + "teams/" + team.id + "/" + route.params.id, {
+											.fetchToken(config.api + "teams/" + team.id + "/" + route.params.id, {
 												method: "DELETE",
 											})
 											.then((res) => res.json());
@@ -312,7 +312,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 								onAccept: async () => {
 									try {
 										const res = await utils
-											.fetchWithTimeout(config.api + "users/" + route.params.id, {
+											.fetchToken(config.api + "users/" + route.params.id, {
 												method: "DELETE",
 											})
 											.then((res) => res.json());

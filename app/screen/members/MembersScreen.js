@@ -19,14 +19,7 @@ const MembersScreen = ({ navigation, route }) => {
 	const getUsers = async () => {
 		if (!data.members) data.members = [];
 		try {
-			// TODO: add token to each fetch
-			const res = await utils
-				.fetchWithTimeout(config.api + "users/business/" + data.user.business_id, {
-					headers: {
-						authorization: "Token " + data.token,
-					},
-				})
-				.then((res) => res.json());
+			const res = await utils.fetchToken(config.api + "users/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.members = res.data;
 			setData({ ...data });
 		} catch (error) {

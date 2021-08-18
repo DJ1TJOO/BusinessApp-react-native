@@ -80,7 +80,7 @@ const SettingsScreen = ({ navigation, route }) => {
 								};
 
 								const resUser = await utils
-									.fetchWithTimeout(config.api + "users/" + data.user.id, {
+									.fetchToken(config.api + "users/" + data.user.id, {
 										method: "PATCH",
 										headers: {
 											Accept: "application/json",

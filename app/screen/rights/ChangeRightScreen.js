@@ -45,7 +45,7 @@ const ChangeRightScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.availableRights) data.availableRights = {};
 		try {
-			const res = await utils.fetchWithTimeout(config.api + "rights/available").then((res) => res.json());
+			const res = await utils.fetchToken(config.api + "rights/available").then((res) => res.json());
 			if (res.success) data.availableRights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -103,7 +103,7 @@ const ChangeRightScreen = ({ navigation, route }) => {
 							};
 
 							const resRight = await utils
-								.fetchWithTimeout(config.api + "rights/" + route.params.id, {
+								.fetchToken(config.api + "rights/" + route.params.id, {
 									method: "PATCH",
 									headers: {
 										Accept: "application/json",
@@ -144,7 +144,7 @@ const ChangeRightScreen = ({ navigation, route }) => {
 								onAccept: async () => {
 									try {
 										const res = await utils
-											.fetchWithTimeout(config.api + "rights/" + route.params.id, {
+											.fetchToken(config.api + "rights/" + route.params.id, {
 												method: "DELETE",
 											})
 											.then((res) => res.json());

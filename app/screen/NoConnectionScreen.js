@@ -49,7 +49,7 @@ const NoConnectionScreen = ({ navigation, route }) => {
 					NetInfo.fetch().then(async (state) => {
 						if (state.isConnected) {
 							try {
-								const res = await utils.fetchWithTimeout(config.api).then((res) => res.json());
+								const res = await utils.fetchToken(config.api).then((res) => res.json());
 								if (res.success) {
 									navigation.goBack();
 								} else {

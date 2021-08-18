@@ -282,7 +282,7 @@ const RegisterScreen = ({ navigation }) => {
 								image: "data:image/png;base64," + formData.image.value.base64,
 							};
 							const res = await utils
-								.fetchWithTimeout(config.api + "business/", {
+								.fetchToken(config.api + "business/", {
 									method: "POST",
 									headers: {
 										Accept: "application/json",
@@ -307,7 +307,7 @@ const RegisterScreen = ({ navigation }) => {
 								if (formData.account_function.value) bodyUser.functionDescription = formData.account_function.value;
 
 								const resUser = await utils
-									.fetchWithTimeout(config.api + "users/", {
+									.fetchToken(config.api + "users/", {
 										method: "POST",
 										headers: {
 											Accept: "application/json",
@@ -320,7 +320,7 @@ const RegisterScreen = ({ navigation }) => {
 									// Make user owner of business
 									const bodyBusiness = { ownerCode: res.data.ownerCode, owner: resUser.data.id };
 									const resBusiness = await utils
-										.fetchWithTimeout(config.api + "business/" + res.data.business.id, {
+										.fetchToken(config.api + "business/" + res.data.business.id, {
 											method: "PATCH",
 											headers: {
 												Accept: "application/json",

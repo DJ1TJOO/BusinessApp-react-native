@@ -70,7 +70,7 @@ const LoginScreen = ({ navigation }) => {
 		if (!data.login.businessNames || data.login.businessNames.length < 1) {
 			(async () => {
 				try {
-					const res = await utils.fetchWithTimeout(config.api + "business/names").then((res) => res.json());
+					const res = await utils.fetchToken(config.api + "business/names").then((res) => res.json());
 					if (res.success) data.login.businessNames = res.data;
 					else data.login.businessNames = [];
 				} catch (error) {
@@ -94,7 +94,7 @@ const LoginScreen = ({ navigation }) => {
 
 				if (token && user) {
 					const res = await utils
-						.fetchWithTimeout(config.api + "login/validate", {
+						.fetchToken(config.api + "login/validate", {
 							method: "POST",
 							headers: {
 								Accept: "application/json",
@@ -120,7 +120,7 @@ const LoginScreen = ({ navigation }) => {
 							);
 						}
 
-						const businessRes = await utils.fetchWithTimeout(config.api + "business/" + user.business_id).then((res) => res.json());
+						const businessRes = await utils.fetchToken(config.api + "business/" + user.business_id).then((res) => res.json());
 
 						if (businessRes.success) {
 							// Store in data
@@ -177,7 +177,7 @@ const LoginScreen = ({ navigation }) => {
 							setCurrentFormError(null);
 
 							const res = await utils
-								.fetchWithTimeout(config.api + "login", {
+								.fetchToken(config.api + "login", {
 									method: "POST",
 									headers: {
 										Accept: "application/json",
@@ -203,7 +203,7 @@ const LoginScreen = ({ navigation }) => {
 									})
 								);
 
-								const businessRes = await utils.fetchWithTimeout(config.api + "business/" + res.data.user.business_id).then((res) => res.json());
+								const businessRes = await utils.fetchToken(config.api + "business/" + res.data.user.business_id).then((res) => res.json());
 
 								if (businessRes.success) {
 									// Store in data

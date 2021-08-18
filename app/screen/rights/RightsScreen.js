@@ -19,7 +19,7 @@ const RightsScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await utils.fetchWithTimeout(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await utils.fetchToken(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {

@@ -24,7 +24,7 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 		try {
 			const user = data.checkHours.users.find((x) => x.id === route.params.id);
 			if (!user) return;
-			const res = await utils.fetchWithTimeout(config.api + "hours/users/" + user.id).then((res) => res.json());
+			const res = await utils.fetchToken(config.api + "hours/users/" + user.id).then((res) => res.json());
 			if (res.success) user.hours = res.data.filter((x) => x.submitted !== null);
 			else user.hours = [];
 			setHours(user.hours);

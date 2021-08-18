@@ -65,7 +65,7 @@ const HoursScreen = ({ navigation, route }) => {
 			data.hours = data.hours.filter((x) => x.year !== year);
 
 			// Get hours from current year
-			const res = await utils.fetchWithTimeout(`${config.api}hours/users/${data.user.id}/${year}`).then((res) => res.json());
+			const res = await utils.fetchToken(`${config.api}hours/users/${data.user.id}/${year}`).then((res) => res.json());
 
 			// Add to data
 			if (res.success) {
@@ -140,7 +140,7 @@ const HoursScreen = ({ navigation, route }) => {
 										try {
 											// Submit hours
 											const res = await utils
-												.fetchWithTimeout(`${config.api}hours/${hours.id}`, {
+												.fetchToken(`${config.api}hours/${hours.id}`, {
 													method: "PATCH",
 													headers: {
 														Accept: "application/json",
