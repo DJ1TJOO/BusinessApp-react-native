@@ -1,11 +1,12 @@
+const { authToken, authRights } = require("./helpers/auth");
 const { promisePool: db } = require("./helpers/db");
-const { dbGenerateUniqueId } = require("./helpers/utils");
+const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
+const { availableRights } = require("./rights");
 
 const teams = require("express").Router();
 
-// TODO: authorization
 // TODO: test
-teams.get("/:id", async (req, res) => {
+teams.get("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
 	try {
 		const [results] = await db.query(`SELECT * FROM teams WHERE id = ?`, [id]);
@@ -14,6 +15,15 @@ teams.get("/:id", async (req, res) => {
 				success: false,
 				error: "team_not_found",
 			});
+		}
+
+		const [user_results] = await db.query(`SELECT count(*) FROM user_teams WHERE user_id = ? and team_id = ?`, [req.token.id, id]);
+
+		// No auth if in team
+		if (user_results[0]["count(*)"] < 1) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.GET_TEAMS], req.token, results[0].business_id);
+			if (!auth.success) return objectToResponse(res, auth);
 		}
 
 		return res.send({
@@ -31,7 +41,7 @@ teams.get("/:id", async (req, res) => {
 	}
 });
 
-teams.get("/business/:businessId", async (req, res) => {
+teams.get("/business/:businessId", authToken, async (req, res) => {
 	const { businessId } = req.params;
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
@@ -44,6 +54,10 @@ teams.get("/business/:businessId", async (req, res) => {
 				error: "business_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.GET_TEAMS], req.token, businessId);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		const [results] = await db.query(`SELECT * FROM teams WHERE business_id = ?`, [businessId]);
 
@@ -62,7 +76,7 @@ teams.get("/business/:businessId", async (req, res) => {
 	}
 });
 
-teams.post("/", async (req, res) => {
+teams.post("/", authToken, async (req, res) => {
 	const { name, businessId, chatId, agendaId } = req.body;
 
 	try {
@@ -76,6 +90,10 @@ teams.post("/", async (req, res) => {
 				error: "business_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.ADD_TEAMS], req.token, businessId);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		// Check if  name is correct
 		// Name is empty
@@ -196,18 +214,22 @@ teams.post("/", async (req, res) => {
 	}
 });
 
-teams.post("/:teamId/", async (req, res) => {
+teams.post("/:teamId/", authToken, async (req, res) => {
 	const { teamId } = req.params;
 	const { userId } = req.body;
 
 	try {
-		const [get_results] = await db.query(`SELECT count(*) FROM teams WHERE id = ?`, [teamId]);
-		if (get_results[0]["count(*)"] < 1) {
+		const [get_results] = await db.query(`SELECT business_id FROM teams WHERE id = ?`, [teamId]);
+		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "team_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.CHANGE_TEAMS], req.token, get_results[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		if (!userId) {
 			// Return status 422 (unprocessable entity) empty
@@ -263,18 +285,22 @@ teams.post("/:teamId/", async (req, res) => {
 	}
 });
 
-teams.patch("/:id", async (req, res) => {
+teams.patch("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
 	const { name, chatId, agendaId } = req.body;
 
 	try {
-		const [get_results] = await db.query(`SELECT name,agenda_id,chat_id FROM teams WHERE id = ?`, [id]);
+		const [get_results] = await db.query(`SELECT name,agenda_id,chat_id,business_id FROM teams WHERE id = ?`, [id]);
 		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "team_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.CHANGE_TEAMS], req.token, get_results[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		// Check if  name is correct
 		let hasName = false;
@@ -397,7 +423,7 @@ teams.patch("/:id", async (req, res) => {
 	}
 });
 
-teams.delete("/:id", async (req, res) => {
+teams.delete("/:id", authToken, async (req, res) => {
 	const id = req.params.id;
 	try {
 		const [get_results] = await db.query(`SELECT * FROM teams WHERE id = ?`, [id]);
@@ -407,6 +433,10 @@ teams.delete("/:id", async (req, res) => {
 				error: "team_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.DELETE_TEAMS], req.token, get_results[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		const [delete_results] = await db.query(`DELETE FROM teams WHERE id = ?`, [id]);
 
@@ -432,10 +462,22 @@ teams.delete("/:id", async (req, res) => {
 	}
 });
 
-teams.delete("/:teamId/:userId", async (req, res) => {
+teams.delete("/:teamId/:userId", authToken, async (req, res) => {
 	const { userId, teamId } = req.params;
 
 	try {
+		const [team_results] = await db.query(`SELECT business_id FROM teams WHERE id = ?`, [teamId]);
+		if (team_results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "team_not_found",
+			});
+		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.CHANGE_TEAMS], req.token, team_results[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
+
 		const [get_results] = await db.query(`SELECT * FROM user_teams WHERE user_id = ? AND team_id = ?`, [userId, teamId]);
 		if (get_results.length < 1) {
 			return res.status(404).send({

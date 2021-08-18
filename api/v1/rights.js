@@ -1,5 +1,5 @@
 const { promisePool: db } = require("./helpers/db");
-const { dbGenerateUniqueId } = require("./helpers/utils");
+const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 const { authToken, authRights } = require("./helpers/auth");
 
 const rights = require("express").Router();
@@ -20,6 +20,10 @@ const availableRights = {
 	CHANGE_HOURS: 11,
 	DELETE_HOURS: 12,
 	CHECK_HOURS: 13,
+	GET_TEAMS: 14,
+	ADD_TEAMS: 15,
+	CHANGE_TEAMS: 16,
+	DELETE_TEAMS: 17,
 };
 
 module.exports.availableRights = availableRights;

@@ -1,4 +1,4 @@
-const { authToken } = require("./helpers/auth");
+const { authToken, authRights } = require("./helpers/auth");
 const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 const { availableRights } = require("./rights");

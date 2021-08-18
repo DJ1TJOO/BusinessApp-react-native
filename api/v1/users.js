@@ -4,7 +4,7 @@ const path = require("path");
 
 const sendEmail = require("./helpers/mailer");
 const { promisePool: db } = require("./helpers/db");
-const { dbGenerateUniqueId } = require("./helpers/utils");
+const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 const { availableRights } = require("./rights");
 const { authToken, authRights } = require("./helpers/auth");
 
