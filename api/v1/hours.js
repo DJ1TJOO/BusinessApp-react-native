@@ -1,5 +1,7 @@
+const { authToken } = require("./helpers/auth");
 const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
+const { availableRights } = require("./rights");
 
 const hours = require("express").Router();
 
@@ -8,7 +10,7 @@ const hours = require("express").Router();
  *  [key]: String,
  * }} params
  */
-const getHours = async (params) => {
+const getHours = async (params, token) => {
 	try {
 		const [results] = await db.query(
 			`SELECT * FROM hours WHERE ${Object.keys(params)
@@ -21,6 +23,13 @@ const getHours = async (params) => {
 				success: false,
 				error: "hours_not_found",
 			};
+		}
+
+		// Users can get there own hours
+		if (results.some((x) => x.user_id !== token.id)) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.GET_HOURS], token, results[0].business_id);
+			if (!auth.success) return auth;
 		}
 
 		const mappedResults = results.map((x) => ({
@@ -92,14 +101,13 @@ const addProjectHours = async (hours) => {
 	}
 };
 
-// TODO: authorization
-hours.get("/:id", async (req, res) => {
+hours.get("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
-	return objectToResponse(res, await getHours({ id }));
+	return objectToResponse(res, await getHours({ id }, req.token));
 });
 
 // Get hours from user overall, year, week
-hours.get("/users/:userId/:year?/:week?", async (req, res) => {
+hours.get("/users/:userId/:year?/:week?", authToken, async (req, res) => {
 	const { userId, year, week } = req.params;
 
 	const params = { user_id: userId };
@@ -107,11 +115,11 @@ hours.get("/users/:userId/:year?/:week?", async (req, res) => {
 	if (year) params.year = year;
 
 	// Week fist is faster
-	return objectToResponse(res, await getHours(params));
+	return objectToResponse(res, await getHours(params, req.token));
 });
 
 // Get hours from business overall, year, week
-hours.get("/business/:businessId/:year?/:week?", async (req, res) => {
+hours.get("/business/:businessId/:year?/:week?", authToken, async (req, res) => {
 	const { businessId, year, week } = req.params;
 
 	const params = { business_id: businessId };
@@ -119,10 +127,10 @@ hours.get("/business/:businessId/:year?/:week?", async (req, res) => {
 	if (year) params.year = year;
 
 	// Week fist is faster
-	return objectToResponse(res, await getHours(params));
+	return objectToResponse(res, await getHours(params, req.token));
 });
 
-const createHours = async (body) => {
+const createHours = async (body, token) => {
 	const { userId, businessId, week, year } = body;
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
@@ -133,7 +141,14 @@ const createHours = async (body) => {
 			return { status: 404, success: false, error: "business_not_found" };
 		}
 
-		const [user_result] = await db.query(`SELECT count(*) FROM users WHERE id = ?`, [userId]);
+		// User can create own hours
+		if (userId !== token.id) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.CREATE_HOURS], token, businessId);
+			if (!auth.success) return auth;
+		}
+
+		const [user_result] = await db.query(`SELECT count(*) FROM users WHERE id = ? AND business_id`, [userId, businessId]);
 
 		// User does not exists
 		if (user_result[0]["count(*)"] < 1) {
@@ -277,8 +292,8 @@ const createHours = async (body) => {
 	}
 };
 
-hours.post("/", async (req, res) => {
-	return objectToResponse(res, await createHours(req.body));
+hours.post("/", authToken, async (req, res) => {
+	return objectToResponse(res, await createHours(req.body, token));
 });
 
 const validateNumber = (field, value, min, max, checkEmpty = true) => {
@@ -495,16 +510,23 @@ const createProjectHours = async (hoursId, body) => {
 	}
 };
 
-hours.post("/:hoursId", async (req, res) => {
+hours.post("/:hoursId", authToken, async (req, res) => {
 	const { hoursId } = req.params;
 
 	try {
-		const [hours_result] = await db.query(`SELECT count(*) FROM hours WHERE id = ?`, [hoursId]);
+		const [hours_result] = await db.query(`SELECT user_id,business_id FROM hours WHERE id = ?`, [hoursId]);
 
 		// Hours does not exists
-		if (hours_result[0]["count(*)"] < 1) {
+		if (hours_result.length < 1) {
 			// Return status 404 (not found) hours not found
 			return res.status(404).send({ success: false, error: "hours_not_found" });
+		}
+
+		// User can create own project hours
+		if (hours_result[0].user_id !== token.id) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.CREATE_HOURS], req.token, hours_result[0].business_id);
+			if (!auth.success) return objectToResponse(res, auth);
 		}
 
 		return objectToResponse(res, await createProjectHours(hoursId, req.body));
@@ -516,17 +538,24 @@ hours.post("/:hoursId", async (req, res) => {
 	}
 });
 
-hours.post("/:userId/:year/:week", async (req, res) => {
+hours.post("/:userId/:year/:week", authToken, async (req, res) => {
 	const { userId, week, year } = req.params;
 
 	try {
 		// Get id
 		let id = null;
-		const [hours_result] = await db.query(`SELECT id FROM hours WHERE user_id = ? AND week = ? AND year = ?`, [userId, week, year]);
+		const [hours_result] = await db.query(`SELECT id,business_id FROM hours WHERE user_id = ? AND week = ? AND year = ?`, [userId, week, year]);
 
 		// Hours does not exists
 		if (hours_result.length < 1) {
-			const hours = await createHours(req.body);
+			// User can create own project hours
+			if (userId !== token.id) {
+				// Check if user has rights
+				const auth = await authRights([availableRights.CREATE_HOURS], req.token, req.token.businessId);
+				if (!auth.success) return objectToResponse(res, auth);
+			}
+
+			const hours = await createHours({ ...req.body, week, year, userId, businessId: req.token.businessId }, req.token);
 
 			if (!hours.success) {
 				// Return error creating hours
@@ -535,10 +564,17 @@ hours.post("/:userId/:year/:week", async (req, res) => {
 
 			id = hours.data.id;
 		} else {
+			// User can create own project hours
+			if (userId !== token.id) {
+				// Check if user has rights
+				const auth = await authRights([availableRights.CREATE_HOURS], req.token, hours_result[0].business_id);
+				if (!auth.success) return objectToResponse(res, auth);
+			}
+
 			id = hours_result[0].id;
 		}
 
-		return objectToResponse(res, await createProjectHours(id, req.body));
+		return objectToResponse(res, await createProjectHours(id, req.body, req.token));
 	} catch (error) {
 		// Mysql error
 		console.log(error);
@@ -547,18 +583,22 @@ hours.post("/:userId/:year/:week", async (req, res) => {
 	}
 });
 
-hours.patch("/:id", async (req, res) => {
+hours.patch("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
 	const { valid, submitted } = req.body;
 	try {
 		// Check if hours exists
-		const [getResults] = await db.query(`SELECT valid,submitted FROM hours WHERE id = ?`, [id]);
+		const [getResults] = await db.query(`SELECT valid,submitted,business_id FROM hours WHERE id = ?`, [id]);
 		if (getResults.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "hours_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.CHECK_HOURS], req.token, getResults[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		// Submitted specified
 		let hasSubmitted = false;
@@ -635,18 +675,26 @@ hours.patch("/:id", async (req, res) => {
 	}
 });
 
-hours.patch("/project/:projectHoursId", async (req, res) => {
+hours.patch("/project/:projectHoursId", authToken, async (req, res) => {
 	const { projectHoursId } = req.params;
 	const { project, projectName, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body;
 	try {
-		const [get_results] = await db.query(`SELECT project,project_id,description,monday,tuesday,wednesday,thursday,friday,saturday,sunday FROM project_hours WHERE id = ?`, [
-			projectHoursId,
-		]);
+		const [get_results] = await db.query(
+			`SELECT project_hours.project,project_hours.project_id,project_hours.description,project_hours.monday,project_hours.tuesday,project_hours.wednesday,project_hours.thursday,project_hours.friday,project_hours.saturday,project_hours.sunday,hours.user_id,hours.business_id FROM project_hours INNER JOIN hours ON project_hours.hours_id = hours.id WHERE project_hours.id = ?`,
+			[projectHoursId]
+		);
 		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "project_hours_not_found",
 			});
+		}
+
+		// User can change own project hours
+		if (get_results[0].user_id !== token.id) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.CHANGE_HOURS], req.token, get_results[0].business_id);
+			if (!auth.success) return objectToResponse(res, auth);
 		}
 
 		// Check monday
@@ -805,7 +853,7 @@ hours.patch("/project/:projectHoursId", async (req, res) => {
 });
 
 // Delete whole week
-hours.delete("/:id", async (req, res) => {
+hours.delete("/:id", authToken, async (req, res) => {
 	const id = req.params.id;
 	try {
 		const [get_results] = await db.query(`SELECT * FROM hours WHERE id = ?`, [id]);
@@ -814,6 +862,13 @@ hours.delete("/:id", async (req, res) => {
 				success: false,
 				error: "hours_not_found",
 			});
+		}
+
+		// User can delete own hours
+		if (get_results[0].user_id !== token.id) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.DELETE_HOURS], req.token, get_results[0].business_id);
+			if (!auth.success) return objectToResponse(res, auth);
 		}
 
 		const [delete_results] = await db.query(`DELETE FROM hours WHERE id = ?`, [id]);
@@ -839,15 +894,23 @@ hours.delete("/:id", async (req, res) => {
 		});
 	}
 });
-hours.delete("/:userId/:year/:week", async (req, res) => {
+
+hours.delete("/:userId/:year/:week", authToken, async (req, res) => {
 	const { userId, week, year } = req.params;
 	try {
-		const [get_results] = await db.query(`SELECT * FROM hours WHERE userId = ? AND week = ? AND year = ?`, [userId, week, year]);
+		const [get_results] = await db.query(`SELECT * FROM hours WHERE user_id = ? AND week = ? AND year = ?`, [userId, week, year]);
 		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "hours_not_found",
 			});
+		}
+
+		// User can delete own hours
+		if (get_results[0].user_id !== token.id) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.DELETE_HOURS], req.token, get_results[0].business_id);
+			if (!auth.success) return objectToResponse(res, auth);
 		}
 
 		const [delete_results] = await db.query(`DELETE FROM hours WHERE id = ?`, [get_results[0].id]);
@@ -875,15 +938,27 @@ hours.delete("/:userId/:year/:week", async (req, res) => {
 });
 
 // Delete projectHours
-hours.delete("/project/:projectHoursId", async (req, res) => {
+hours.delete("/project/:projectHoursId", authToken, async (req, res) => {
 	const id = req.params.projectHoursId;
 	try {
-		const [get_results] = await db.query(`SELECT * FROM project_hours WHERE id = ?`, [id]);
+		const [get_results] = await db.query(
+			`SELECT project_hours.*,hours.user_id,hours.business_id FROM project_hours INNER JOIN hours ON project_hours.hours_id = hours.id WHERE id = ?`,
+			[id]
+		);
 		if (get_results.length < 1) {
 			return res.status(404).send({
 				success: false,
 				error: "project_hours_not_found",
 			});
+		}
+
+		const { business_id, user_id, ...projectHours } = get_results[0];
+
+		// User can delete own project hours
+		if (user_id !== token.id) {
+			// Check if user has rights
+			const auth = await authRights([availableRights.DELETE_HOURS], req.token, business_id);
+			if (!auth.success) return objectToResponse(res, auth);
 		}
 
 		const [delete_results] = await db.query(`DELETE FROM project_hours WHERE id = ?`, [id]);
@@ -897,7 +972,7 @@ hours.delete("/project/:projectHoursId", async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: get_results[0],
+			data: projectHours,
 		});
 	} catch (error) {
 		// Mysql error

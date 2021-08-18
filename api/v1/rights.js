@@ -15,6 +15,11 @@ const availableRights = {
 	ADD_RIGHTS: 6,
 	CHANGE_RIGHTS: 7,
 	DELETE_RIGHTS: 8,
+	GET_HOURS: 9,
+	CREATE_HOURS: 10,
+	CHANGE_HOURS: 11,
+	DELETE_HOURS: 12,
+	CHECK_HOURS: 13,
 };
 
 module.exports.availableRights = availableRights;
