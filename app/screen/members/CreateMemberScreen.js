@@ -9,7 +9,7 @@ import FormSelect from "../../components/form/FormSelect";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
-import config from "../../config/config";
+import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 

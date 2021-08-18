@@ -6,7 +6,7 @@ import FormButton from "../components/form/FormButton";
 import FormInput from "../components/form/FormInput";
 import Wrapper from "../components/Wrapper";
 
-import config from "../config/config";
+import { config } from "../config/config";
 
 import dataContext from "../contexts/dataContext";
 

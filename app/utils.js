@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { getState, goBack, navigate } from "../RootNavigation";
-import config from "./config/config";
+import { config } from "./config/config";
 
 const handleError = async (error) => {
 	// Check if servers are reachable

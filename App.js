@@ -37,7 +37,7 @@ import VerifyCodeScreen from "./app/screen/passwords/VerifyCodeScreen";
 import RegisterScreen from "./app/screen/RegisterScreen";
 import WelcomeScreen from "./app/screen/WelcomeScreen";
 
-import config from "./app/config/config";
+import { config, setApi } from "./app/config/config";
 
 import utils from "./app/utils";
 
@@ -268,6 +268,35 @@ function AnimatedSplashScreen({ children, image }) {
 					}
 
 					res();
+				}),
+				// TODO: remove on prod
+				new Promise(async (resolve) => {
+					const res = await Promise.race([
+						new Promise(async (resolve) => {
+							try {
+								resolve(await fetch(config.api)).then((res) => res.json());
+							} catch (error) {
+								resolve(false);
+							}
+						}),
+						new Promise((resolve) => setTimeout(() => resolve(false), 1000)),
+					]);
+					if (!res) {
+						const resForeward = await Promise.race([
+							new Promise(async (resolve) => {
+								try {
+									resolve(await fetch("http://89.32.240.249:8003/v1/").then((res) => res.json()));
+								} catch (error) {
+									resolve(false);
+								}
+							}),
+							new Promise((resolve) => setTimeout(() => resolve(false), 1000)),
+						]);
+						if (resForeward && resForeward.success) {
+							setApi("http://89.32.240.249:8003/v1/");
+						}
+					}
+					resolve();
 				}),
 			]);
 		} catch (e) {

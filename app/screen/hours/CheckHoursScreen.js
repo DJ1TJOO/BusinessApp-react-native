@@ -5,7 +5,7 @@ import Heading from "../../components/Heading";
 import MenuCard from "../../components/menu/MenuCard";
 import Wrapper from "../../components/Wrapper";
 
-import config from "../../config/config";
+import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 

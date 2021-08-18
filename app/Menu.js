@@ -7,7 +7,7 @@ import { IconArrowBack } from "./components/Icons";
 import MenuCard from "./components/menu/MenuCard";
 
 import Colors from "./config/Colors";
-import config from "./config/config";
+import { config } from "./config/config";
 import FontSizes from "./config/FontSizes";
 
 import dataContext from "./contexts/dataContext";

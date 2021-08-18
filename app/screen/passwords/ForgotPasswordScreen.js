@@ -7,7 +7,7 @@ import FormInput from "../../components/form/FormInput";
 import { IconArrowBack } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 
-import config from "../../config/config";
+import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 

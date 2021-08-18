@@ -7,7 +7,7 @@ import Heading from "../../components/Heading";
 import { IconCheck, IconCross, IconLoading } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 
-import config from "../../config/config";
+import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 

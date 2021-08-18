@@ -45,6 +45,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "^7.9.0",
+		"@expo/ngrok": "^2.5.0",
 		"concurrently": "^6.2.0"
 	},
 	"private": true

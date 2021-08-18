@@ -6,7 +6,7 @@ import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
-import config from "../../config/config";
+import { config } from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";

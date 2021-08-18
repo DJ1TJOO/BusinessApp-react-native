@@ -6,7 +6,7 @@ import FormButton from "../components/form/FormButton";
 import { IconCross, IconEarth, IconServers } from "../components/Icons";
 
 import Colors from "../config/Colors";
-import config from "../config/config";
+import { config } from "../config/config";
 import FontSizes from "../config/FontSizes";
 
 import useErrorModal from "../hooks/useErrorModal";

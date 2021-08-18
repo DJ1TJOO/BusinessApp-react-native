@@ -8,7 +8,7 @@ import FormSelect from "../../components/form/FormSelect";
 import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
 
-import config from "../../config/config";
+import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
