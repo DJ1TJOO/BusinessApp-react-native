@@ -60,7 +60,10 @@ const ChangeRightScreen = ({ navigation, route }) => {
 				await getRights();
 			}
 
-			const rights = Object.keys(data.availableRights).map((x) => ({ id: data.availableRights[x], name: languagesUtils.capitalizeFirstLetter(x.toLowerCase()) }));
+			const rights = Object.keys(data.availableRights).map((x) => ({
+				id: data.availableRights[x],
+				name: languagesUtils.capitalizeFirstLetter(x.toLowerCase().replace(/_/, " ")),
+			}));
 			setRights(rights);
 			setFormValue("rights")(rights.filter((x) => route.params.rights.includes(x.id)).map((x) => x.name));
 		})();

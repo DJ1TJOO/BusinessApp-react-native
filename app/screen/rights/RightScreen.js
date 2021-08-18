@@ -39,7 +39,10 @@ const RightScreen = ({ navigation, route }) => {
 				await getRights();
 			}
 
-			const rights = Object.keys(data.availableRights).map((x) => ({ id: data.availableRights[x], name: languagesUtils.capitalizeFirstLetter(x.toLowerCase()) }));
+			const rights = Object.keys(data.availableRights).map((x) => ({
+				id: data.availableRights[x],
+				name: languagesUtils.capitalizeFirstLetter(x.toLowerCase().replace(/_/, " ")),
+			}));
 			setRights(rights);
 		})();
 	}, []);

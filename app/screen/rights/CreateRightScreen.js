@@ -59,7 +59,9 @@ const CreateRightScreen = ({ navigation, route }) => {
 				await getRights();
 			}
 
-			setRights(Object.keys(data.availableRights).map((x) => ({ id: data.availableRights[x], name: languagesUtils.capitalizeFirstLetter(x.toLowerCase()) })));
+			setRights(
+				Object.keys(data.availableRights).map((x) => ({ id: data.availableRights[x], name: languagesUtils.capitalizeFirstLetter(x.toLowerCase().replace(/_/, " ")) }))
+			);
 		})();
 	}, []);
 
