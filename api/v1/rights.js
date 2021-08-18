@@ -1,30 +1,9 @@
 const { promisePool: db } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 const { authToken, authRights } = require("./helpers/auth");
+const availableRights = require("./availableRights.json");
 
 const rights = require("express").Router();
-
-// TODO: add rights
-const availableRights = {
-	UPDATE_BUSINESS: 0,
-	GET_MEMBERS: 1,
-	ADD_MEMBERS: 2,
-	CHANGE_MEMBERS: 3,
-	DELETE_MEMBERS: 4,
-	GET_RIGHTS: 5,
-	ADD_RIGHTS: 6,
-	CHANGE_RIGHTS: 7,
-	DELETE_RIGHTS: 8,
-	GET_HOURS: 9,
-	CREATE_HOURS: 10,
-	CHANGE_HOURS: 11,
-	DELETE_HOURS: 12,
-	CHECK_HOURS: 13,
-	GET_TEAMS: 14,
-	ADD_TEAMS: 15,
-	CHANGE_TEAMS: 16,
-	DELETE_TEAMS: 17,
-};
 
 module.exports.availableRights = availableRights;
 

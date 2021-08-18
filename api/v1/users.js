@@ -5,8 +5,8 @@ const path = require("path");
 const sendEmail = require("./helpers/mailer");
 const { promisePool: db } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
-const { availableRights } = require("./rights");
 const { authToken, authRights } = require("./helpers/auth");
+const availableRights = require("./availableRights.json");
 
 const users = require("express").Router();
 

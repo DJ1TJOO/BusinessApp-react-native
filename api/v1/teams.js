@@ -1,7 +1,7 @@
 const { authToken, authRights } = require("./helpers/auth");
 const { promisePool: db } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
-const { availableRights } = require("./rights");
+const availableRights = require("./availableRights.json");
 
 const teams = require("express").Router();
 

@@ -2,7 +2,7 @@ const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 const { saveImage, deleteImage } = require("./helpers/images");
 const { authRights, authToken } = require("./helpers/auth");
-const { availableRights } = require("./rights");
+const availableRights = require("./availableRights.json");
 
 const business = require("express").Router();
 

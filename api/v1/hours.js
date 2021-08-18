@@ -1,7 +1,7 @@
 const { authToken, authRights } = require("./helpers/auth");
 const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
-const { availableRights } = require("./rights");
+const availableRights = require("./availableRights.json");
 
 const hours = require("express").Router();
 
@@ -293,7 +293,7 @@ const createHours = async (body, token) => {
 };
 
 hours.post("/", authToken, async (req, res) => {
-	return objectToResponse(res, await createHours(req.body, token));
+	return objectToResponse(res, await createHours(req.body, req.token));
 });
 
 const validateNumber = (field, value, min, max, checkEmpty = true) => {
@@ -523,7 +523,7 @@ hours.post("/:hoursId", authToken, async (req, res) => {
 		}
 
 		// User can create own project hours
-		if (hours_result[0].user_id !== token.id) {
+		if (hours_result[0].user_id !== req.token.id) {
 			// Check if user has rights
 			const auth = await authRights([availableRights.CREATE_HOURS], req.token, hours_result[0].business_id);
 			if (!auth.success) return objectToResponse(res, auth);
@@ -549,7 +549,7 @@ hours.post("/:userId/:year/:week", authToken, async (req, res) => {
 		// Hours does not exists
 		if (hours_result.length < 1) {
 			// User can create own project hours
-			if (userId !== token.id) {
+			if (userId !== req.token.id) {
 				// Check if user has rights
 				const auth = await authRights([availableRights.CREATE_HOURS], req.token, req.token.businessId);
 				if (!auth.success) return objectToResponse(res, auth);
@@ -565,7 +565,7 @@ hours.post("/:userId/:year/:week", authToken, async (req, res) => {
 			id = hours.data.id;
 		} else {
 			// User can create own project hours
-			if (userId !== token.id) {
+			if (userId !== req.token.id) {
 				// Check if user has rights
 				const auth = await authRights([availableRights.CREATE_HOURS], req.token, hours_result[0].business_id);
 				if (!auth.success) return objectToResponse(res, auth);
@@ -691,7 +691,7 @@ hours.patch("/project/:projectHoursId", authToken, async (req, res) => {
 		}
 
 		// User can change own project hours
-		if (get_results[0].user_id !== token.id) {
+		if (get_results[0].user_id !== req.token.id) {
 			// Check if user has rights
 			const auth = await authRights([availableRights.CHANGE_HOURS], req.token, get_results[0].business_id);
 			if (!auth.success) return objectToResponse(res, auth);
@@ -865,7 +865,7 @@ hours.delete("/:id", authToken, async (req, res) => {
 		}
 
 		// User can delete own hours
-		if (get_results[0].user_id !== token.id) {
+		if (get_results[0].user_id !== req.token.id) {
 			// Check if user has rights
 			const auth = await authRights([availableRights.DELETE_HOURS], req.token, get_results[0].business_id);
 			if (!auth.success) return objectToResponse(res, auth);
@@ -907,7 +907,7 @@ hours.delete("/:userId/:year/:week", authToken, async (req, res) => {
 		}
 
 		// User can delete own hours
-		if (get_results[0].user_id !== token.id) {
+		if (get_results[0].user_id !== req.token.id) {
 			// Check if user has rights
 			const auth = await authRights([availableRights.DELETE_HOURS], req.token, get_results[0].business_id);
 			if (!auth.success) return objectToResponse(res, auth);
@@ -955,7 +955,7 @@ hours.delete("/project/:projectHoursId", authToken, async (req, res) => {
 		const { business_id, user_id, ...projectHours } = get_results[0];
 
 		// User can delete own project hours
-		if (user_id !== token.id) {
+		if (user_id !== req.token.id) {
 			// Check if user has rights
 			const auth = await authRights([availableRights.DELETE_HOURS], req.token, business_id);
 			if (!auth.success) return objectToResponse(res, auth);
