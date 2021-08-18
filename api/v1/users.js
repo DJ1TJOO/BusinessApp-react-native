@@ -79,7 +79,7 @@ users.get("/business/:businessId", authToken, async (req, res) => {
 });
 
 users.post("/", async (req, res) => {
-	const { businessId, rightId, firstName, lastName, email, password, born, functionDescription, sendCreateCode, prefix } = req.body;
+	const { businessId, rightId, firstName, lastName, email, password, born, functionDescription, sendCreateCode, prefix, notificationToken } = req.body;
 
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
@@ -382,6 +382,25 @@ users.post("/", async (req, res) => {
 			});
 		}
 
+		// Check if notification token is specified
+		let hasNotificationToken = false;
+		if (notificationToken) {
+			// Notification token too short
+			if (functionDescription.length < 10) {
+				// Return status 422 (unprocessable entity) too short
+				return res.status(422).send({
+					success: false,
+					error: "too_short",
+					data: {
+						field: "notificationToken",
+						minLength: 10,
+					},
+				});
+			}
+
+			hasNotificationToken = true;
+		}
+
 		// Generate id
 		const id = await dbGenerateUniqueId("users", "id");
 
@@ -389,9 +408,11 @@ users.post("/", async (req, res) => {
 		await db.query(
 			`INSERT INTO 
 					users (id, business_id, ${hasRight ? "right_id," : ""} first_name, last_name,
-						email, pwd, born${hasFunctionDescription ? ", function_descr" : ""})
+						email, pwd, born${hasFunctionDescription ? ", function_descr" : ""}${hasNotificationToken ? ", notification_token" : ""})
 					VALUES ('${escape(id)}', '${escape(businessId)}',${hasRight ? `'${escape(rightId)}',` : ""}'${escape(firstName)}','${escape(lastName)}',
-						'${escape(email)}', '${pwd}', '${escape(bornDate.toISOString())}'${hasFunctionDescription ? `,'${escape(functionDescription)}'` : ""})`
+						'${escape(email)}', '${pwd}', '${escape(bornDate.toISOString())}'${hasFunctionDescription ? `,'${escape(functionDescription)}'` : ""}${
+				hasNotificationToken ? `,'${escape(notificationToken)}'` : ""
+			})`
 		);
 
 		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [id]);
@@ -777,7 +798,7 @@ users.post("/recover/:businessId/:userId/:code", async (req, res) => {
 
 users.patch("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
-	const { rightId, firstName, lastName, email, born, functionDescription, password, newPassword } = req.body;
+	const { rightId, firstName, lastName, email, born, functionDescription, password, newPassword, notificationToken } = req.body;
 
 	try {
 		// Get user
@@ -1069,8 +1090,27 @@ users.patch("/:id", authToken, async (req, res) => {
 			}
 		}
 
+		// Check if notification token is specified
+		let hasNotificationToken = false;
+		if (notificationToken) {
+			// Notification token too short
+			if (functionDescription.length < 10) {
+				// Return status 422 (unprocessable entity) too short
+				return res.status(422).send({
+					success: false,
+					error: "too_short",
+					data: {
+						field: "notificationToken",
+						minLength: 10,
+					},
+				});
+			}
+
+			hasNotificationToken = true;
+		}
+
 		// Nothing changed
-		if (!hasEmail && !hasRight && !hasFirstName && !hasLastName && !hasFunctionDescription && !hasBorn && !hasPassword) {
+		if (!hasEmail && !hasRight && !hasFirstName && !hasLastName && !hasFunctionDescription && !hasBorn && !hasPassword && !hasNotificationToken) {
 			// Send current user
 			const { pwd, ...user } = currentUser;
 			return res.send({
@@ -1087,6 +1127,7 @@ users.patch("/:id", authToken, async (req, res) => {
 		if (hasBorn) update.push({ name: "born", value: escape(born) });
 		if (hasFunctionDescription) update.push({ name: "function_descr", value: escape(functionDescription) });
 		if (hasPassword) update.push({ name: "pwd", value: pwd });
+		if (hasNotificationToken) update.push({ name: "notification_token", value: escape(notificationToken) });
 
 		// Update user
 		if (update.length > 0) {
