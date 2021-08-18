@@ -60,7 +60,7 @@ login.post("/validate", authToken, async (req, res) => {
 		expiresIn: `${process.env.JWT_TOKEN_EXPIRATION}d`,
 	});
 
-	const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE id = ?`, [req.token.id]);
+	const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr,notification_token FROM users WHERE id = ?`, [req.token.id]);
 	if (results.length < 1) {
 		return res.send({
 			success: true,

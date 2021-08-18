@@ -4,10 +4,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import AppLoading from "expo-app-loading";
 import { Asset } from "expo-asset";
 import Constants from "expo-constants";
+import * as Notifications from "expo-notifications";
 import * as Font from "expo-font";
 import * as Linking from "expo-linking";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Dimensions, Platform, StatusBar, StyleSheet, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 
@@ -127,10 +128,32 @@ export default function App() {
 		return unsubscribe;
 	}, []);
 
+	const notificationListener = useRef();
+	const responseListener = useRef();
+
+	useEffect(() => {
+		notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+			console.log("NOTIFICATION");
+			console.log(notification);
+			// TODO: handle routes, badges and data
+		});
+
+		responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+			console.log("RESPONSE");
+			console.log(response);
+			// TODO: handle routes, badges and data
+		});
+
+		return () => {
+			Notifications.removeNotificationSubscription(notificationListener.current);
+			Notifications.removeNotificationSubscription(responseListener.current);
+		};
+	}, []);
+
 	return (
-		<AnimatedAppLoader image={icon}>
-			<RootSiblingParent>
-				<dataContext.Provider value={[data, setData]}>
+		<dataContext.Provider value={[data, setData]}>
+			<AnimatedAppLoader image={icon}>
+				<RootSiblingParent>
 					<lastStatusBarColorContext.Provider value={[lastStatusBarColor, setLastStatusBarColor]}>
 						<NavigationContainer linking={linking} ref={navigationRef}>
 							<Stack.Navigator mode="modal" headerMode="none">
@@ -151,9 +174,9 @@ export default function App() {
 							</Stack.Navigator>
 						</NavigationContainer>
 					</lastStatusBarColorContext.Provider>
-				</dataContext.Provider>
-			</RootSiblingParent>
-		</AnimatedAppLoader>
+				</RootSiblingParent>
+			</AnimatedAppLoader>
+		</dataContext.Provider>
 	);
 }
 
@@ -188,6 +211,8 @@ function AnimatedSplashScreen({ children, image }) {
 	const [isAppReady, setAppReady] = useState(false);
 	const [isSplashAnimationComplete, setAnimationComplete] = useState(false);
 
+	const [data, setData] = useContext(dataContext);
+
 	useEffect(() => {
 		if (isAppReady) {
 			Animated.timing(animation, {
@@ -213,6 +238,36 @@ function AnimatedSplashScreen({ children, image }) {
 					}),
 				Font.loadAsync({
 					"Segoe-UI": require("./app/assets/fonts/Segoe-UI.ttf"),
+				}),
+				new Promise(async (res) => {
+					if (Constants.isDevice) {
+						const { status: existingStatus } = await Notifications.getPermissionsAsync();
+						let finalStatus = existingStatus;
+						if (existingStatus !== "granted") {
+							const { status } = await Notifications.requestPermissionsAsync();
+							finalStatus = status;
+						}
+						if (finalStatus !== "granted") {
+							data.notificationToken = null;
+						} else {
+							data.notificationToken = (await Notifications.getExpoPushTokenAsync()).data;
+						}
+					} else {
+						data.notificationToken = null;
+						alert("Must use physical device for Push Notifications");
+					}
+					setData(data);
+
+					if (Platform.OS === "android") {
+						Notifications.setNotificationChannelAsync("default", {
+							name: "default",
+							importance: Notifications.AndroidImportance.MAX,
+							vibrationPattern: [0, 250, 250, 250],
+							lightColor: "#FF231F7C",
+						});
+					}
+
+					res();
 				}),
 			]);
 		} catch (e) {

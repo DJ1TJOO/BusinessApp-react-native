@@ -111,6 +111,38 @@ const LoginScreen = ({ navigation }) => {
 						// Update in phone
 						await AsyncStorage.setItem("token", res.data.token);
 						if (res.data.user) {
+							// Update notification token
+							if (res.data.user.notification_token !== data.notificationToken) {
+								const resToken = await utils
+									.fetchToken(config.api + "users/" + res.data.user.id, {
+										method: "PATCH",
+										headers: {
+											Accept: "application/json",
+											"Content-Type": "application/json",
+										},
+										body: JSON.stringify({
+											notificationToken: data.notificationToken,
+										}),
+									})
+									.then((res) => res.json());
+
+								if (!resToken.success) {
+									setCurrentError(
+										languagesUtils.convertError(
+											data.language,
+											resToken,
+											{
+												notificationToken: data.notificationToken,
+											},
+											"gebruiker",
+											{
+												notificationToken: "de meldingstoken",
+											}
+										)
+									);
+								}
+							}
+
 							await AsyncStorage.setItem(
 								"user",
 								JSON.stringify({
@@ -203,6 +235,38 @@ const LoginScreen = ({ navigation }) => {
 										business: formData.business_name.value,
 									})
 								);
+
+								// Update notification token
+								if (res.data.user.notification_token !== data.notificationToken) {
+									const resToken = await utils
+										.fetchToken(config.api + "users/" + res.data.user.id, {
+											method: "PATCH",
+											headers: {
+												Accept: "application/json",
+												"Content-Type": "application/json",
+											},
+											body: JSON.stringify({
+												notificationToken: data.notificationToken,
+											}),
+										})
+										.then((res) => res.json());
+
+									if (!resToken.success) {
+										setCurrentError(
+											languagesUtils.convertError(
+												data.language,
+												resToken,
+												{
+													notificationToken: data.notificationToken,
+												},
+												"gebruiker",
+												{
+													notificationToken: "de meldingstoken",
+												}
+											)
+										);
+									}
+								}
 
 								const businessRes = await utils.fetchToken(config.api + "business/" + res.data.user.business_id).then((res) => res.json());
 

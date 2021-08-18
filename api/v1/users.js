@@ -386,7 +386,7 @@ users.post("/", async (req, res) => {
 		let hasNotificationToken = false;
 		if (notificationToken) {
 			// Notification token too short
-			if (functionDescription.length < 10) {
+			if (notificationToken.length < 10) {
 				// Return status 422 (unprocessable entity) too short
 				return res.status(422).send({
 					success: false,
@@ -1092,9 +1092,9 @@ users.patch("/:id", authToken, async (req, res) => {
 
 		// Check if notification token is specified
 		let hasNotificationToken = false;
-		if (notificationToken) {
+		if (typeof notificationToken !== "undefined" && currentUser.notification_token !== notificationToken) {
 			// Notification token too short
-			if (functionDescription.length < 10) {
+			if (notificationToken.length < 10) {
 				// Return status 422 (unprocessable entity) too short
 				return res.status(422).send({
 					success: false,
@@ -1112,7 +1112,7 @@ users.patch("/:id", authToken, async (req, res) => {
 		// Nothing changed
 		if (!hasEmail && !hasRight && !hasFirstName && !hasLastName && !hasFunctionDescription && !hasBorn && !hasPassword && !hasNotificationToken) {
 			// Send current user
-			const { pwd, ...user } = currentUser;
+			const { pwd, notification_token, ...user } = currentUser;
 			return res.send({
 				success: true,
 				data: user,
@@ -1127,7 +1127,7 @@ users.patch("/:id", authToken, async (req, res) => {
 		if (hasBorn) update.push({ name: "born", value: escape(born) });
 		if (hasFunctionDescription) update.push({ name: "function_descr", value: escape(functionDescription) });
 		if (hasPassword) update.push({ name: "pwd", value: pwd });
-		if (hasNotificationToken) update.push({ name: "notification_token", value: escape(notificationToken) });
+		if (hasNotificationToken) update.push({ name: "notification_token", value: notificationToken });
 
 		// Update user
 		if (update.length > 0) {

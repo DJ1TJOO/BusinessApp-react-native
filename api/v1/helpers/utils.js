@@ -18,8 +18,8 @@ const objectToResponse = (res, obj) => {
 };
 
 /**
- * @param {string} table
- * @param {string} column
+ * @param {String} table
+ * @param {String} column
  * @param {function} generator
  * @returns {any}
  */
@@ -34,15 +34,15 @@ const dbGenerateUnique = async (table, column, generator) => {
 };
 
 /**
- * @param {string} table
- * @param {string} column
- * @returns {Promise<string>
+ * @param {String} table
+ * @param {String} column
+ * @returns {Promise<String>
  */
 const dbGenerateUniqueId = async (table, column) => await dbGenerateUnique(table, column, uuid);
 
 /**
- * @param {string} folder
- * @param {string} ext
+ * @param {String} folder
+ * @param {String} ext
  * @param {function} generator
  * @returns {any}
  */
@@ -61,10 +61,21 @@ const fileGenerateUnique = (folder, ext, generator) => {
 };
 
 /**
- * @param {string} folder
- * @param {string} ext
- * @returns {string}
+ * @param {String} folder
+ * @param {String} ext
+ * @returns {String}
  */
 const fileGenerateUniqueId = (folder, ext) => fileGenerateUnique(folder, ext, uuid);
 
-module.exports = { objectToResponse, dbGenerateUnique, dbGenerateUniqueId, fileGenerateUnique, fileGenerateUniqueId };
+/**
+ * Calculates string byte length
+ * @param {String} str
+ * @returns {Number}
+ */
+function lengthInUtf8Bytes(str) {
+	// Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
+	var m = encodeURIComponent(str).match(/%[89ABab]/g);
+	return str.length + (m ? m.length : 0);
+}
+
+module.exports = { objectToResponse, dbGenerateUnique, dbGenerateUniqueId, fileGenerateUnique, fileGenerateUniqueId, lengthInUtf8Bytes };
