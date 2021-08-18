@@ -1,15 +1,20 @@
 const { promisePool: db } = require("./helpers/db");
 const { dbGenerateUniqueId } = require("./helpers/utils");
+const { authToken, authRights } = require("./helpers/auth");
 
 const rights = require("express").Router();
 
-// TOOD: add rights
+// TODO: add rights
 const availableRights = {
 	UPDATE_BUSINESS: 0,
 	GET_MEMBERS: 1,
 	ADD_MEMBERS: 2,
 	CHANGE_MEMBERS: 3,
 	DELETE_MEMBERS: 4,
+	GET_RIGHTS: 5,
+	ADD_RIGHTS: 6,
+	CHANGE_RIGHTS: 7,
+	DELETE_RIGHTS: 8,
 };
 
 module.exports.availableRights = availableRights;
@@ -21,8 +26,7 @@ rights.get("/available", (req, res) => {
 	});
 });
 
-// TODO: authorization
-rights.get("/:id", async (req, res) => {
+rights.get("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
 	try {
 		const [results] = await db.query(`SELECT * FROM rights WHERE id = ?`, [id]);
@@ -32,6 +36,10 @@ rights.get("/:id", async (req, res) => {
 				error: "right_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.GET_RIGHTS], req.token, results[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		return res.send({
 			success: true,
@@ -48,19 +56,23 @@ rights.get("/:id", async (req, res) => {
 	}
 });
 
-rights.get("/business/:businessId", async (req, res) => {
+rights.get("/business/:businessId", authToken, async (req, res) => {
 	const { businessId } = req.params;
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
 
 		// Business does not exists
 		if (business_result[0]["count(*)"] < 1) {
-			// Return status 404 (not found) chat not found
+			// Return status 404 (not found) business not found
 			return res.status(404).send({
 				success: false,
 				error: "business_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.GET_RIGHTS], req.token, businessId);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		const [results] = await db.query(`SELECT * FROM rights WHERE business_id = ?`, [businessId]);
 
@@ -79,20 +91,24 @@ rights.get("/business/:businessId", async (req, res) => {
 	}
 });
 
-rights.post("/", async (req, res) => {
+rights.post("/", authToken, async (req, res) => {
 	const { name, businessId, rights } = req.body;
 
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
 
-		// Chat does not exists
+		// Business does not exists
 		if (business_result[0]["count(*)"] < 1) {
-			// Return status 404 (not found) chat not found
+			// Return status 404 (not found) business not found
 			return res.status(404).send({
 				success: false,
 				error: "business_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.ADD_RIGHTS], req.token, businessId);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		// Check if name is correct
 		// Name is empty
@@ -218,7 +234,7 @@ rights.post("/", async (req, res) => {
 	}
 });
 
-rights.patch("/:id", async (req, res) => {
+rights.patch("/:id", authToken, async (req, res) => {
 	const { id } = req.params;
 	const { name, rights } = req.body;
 
@@ -230,6 +246,10 @@ rights.patch("/:id", async (req, res) => {
 				error: "right_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.CHANGE_RIGHTS], req.token, get_results[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		// Check if name is correct
 		let hasName = false;
@@ -349,7 +369,7 @@ rights.patch("/:id", async (req, res) => {
 	}
 });
 
-rights.delete("/:id", async (req, res) => {
+rights.delete("/:id", authToken, async (req, res) => {
 	const id = req.params.id;
 	try {
 		const [get_results] = await db.query(`SELECT * FROM rights WHERE id = ?`, [id]);
@@ -359,6 +379,10 @@ rights.delete("/:id", async (req, res) => {
 				error: "right_not_found",
 			});
 		}
+
+		// Check if user has rights
+		const auth = await authRights([availableRights.DELETE_RIGHTS], req.token, get_results[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
 
 		const [delete_results] = await db.query(`DELETE FROM rights WHERE id = ?`, [id]);
 
