@@ -90,7 +90,7 @@ const FormInput = ({
 				textContentType={textContentType}
 				keyboardType={keyboardType}
 				onChangeText={(text) => checkValue(text)}
-				value={currentValue}
+				value={currentValue || ""}
 				returnKeyType="done"
 				{...otherProps}
 			/>
