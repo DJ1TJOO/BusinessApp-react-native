@@ -1,11 +1,74 @@
 const { Expo, ExpoPushErrorTicket, ExpoPushErrorReceipt, ExpoPushMessage } = require("expo-server-sdk");
 const { promisePool: db, escape } = require("./db");
+const fs = require("fs");
 const dotenv = require("dotenv");
 dotenv.config();
 
 const expo = new Expo({ accessToken: process.env.EXPO_NOTIFICATION_TOKEN });
 
-// TODO: batch notifications
+const getMessagesFile = () => {
+	try {
+		// Check if messages file exists
+		if (!fs.existsSync(process.env.NOTIFICATION_MESSAGES_LOCATION)) {
+			// Make dir
+			const dirname = path.dirname(process.env.NOTIFICATION_MESSAGES_LOCATION);
+			if (!fs.existsSync(dirname)) fs.mkdirSync(dirname, { recursive: true });
+
+			// Make file
+			fs.writeFileSync(process.env.NOTIFICATION_MESSAGES_LOCATION, JSON.stringify({ messages: [], pendingMessages: [] }));
+		}
+
+		return JSON.parse(fs.readFileSync(process.env.NOTIFICATION_MESSAGES_LOCATION));
+	} catch (error) {
+		return null;
+	}
+};
+
+const updateMessagesStorageTo = (messages) => {
+	try {
+		if (!Array.isArray(messages)) return false;
+		const messagesFile = getMessagesFile();
+		messagesFile.messages = messages;
+
+		fs.writeFileSync(process.env.NOTIFICATION_MESSAGES_LOCATION, JSON.stringify(messagesFile));
+		return true;
+	} catch (error) {
+		return false;
+	}
+};
+
+const addToPendingMessagesStorage = (pendingMessages) => {
+	try {
+		if (!Array.isArray(pendingMessages)) return false;
+		const messagesFile = getMessagesFile();
+		messagesFile.pendingMessages.push(...pendingMessages);
+
+		// Remove duplicates, no need to send the same message mutliple times
+		messagesFile.pendingMessages = messagesFile.pendingMessages.filter((elem, index, self) => index === self.indexOf(elem));
+
+		fs.writeFileSync(process.env.NOTIFICATION_MESSAGES_LOCATION, JSON.stringify(messagesFile));
+		return true;
+	} catch (error) {
+		return false;
+	}
+};
+
+const removeFromPendingMessagesStorage = (pendingMessages) => {
+	try {
+		if (!Array.isArray(pendingMessages)) return false;
+		const messagesFile = getMessagesFile();
+
+		// Remove messages
+		for (let i = 0; i < pendingMessages.length; i++) {
+			messagesFile.pendingMessages.splice(messagesFile.pendingMessages.indexOf(pendingMessages[i]), 1);
+		}
+
+		fs.writeFileSync(process.env.NOTIFICATION_MESSAGES_LOCATION, JSON.stringify(messagesFile));
+		return true;
+	} catch (error) {
+		return false;
+	}
+};
 
 const sendChunks = async (messages) => {
 	const tickets = [];
@@ -46,6 +109,9 @@ const sendChunks = async (messages) => {
 	} catch (error) {
 		console.log(error);
 	}
+
+	// Add to pending messages
+	addToPendingMessagesStorage(ticketMessages);
 
 	// After 15 min handle tickets
 	setTimeout(() => {
@@ -104,6 +170,8 @@ const handleTickets = async (ticketMessages) => {
 						});
 					}
 				}
+
+				removeFromPendingMessagesStorage(ticketMessages);
 			} catch (error) {
 				console.error(error);
 			}
@@ -131,7 +199,6 @@ const sendNotification = (message, realTime = false) => {
 	return true;
 };
 
-// TODO: store messages in file
 let currentTimeout = null;
 
 /**
@@ -165,6 +232,9 @@ const messages = new Proxy([], {
 				}, 1000 * 60 * 1);
 			}
 		} else {
+			// Update messages storage
+			updateMessagesStorageTo(messages);
+
 			// Real time notification
 			if (typeof value === "object" && value.realTime) {
 				// Send messages
@@ -179,5 +249,20 @@ const messages = new Proxy([], {
 		return true;
 	},
 });
+
+// Check for pending messages and messages
+const messagesFile = getMessagesFile();
+
+// Send last messages
+sendChunks(messagesFile.messages);
+
+// Check for pending messages after 15 minutes
+setTimeout(() => {
+	handleTickets(messagesFile.pendingMessages);
+}, 1000 * 60 * 15);
+
+// Clear storage
+updateMessagesStorageTo([]);
+removeFromPendingMessagesStorage(messagesFile.pendingMessages);
 
 module.exports = { sendNotification };
