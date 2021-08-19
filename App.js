@@ -4,15 +4,13 @@ import { createStackNavigator } from "@react-navigation/stack";
 import AppLoading from "expo-app-loading";
 import { Asset } from "expo-asset";
 import Constants from "expo-constants";
-import * as Notifications from "expo-notifications";
 import * as Font from "expo-font";
 import * as Linking from "expo-linking";
+import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Dimensions, Platform, StatusBar, StyleSheet, View } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
-
-import { getState, goBack, isAvailable, navigate, navigationRef } from "./RootNavigation";
 
 import Account from "./app/Account";
 
@@ -21,7 +19,7 @@ import icon from "./app/assets/icon-without-circles.png";
 import { IconLoading } from "./app/components/Icons";
 
 import Colors from "./app/config/Colors";
-
+import { config, setApi } from "./app/config/config";
 import dataContext from "./app/contexts/dataContext";
 import lastStatusBarColorContext from "./app/contexts/lastStatusBarColorContext";
 
@@ -37,9 +35,9 @@ import VerifyCodeScreen from "./app/screen/passwords/VerifyCodeScreen";
 import RegisterScreen from "./app/screen/RegisterScreen";
 import WelcomeScreen from "./app/screen/WelcomeScreen";
 
-import { config, setApi } from "./app/config/config";
-
 import utils from "./app/utils";
+
+import { getState, goBack, isAvailable, navigate, navigationRef } from "./RootNavigation";
 
 const prefix = Linking.makeUrl("/");
 
@@ -230,16 +228,17 @@ function AnimatedSplashScreen({ children, image }) {
 			// Load stuff
 			await Promise.all([
 				// only android needs polyfill
-				Platform.OS === "android" &&
-					new Promise((res) => {
-						require("intl"); // import intl object
-						require("intl/locale-data/jsonp/en-IN"); // load the required locale details
-						res();
-					}),
+				new Promise((res) => {
+					if (Platform.OS !== "android") return res();
+					require("intl"); // import intl object
+					require("intl/locale-data/jsonp/en-IN"); // load the required locale details
+					res();
+				}),
 				Font.loadAsync({
 					"Segoe-UI": require("./app/assets/fonts/Segoe-UI.ttf"),
 				}),
 				new Promise(async (res) => {
+					if (Platform.OS === "web") return res();
 					if (Constants.isDevice) {
 						const { status: existingStatus } = await Notifications.getPermissionsAsync();
 						let finalStatus = existingStatus;
@@ -267,6 +266,22 @@ function AnimatedSplashScreen({ children, image }) {
 						});
 					}
 
+					res();
+				}),
+
+				new Promise((res) => {
+					if (Platform.OS !== "web") return res();
+
+					const style = document.createElement("style");
+					style.textContent = `textarea,
+						select,
+						input,
+						button {
+							outline: none !important;
+						}
+						`;
+					console.log(style);
+					document.head.append(style);
 					res();
 				}),
 				// TODO: remove on prod

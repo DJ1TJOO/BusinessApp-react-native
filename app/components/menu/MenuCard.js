@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Animated, StyleSheet, Text, TouchableOpacity, View, Platform } from "react-native";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
 	icon: {
 		position: "absolute",
 		left: "100%",
-		marginLeft: -10,
+		marginLeft: Platform.OS === "web" ? -30 : -10,
 		top: 3,
 		height: 18,
 	},

@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DrawerContentScrollView, useIsDrawerOpen } from "@react-navigation/drawer";
 import React, { useContext, useEffect } from "react";
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { Image, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 
 import { IconArrowBack } from "./components/Icons";
 import MenuCard from "./components/menu/MenuCard";
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
 	back: {
 		position: "absolute",
 		left: "100%",
-		marginLeft: -10,
+		marginLeft: Platform.OS === "web" ? -30 : -10,
 	},
 	container: {
 		backgroundColor: Colors.secondary,

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Animated, Dimensions, RefreshControl, StatusBar, StyleSheet, View } from "react-native";
+import { Animated, Dimensions, RefreshControl, StatusBar, StyleSheet, View, Platform } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
