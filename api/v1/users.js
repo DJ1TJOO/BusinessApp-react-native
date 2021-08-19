@@ -1093,17 +1093,19 @@ users.patch("/:id", authToken, async (req, res) => {
 		// Check if notification token is specified
 		let hasNotificationToken = false;
 		if (typeof notificationToken !== "undefined" && currentUser.notification_token !== notificationToken) {
-			// Notification token too short
-			if (notificationToken.length < 10) {
-				// Return status 422 (unprocessable entity) too short
-				return res.status(422).send({
-					success: false,
-					error: "too_short",
-					data: {
-						field: "notificationToken",
-						minLength: 10,
-					},
-				});
+			if (functionDescription !== null) {
+				// Notification token too short
+				if (notificationToken.length < 10) {
+					// Return status 422 (unprocessable entity) too short
+					return res.status(422).send({
+						success: false,
+						error: "too_short",
+						data: {
+							field: "notificationToken",
+							minLength: 10,
+						},
+					});
+				}
 			}
 
 			hasNotificationToken = true;

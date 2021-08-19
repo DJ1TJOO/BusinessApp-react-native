@@ -1,6 +1,8 @@
 const { Expo, ExpoPushErrorTicket, ExpoPushErrorReceipt, ExpoPushMessage } = require("expo-server-sdk");
 const { promisePool: db, escape } = require("./db");
 const fs = require("fs");
+const path = require("path");
+
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -20,6 +22,7 @@ const getMessagesFile = () => {
 
 		return JSON.parse(fs.readFileSync(process.env.NOTIFICATION_MESSAGES_LOCATION));
 	} catch (error) {
+		console.log(error);
 		return null;
 	}
 };
@@ -28,6 +31,7 @@ const updateMessagesStorageTo = (messages) => {
 	try {
 		if (!Array.isArray(messages)) return false;
 		const messagesFile = getMessagesFile();
+		if (!messagesFile) return false;
 		messagesFile.messages = messages;
 
 		fs.writeFileSync(process.env.NOTIFICATION_MESSAGES_LOCATION, JSON.stringify(messagesFile));
@@ -41,6 +45,7 @@ const addToPendingMessagesStorage = (pendingMessages) => {
 	try {
 		if (!Array.isArray(pendingMessages)) return false;
 		const messagesFile = getMessagesFile();
+		if (!messagesFile) return false;
 		messagesFile.pendingMessages.push(...pendingMessages);
 
 		// Remove duplicates, no need to send the same message mutliple times
@@ -57,6 +62,7 @@ const removeFromPendingMessagesStorage = (pendingMessages) => {
 	try {
 		if (!Array.isArray(pendingMessages)) return false;
 		const messagesFile = getMessagesFile();
+		if (!messagesFile) return false;
 
 		// Remove messages
 		for (let i = 0; i < pendingMessages.length; i++) {
@@ -111,7 +117,7 @@ const sendChunks = async (messages) => {
 	}
 
 	// Add to pending messages
-	addToPendingMessagesStorage(ticketMessages);
+	addToPendingMessagesStorage(tickets);
 
 	// After 15 min handle tickets
 	setTimeout(() => {
@@ -119,7 +125,6 @@ const sendChunks = async (messages) => {
 	}, 1000 * 60 * 15);
 };
 
-// TODO: store pending messages in file
 const handleTickets = async (ticketMessages) => {
 	// Get ids
 	const receiptIds = ticketMessages.map((x) => x.token.id).filter((x) => typeof x !== "undefined");
@@ -231,10 +236,10 @@ const messages = new Proxy([], {
 					currentTimeout = null;
 				}, 1000 * 60 * 1);
 			}
-		} else {
+
 			// Update messages storage
 			updateMessagesStorageTo(messages);
-
+		} else {
 			// Real time notification
 			if (typeof value === "object" && value.realTime) {
 				// Send messages
@@ -252,17 +257,18 @@ const messages = new Proxy([], {
 
 // Check for pending messages and messages
 const messagesFile = getMessagesFile();
+if (messagesFile) {
+	// Send last messages
+	sendChunks(messagesFile.messages);
 
-// Send last messages
-sendChunks(messagesFile.messages);
+	// Check for pending messages after 15 minutes
+	setTimeout(() => {
+		handleTickets(messagesFile.pendingMessages);
+	}, 1000 * 60 * 15);
 
-// Check for pending messages after 15 minutes
-setTimeout(() => {
-	handleTickets(messagesFile.pendingMessages);
-}, 1000 * 60 * 15);
-
-// Clear storage
-updateMessagesStorageTo([]);
-removeFromPendingMessagesStorage(messagesFile.pendingMessages);
+	// Clear storage
+	updateMessagesStorageTo([]);
+	removeFromPendingMessagesStorage(messagesFile.pendingMessages);
+}
 
 module.exports = { sendNotification };
