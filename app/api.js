@@ -1,3 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { config } from "./config/config";
 import utils from "./utils";
 

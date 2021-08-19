@@ -1,5 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import { getState, goBack, navigate } from "../RootNavigation";
 import { config } from "./config/config";
 
