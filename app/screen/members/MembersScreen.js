@@ -1,12 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
+
+import api from "../../api";
 
 import Card from "../../components/Card";
 import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
-import { config } from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
@@ -19,7 +20,7 @@ const MembersScreen = ({ navigation, route }) => {
 	const getUsers = async () => {
 		if (!data.members) data.members = [];
 		try {
-			const res = await utils.fetchToken(config.api + "users/business/" + data.user.business_id).then((res) => res.json());
+			const res = await api.fetchToken("users/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.members = res.data;
 			setData({ ...data });
 		} catch (error) {

@@ -1,12 +1,11 @@
 import React, { useContext, useState } from "react";
 
+import api from "../api";
+
 import Form from "../components/form/Form";
 import FormButton from "../components/form/FormButton";
 import FormInput from "../components/form/FormInput";
-import Modal from "../components/Modal";
 import Wrapper from "../components/Wrapper";
-
-import { config } from "../config/config";
 
 import dataContext from "../contexts/dataContext";
 
@@ -86,8 +85,8 @@ const SettingsScreen = ({ navigation, route }) => {
 									email: formData.email.value,
 								};
 
-								const resUser = await utils
-									.fetchToken(config.api + "users/" + data.user.id, {
+								const resUser = await api
+									.fetchToken("users/" + data.user.id, {
 										method: "PATCH",
 										headers: {
 											Accept: "application/json",

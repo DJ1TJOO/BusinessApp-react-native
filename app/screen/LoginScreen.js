@@ -1,12 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useContext, useEffect, useState } from "react";
 
+import api from "../api";
+
 import Form from "../components/form/Form";
 import FormButton from "../components/form/FormButton";
 import FormInput from "../components/form/FormInput";
 import Wrapper from "../components/Wrapper";
-
-import { config } from "../config/config";
 
 import dataContext from "../contexts/dataContext";
 
@@ -70,7 +70,7 @@ const LoginScreen = ({ navigation }) => {
 		if (!data.login.businessNames || data.login.businessNames.length < 1) {
 			(async () => {
 				try {
-					const res = await utils.fetchToken(config.api + "business/names").then((res) => res.json());
+					const res = await api.fetchToken("business/names").then((res) => res.json());
 					if (res.success) data.login.businessNames = res.data;
 					else data.login.businessNames = [];
 				} catch (error) {
@@ -93,8 +93,8 @@ const LoginScreen = ({ navigation }) => {
 				}
 
 				if (token && user) {
-					const res = await utils
-						.fetchToken(config.api + "login/validate", {
+					const res = await api
+						.fetchToken("login/validate", {
 							method: "POST",
 							headers: {
 								Accept: "application/json",
@@ -113,8 +113,8 @@ const LoginScreen = ({ navigation }) => {
 						if (res.data.user) {
 							// Update notification token
 							if (res.data.user.notification_token !== data.notificationToken) {
-								const resToken = await utils
-									.fetchToken(config.api + "users/" + res.data.user.id, {
+								const resToken = await api
+									.fetchToken("users/" + res.data.user.id, {
 										method: "PATCH",
 										headers: {
 											Accept: "application/json",
@@ -152,7 +152,7 @@ const LoginScreen = ({ navigation }) => {
 							);
 						}
 
-						const businessRes = await utils.fetchToken(config.api + "business/" + user.business_id).then((res) => res.json());
+						const businessRes = await api.fetchToken("business/" + user.business_id).then((res) => res.json());
 
 						if (businessRes.success) {
 							// Store in data
@@ -208,8 +208,8 @@ const LoginScreen = ({ navigation }) => {
 						try {
 							setCurrentFormError(null);
 
-							const res = await utils
-								.fetchToken(config.api + "login", {
+							const res = await api
+								.fetchToken("login", {
 									method: "POST",
 									headers: {
 										Accept: "application/json",
@@ -238,8 +238,8 @@ const LoginScreen = ({ navigation }) => {
 
 								// Update notification token
 								if (res.data.user.notification_token !== data.notificationToken) {
-									const resToken = await utils
-										.fetchToken(config.api + "users/" + res.data.user.id, {
+									const resToken = await api
+										.fetchToken("users/" + res.data.user.id, {
 											method: "PATCH",
 											headers: {
 												Accept: "application/json",
@@ -268,7 +268,7 @@ const LoginScreen = ({ navigation }) => {
 									}
 								}
 
-								const businessRes = await utils.fetchToken(config.api + "business/" + res.data.user.business_id).then((res) => res.json());
+								const businessRes = await api.fetchToken("business/" + res.data.user.business_id).then((res) => res.json());
 
 								if (businessRes.success) {
 									// Store in data

@@ -2,16 +2,15 @@ import NetInfo from "@react-native-community/netinfo";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
+import api from "../api";
+
 import FormButton from "../components/form/FormButton";
 import { IconCross, IconEarth, IconServers } from "../components/Icons";
 
 import Colors from "../config/Colors";
-import { config } from "../config/config";
 import FontSizes from "../config/FontSizes";
 
 import useErrorModal from "../hooks/useErrorModal";
-
-import utils from "../utils";
 
 const NoConnectionScreen = ({ navigation, route }) => {
 	const [currentError, setCurrentError, ErrorModal] = useErrorModal();
@@ -49,7 +48,7 @@ const NoConnectionScreen = ({ navigation, route }) => {
 					NetInfo.fetch().then(async (state) => {
 						if (state.isConnected) {
 							try {
-								const res = await utils.fetchToken(config.api).then((res) => res.json());
+								const res = await api.fetchToken().then((res) => res.json());
 								if (res.success) {
 									navigation.goBack();
 								} else {

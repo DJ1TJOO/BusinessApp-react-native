@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
+import api from "../../api";
+
 import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormDate from "../../components/form/FormDate";
@@ -9,7 +11,6 @@ import FormSelect from "../../components/form/FormSelect";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
-import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
@@ -105,7 +106,7 @@ const CreateMemberScreen = ({ navigation }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await utils.fetchToken(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await api.fetchToken("rights/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -193,8 +194,8 @@ const CreateMemberScreen = ({ navigation }) => {
 
 							if (formData.function.value) bodyUser.functionDescription = formData.function.value;
 
-							const resUser = await utils
-								.fetchToken(config.api + "users/", {
+							const resUser = await api
+								.fetchToken("users/", {
 									method: "POST",
 									headers: {
 										Accept: "application/json",
@@ -211,8 +212,8 @@ const CreateMemberScreen = ({ navigation }) => {
 										if (!team) continue;
 
 										// Add user to team
-										const resTeam = await utils
-											.fetchToken(config.api + "teams/" + team.id, {
+										const resTeam = await api
+											.fetchToken("teams/" + team.id, {
 												method: "POST",
 												headers: {
 													Accept: "application/json",

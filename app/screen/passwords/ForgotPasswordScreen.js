@@ -1,13 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useContext, useEffect, useState } from "react";
 
+import api from "../../api";
+
 import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormInput from "../../components/form/FormInput";
 import { IconArrowBack } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
-
-import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
@@ -52,7 +52,7 @@ const defaultFormData = [
 
 export const createCode = async (business, email, setCurrentError, data) => {
 	try {
-		const res = await utils.fetchToken(`${config.api}users/recover/${business}/${email}`).then((res) => res.json());
+		const res = await api.fetchToken(`users/recover/${business}/${email}`).then((res) => res.json());
 		if (!res.success) {
 			setCurrentError(languagesUtils.convertError(data.language, res));
 		}
@@ -82,7 +82,7 @@ const ForgotPasswordScreen = ({ navigation, route }) => {
 		if (!data.login.businessNames || data.login.businessNames.length < 1) {
 			(async () => {
 				try {
-					const res = await utils.fetchToken(config.api + "business/names").then((res) => res.json());
+					const res = await api.fetchToken("business/names").then((res) => res.json());
 					if (res.success) data.login.businessNames = res.data;
 					else data.login.businessNames = [];
 				} catch (error) {

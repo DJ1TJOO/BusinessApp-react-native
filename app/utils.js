@@ -42,37 +42,6 @@ const handleError = async (error) => {
 const fetchTimeout = async (url, options = null, timeout = 10000) =>
 	Promise.race([fetch(url, options), new Promise((_, reject) => setTimeout(() => reject(new Error("servers-timeout")), timeout))]);
 
-/**
- * @param {RequestInfo} url
- * @param {RequestInit} options
- * @param {number} timeout
- * @returns
- */
-const fetchToken = async (url, options = null, timeout = 10000) => {
-	try {
-		const token = await AsyncStorage.getItem("token");
-		if (!options && token) {
-			options = {
-				headers: {
-					authorization: "Token " + token,
-				},
-			};
-		} else if (options && token) {
-			if (options.headers) {
-				options.headers.authorization = "Token " + token;
-			} else {
-				options.headers = {
-					authorization: "Token " + token,
-				};
-			}
-		}
-
-		return fetchTimeout(url, options, timeout);
-	} catch (error) {
-		handleError(error);
-	}
-};
-
 const uuidv4 = () =>
 	"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
 		var r = (Math.random() * 16) | 0,
@@ -80,4 +49,4 @@ const uuidv4 = () =>
 		return v.toString(16);
 	});
 
-export default { handleError, fetchTimeout, fetchToken, uuidv4 };
+export default { handleError, fetchTimeout, uuidv4 };

@@ -14,12 +14,15 @@ import { RootSiblingParent } from "react-native-root-siblings";
 
 import Account from "./app/Account";
 
+import api from "./app/api";
+
 import icon from "./app/assets/icon-without-circles.png";
 
 import { IconLoading } from "./app/components/Icons";
 
 import Colors from "./app/config/Colors";
 import { config, setApi } from "./app/config/config";
+
 import dataContext from "./app/contexts/dataContext";
 import lastStatusBarColorContext from "./app/contexts/lastStatusBarColorContext";
 
@@ -34,8 +37,6 @@ import VerifyCodeScreen from "./app/screen/passwords/VerifyCodeScreen";
 
 import RegisterScreen from "./app/screen/RegisterScreen";
 import WelcomeScreen from "./app/screen/WelcomeScreen";
-
-import utils from "./app/utils";
 
 import { getState, goBack, isAvailable, navigate, navigationRef } from "./RootNavigation";
 
@@ -110,7 +111,7 @@ export default function App() {
 				navigate("NoConnection", { servers: false });
 			} else {
 				try {
-					const res = await utils.fetchToken(config.api).then((res) => res.json());
+					const res = await api.fetchToken().then((res) => res.json());
 					if (res.success) {
 						const routeState = getState();
 						const currentRoute = routeState.routes[routeState.index];

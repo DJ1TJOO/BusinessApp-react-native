@@ -2,6 +2,8 @@ import * as ImagePicker from "expo-image-picker";
 import React, { useContext, useState } from "react";
 import { Alert, Image, Linking, StyleSheet } from "react-native";
 
+import api from "../api";
+
 import Form from "../components/form/Form";
 import FormButton from "../components/form/FormButton";
 import FormDate from "../components/form/FormDate";
@@ -10,7 +12,6 @@ import FormInput from "../components/form/FormInput";
 import Wrapper from "../components/Wrapper";
 
 import Colors from "../config/Colors";
-import { config } from "../config/config";
 
 import dataContext from "../contexts/dataContext";
 
@@ -281,8 +282,8 @@ const RegisterScreen = ({ navigation }) => {
 								name: formData.business_name.value,
 								image: "data:image/png;base64," + formData.image.value.base64,
 							};
-							const res = await utils
-								.fetchToken(config.api + "business/", {
+							const res = await api
+								.fetchToken("business/", {
 									method: "POST",
 									headers: {
 										Accept: "application/json",
@@ -306,8 +307,8 @@ const RegisterScreen = ({ navigation }) => {
 
 								if (formData.account_function.value) bodyUser.functionDescription = formData.account_function.value;
 
-								const resUser = await utils
-									.fetchToken(config.api + "users/", {
+								const resUser = await api
+									.fetchToken("users/", {
 										method: "POST",
 										headers: {
 											Accept: "application/json",
@@ -319,8 +320,8 @@ const RegisterScreen = ({ navigation }) => {
 								if (resUser.success) {
 									// Make user owner of business
 									const bodyBusiness = { ownerCode: res.data.ownerCode, owner: resUser.data.id };
-									const resBusiness = await utils
-										.fetchToken(config.api + "business/" + res.data.business.id, {
+									const resBusiness = await api
+										.fetchToken("business/" + res.data.business.id, {
 											method: "PATCH",
 											headers: {
 												Accept: "application/json",

@@ -1,12 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet } from "react-native";
+
+import api from "../../api";
 
 import Heading from "../../components/Heading";
 import MenuCard from "../../components/menu/MenuCard";
 import Wrapper from "../../components/Wrapper";
-
-import { config } from "../../config/config";
-
 import dataContext from "../../contexts/dataContext";
 
 import utils from "../../utils";
@@ -20,7 +19,7 @@ const CheckHoursScreen = ({ navigation }) => {
 
 		(async () => {
 			try {
-				const res = await utils.fetchToken(config.api + "users/business/" + data.user.business_id).then((res) => res.json());
+				const res = await api.fetchToken("users/business/" + data.user.business_id).then((res) => res.json());
 				if (res.success) data.checkHours.users = res.data;
 				else data.checkHours.users = [];
 				setData({ ...data });

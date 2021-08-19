@@ -1,13 +1,14 @@
 import React, { useContext, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import api from "../../api";
+
 import FormButton from "../../components/form/FormButton";
 import Heading from "../../components/Heading";
 import { IconCross } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
-import { config } from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
@@ -163,8 +164,8 @@ const CheckHoursWeekScreen = ({ navigation, route }) => {
 				onPress={async () => {
 					try {
 						// Validate hours
-						const res = await utils
-							.fetchToken(`${config.api}hours/${currentHours.id}`, {
+						const res = await api
+							.fetchToken(`hours/${currentHours.id}`, {
 								method: "PATCH",
 								headers: {
 									Accept: "application/json",
@@ -199,8 +200,8 @@ const CheckHoursWeekScreen = ({ navigation, route }) => {
 				onPress={async () => {
 					try {
 						// Validate hours
-						const res = await utils
-							.fetchToken(`${config.api}hours/${currentHours.id}`, {
+						const res = await api
+							.fetchToken(`hours/${currentHours.id}`, {
 								method: "PATCH",
 								headers: {
 									Accept: "application/json",

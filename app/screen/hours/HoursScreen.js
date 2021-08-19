@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
+import api from "../../api";
+
 import Card from "../../components/Card";
 import FormButton from "../../components/form/FormButton";
 import Heading from "../../components/Heading";
 import { IconCheck, IconCross, IconLoading } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
-
-import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
@@ -65,7 +65,7 @@ const HoursScreen = ({ navigation, route }) => {
 			data.hours = data.hours.filter((x) => x.year !== year);
 
 			// Get hours from current year
-			const res = await utils.fetchToken(`${config.api}hours/users/${data.user.id}/${year}`).then((res) => res.json());
+			const res = await api.fetchToken(`hours/users/${data.user.id}/${year}`).then((res) => res.json());
 
 			// Add to data
 			if (res.success) {
@@ -139,8 +139,8 @@ const HoursScreen = ({ navigation, route }) => {
 									onPress={async () => {
 										try {
 											// Submit hours
-											const res = await utils
-												.fetchToken(`${config.api}hours/${hours.id}`, {
+											const res = await api
+												.fetchToken(`hours/${hours.id}`, {
 													method: "PATCH",
 													headers: {
 														Accept: "application/json",

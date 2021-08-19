@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import api from "../../api";
+
 import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormInput from "../../components/form/FormInput";
 import FormSelect from "../../components/form/FormSelect";
 import Wrapper from "../../components/Wrapper";
-
-import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
@@ -44,7 +44,7 @@ const CreateRightScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.availableRights) data.availableRights = {};
 		try {
-			const res = await utils.fetchToken(config.api + "rights/available").then((res) => res.json());
+			const res = await api.fetchToken("rights/available").then((res) => res.json());
 			if (res.success) data.availableRights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -88,8 +88,8 @@ const CreateRightScreen = ({ navigation, route }) => {
 								rights: formData.rights.value.map((x) => rights.find((y) => y.name === x)?.id),
 							};
 
-							const resRight = await utils
-								.fetchToken(config.api + "rights/", {
+							const resRight = await api
+								.fetchToken("rights/", {
 									method: "POST",
 									headers: {
 										Accept: "application/json",

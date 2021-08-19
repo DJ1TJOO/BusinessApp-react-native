@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 
+import api from "../../api";
+
 import FormButton from "../../components/form/FormButton";
 import Heading from "../../components/Heading";
 import { IconArrowBack, IconCheck, IconCross } from "../../components/Icons";
@@ -8,7 +10,6 @@ import MenuCard from "../../components/menu/MenuCard";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
-import { config } from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
@@ -24,7 +25,7 @@ const CheckHoursPersonScreen = ({ navigation, route }) => {
 		try {
 			const user = data.checkHours.users.find((x) => x.id === route.params.id);
 			if (!user) return;
-			const res = await utils.fetchToken(config.api + "hours/users/" + user.id).then((res) => res.json());
+			const res = await api.fetchToken("hours/users/" + user.id).then((res) => res.json());
 			if (res.success) user.hours = res.data.filter((x) => x.submitted !== null);
 			else user.hours = [];
 			setHours(user.hours);

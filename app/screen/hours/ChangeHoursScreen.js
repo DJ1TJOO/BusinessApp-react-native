@@ -1,7 +1,9 @@
 import React, { useContext, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Form from "../../components/form/Form";
 
+import api from "../../api";
+
+import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormInput from "../../components/form/FormInput";
 import FormSelect from "../../components/form/FormSelect";
@@ -10,7 +12,6 @@ import { IconAdd, IconCheck, IconCross, IconRemove } from "../../components/Icon
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
-import { config } from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
@@ -214,8 +215,8 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 		// Check if hours exists
 		if (!currentHours.id) {
 			// Create hours
-			const res = await utils
-				.fetchToken(`${config.api}hours/`, {
+			const res = await api
+				.fetchToken(`hours/`, {
 					method: "POST",
 					headers: {
 						Accept: "application/json",
@@ -260,8 +261,8 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 			const current = currentHours.hours.find((x) => x.id === update.id);
 			if (!current || !update.id) {
 				// Create
-				const res = await utils
-					.fetchToken(`${config.api}hours/${currentHours.id}`, {
+				const res = await api
+					.fetchToken(`hours/${currentHours.id}`, {
 						method: "POST",
 						headers: {
 							Accept: "application/json",
@@ -292,8 +293,8 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 				}
 			} else if (update !== current) {
 				// Update existing
-				const res = await utils
-					.fetchToken(`${config.api}hours/project/${update.id}`, {
+				const res = await api
+					.fetchToken(`hours/project/${update.id}`, {
 						method: "PATCH",
 						headers: {
 							Accept: "application/json",
@@ -326,8 +327,8 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 		// Remove existing project hours
 		const toRemove = currentHours.hours.filter((x) => !hoursData.some((y) => y.id === x.id));
 		for (let i = 0; i < toRemove.length; i++) {
-			const res = await utils
-				.fetchToken(`${config.api}hours/project/${toRemove[i].id}`, {
+			const res = await api
+				.fetchToken(`hours/project/${toRemove[i].id}`, {
 					method: "DELETE",
 				})
 				.then((res) => res.json());
@@ -535,8 +536,8 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 								if (!(await update(data, currentHours, hours, setCurrentError))) return;
 
 								// Submit hours
-								const res = await utils
-									.fetchToken(`${config.api}hours/${currentHours.id}`, {
+								const res = await api
+									.fetchToken(`hours/${currentHours.id}`, {
 										method: "PATCH",
 										headers: {
 											Accept: "application/json",

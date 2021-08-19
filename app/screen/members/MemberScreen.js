@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 
+import api from "../../api";
+
 import FormButton from "../../components/form/FormButton";
 import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
-import { config } from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
@@ -22,7 +23,7 @@ const MemberScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await utils.fetchToken(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await api.fetchToken("rights/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -92,8 +93,8 @@ const MemberScreen = ({ navigation, route }) => {
 						events: {
 							onAccept: async () => {
 								try {
-									const res = await utils
-										.fetchToken(config.api + "users/" + route.params.id, {
+									const res = await api
+										.fetchToken("users/" + route.params.id, {
 											method: "DELETE",
 										})
 										.then((res) => res.json());

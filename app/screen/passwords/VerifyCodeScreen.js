@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import api from "../../api";
+
 import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormInput from "../../components/form/FormInput";
 import { IconArrowBack } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
-
-import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
@@ -16,8 +16,8 @@ import utils from "../../utils";
 
 const verify = async (businessId, userId, code, setCurrentError, data) => {
 	try {
-		const res = await utils
-			.fetchToken(`${config.api}users/recover/${businessId}/${userId}/${code}`, {
+		const res = await api
+			.fetchToken(`users/recover/${businessId}/${userId}/${code}`, {
 				method: "POST",
 			})
 			.then((res) => res.json());

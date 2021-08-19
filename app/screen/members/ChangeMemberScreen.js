@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import api from "../../api";
+
 import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormDate from "../../components/form/FormDate";
@@ -7,8 +9,6 @@ import FormInput from "../../components/form/FormInput";
 import FormSelect from "../../components/form/FormSelect";
 import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
-
-import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
@@ -110,7 +110,7 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await utils.fetchToken(config.api + "rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await api.fetchToken("rights/business/" + data.user.business_id).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -219,8 +219,8 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 
 							if (formData.function.value && formData.function.value !== route.params.function) bodyUser.functionDescription = formData.function.value;
 
-							const resUser = await utils
-								.fetchToken(config.api + "users/" + route.params.id, {
+							const resUser = await api
+								.fetchToken("users/" + route.params.id, {
 									method: "PATCH",
 									headers: {
 										Accept: "application/json",
@@ -241,8 +241,8 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 										if (!team) continue;
 
 										// Add user to team
-										const resTeam = await utils
-											.fetchToken(config.api + "teams/" + team.id, {
+										const resTeam = await api
+											.fetchToken("teams/" + team.id, {
 												method: "POST",
 												headers: {
 													Accept: "application/json",
@@ -271,8 +271,8 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 										if (!team) continue;
 
 										// Remove user from team
-										const resTeam = await utils
-											.fetchToken(config.api + "teams/" + team.id + "/" + route.params.id, {
+										const resTeam = await api
+											.fetchToken("teams/" + team.id + "/" + route.params.id, {
 												method: "DELETE",
 											})
 											.then((res) => res.json());
@@ -318,8 +318,8 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 							events: {
 								onAccept: async () => {
 									try {
-										const res = await utils
-											.fetchToken(config.api + "users/" + route.params.id, {
+										const res = await api
+											.fetchToken("users/" + route.params.id, {
 												method: "DELETE",
 											})
 											.then((res) => res.json());

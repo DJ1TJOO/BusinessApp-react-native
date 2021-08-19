@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import api from "../../api";
+
 import Form from "../../components/form/Form";
 import FormButton from "../../components/form/FormButton";
 import FormInput from "../../components/form/FormInput";
 import FormSelect from "../../components/form/FormSelect";
 import Heading from "../../components/Heading";
 import Wrapper from "../../components/Wrapper";
-
-import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
@@ -45,7 +45,7 @@ const ChangeRightScreen = ({ navigation, route }) => {
 	const getRights = async () => {
 		if (!data.availableRights) data.availableRights = {};
 		try {
-			const res = await utils.fetchToken(config.api + "rights/available").then((res) => res.json());
+			const res = await api.fetchToken("rights/available").then((res) => res.json());
 			if (res.success) data.availableRights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -109,8 +109,8 @@ const ChangeRightScreen = ({ navigation, route }) => {
 								rights: updatedRights !== route.params.rights ? updatedRights : undefined,
 							};
 
-							const resRight = await utils
-								.fetchToken(config.api + "rights/" + route.params.id, {
+							const resRight = await api
+								.fetchToken("rights/" + route.params.id, {
 									method: "PATCH",
 									headers: {
 										Accept: "application/json",
@@ -150,8 +150,8 @@ const ChangeRightScreen = ({ navigation, route }) => {
 							events: {
 								onAccept: async () => {
 									try {
-										const res = await utils
-											.fetchToken(config.api + "rights/" + route.params.id, {
+										const res = await api
+											.fetchToken("rights/" + route.params.id, {
 												method: "DELETE",
 											})
 											.then((res) => res.json());
