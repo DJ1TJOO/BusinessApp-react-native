@@ -1,18 +1,66 @@
-import React from "react";
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
+import React, { cloneElement, isValidElement, useEffect } from "react";
+import { StyleSheet, Text, TouchableWithoutFeedback, View, Animated } from "react-native";
 
 import Colors from "../config/Colors";
 import FontSizes from "../config/FontSizes";
 
 import { IconArrowBack } from "./Icons";
 
-const Heading = ({ title, style, containerStyle, icon, onPress }) => {
+const Heading = ({ title, style, containerStyle, icon, onPress, animatedValue }) => {
+	const Container = typeof animatedValue !== "undefined" ? Animated.View : View;
+	const TextContainer = typeof animatedValue !== "undefined" ? Animated.Text : Text;
+
+	let colorWhiteToPrimary;
+	let colorTextPrimaryToWhite;
+	if (typeof animatedValue !== "undefined") {
+		colorWhiteToPrimary = animatedValue.interpolate({
+			inputRange: [5, 50],
+			outputRange: [Colors.white, Colors.primary],
+			extrapolate: "clamp",
+		});
+
+		colorTextPrimaryToWhite = animatedValue.interpolate({
+			inputRange: [5, 50],
+			outputRange: [Colors.textPrimary, Colors.white],
+			extrapolate: "clamp",
+		});
+
+		// Change icon colors
+		if (icon) {
+			if (isValidElement(icon)) {
+				icon = cloneElement(icon, {
+					animated: true,
+					color: colorTextPrimaryToWhite,
+				});
+			}
+		}
+	}
+
 	return (
 		<TouchableWithoutFeedback onPress={onPress}>
-			<View style={[styles.container, containerStyle]}>
+			<Container
+				style={[
+					styles.container,
+					containerStyle,
+					animatedValue && { paddingBottom: 5 },
+					colorWhiteToPrimary && {
+						backgroundColor: colorWhiteToPrimary,
+					},
+				]}
+			>
 				{icon && icon}
-				<Text style={[styles.heading, style]}>{title}</Text>
-			</View>
+				<TextContainer
+					style={[
+						styles.heading,
+						style,
+						colorTextPrimaryToWhite && {
+							color: colorTextPrimaryToWhite,
+						},
+					]}
+				>
+					{title}
+				</TextContainer>
+			</Container>
 		</TouchableWithoutFeedback>
 	);
 };

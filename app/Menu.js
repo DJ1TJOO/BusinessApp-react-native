@@ -71,6 +71,12 @@ const Menu = ({ navigation }) => {
 				]}
 			/>
 			<MenuCard
+				title="Berichten"
+				onPress={() => {
+					navigation.navigate("Chats");
+				}}
+			/>
+			<MenuCard
 				title="Gebruikers"
 				routes={[
 					{

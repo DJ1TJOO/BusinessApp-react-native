@@ -41,13 +41,15 @@ const MenuCard = ({ title, icon, onPress, routes, style, color }) => {
 			}
 		>
 			<Animated.View style={[styles.card, style, { height: height }]}>
-				<View style={styles.textContainer}>
-					<Text style={[styles.text, color && { color: color }]}>{title}</Text>
-					{icon}
-				</View>
+				<View style={styles.header}>
+					<View style={styles.textContainer}>
+						<Text style={[styles.text, color && { color: color }]}>{title}</Text>
+						{icon}
+					</View>
 
-				{routes && <MenuCardIcon animatedValue={animatedValue} style={styles.icon} />}
-				{!routes && <IconArrowForward color={color || Colors.textPrimary} style={[styles.icon, { top: 10 }]} />}
+					{routes && <MenuCardIcon animatedValue={animatedValue} style={styles.icon} />}
+					{!routes && <IconArrowForward color={color || Colors.textPrimary} style={[styles.icon, { top: 7 }]} />}
+				</View>
 				{routes && <MenuRoutes routes={routes} animatedValue={animatedValue} />}
 			</Animated.View>
 		</TouchableOpacity>
@@ -62,18 +64,17 @@ const styles = StyleSheet.create({
 		marginBottom: 5,
 		paddingBottom: 5,
 		paddingHorizontal: 10,
-		paddingTop: 35,
+	},
+	header: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		paddingBottom: 5,
 	},
 	icon: {
-		position: "absolute",
-		left: "100%",
-		marginLeft: Platform.OS === "web" ? -30 : -10,
-		top: 3,
-		height: 18,
+		height: 20,
+		top: 0,
 	},
 	textContainer: {
-		position: "absolute",
-		left: 10,
 		top: Platform.OS === "android" ? 7 : 5,
 		flexDirection: "row",
 	},
@@ -82,6 +83,7 @@ const styles = StyleSheet.create({
 		fontSize: FontSizes.subtitle,
 		fontFamily: "Segoe-UI",
 
+		lineHeight: 24,
 		textAlignVertical: "center",
 	},
 });

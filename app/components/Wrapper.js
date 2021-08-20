@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { cloneElement, isValidElement, useContext, useEffect, useRef, useState } from "react";
 import { Animated, Dimensions, RefreshControl, StatusBar, StyleSheet, View, Platform } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,7 +13,7 @@ import { IconLoading } from "./Icons";
 import Loading from "./Loading";
 import SafeView from "./SafeView";
 
-const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError, confirmation, setConfirmation }) => {
+const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError, confirmation, setConfirmation, heading }) => {
 	const insets = useSafeAreaInsets();
 
 	const offset = useRef(new Animated.Value(0)).current;
@@ -87,6 +87,12 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 		}, [currentConfirmation]);
 	}
 
+	if (heading) {
+		if (isValidElement(heading)) {
+			heading = cloneElement(heading, { animatedValue: offset });
+		}
+	}
+
 	return (
 		<SafeView style={styles.safeView}>
 			{showHeader && (
@@ -126,6 +132,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 				{Platform.OS === "android" && !isLoading && refreshControl.refreshControl && showRefreshing && (
 					<View style={{ height: 60, width: "100%", backgroundColor: "transparent" }}></View>
 				)}
+				{!isLoading && heading && heading}
 				{!isLoading && (
 					<KeyboardAwareScrollView
 						nestedScrollEnabled={true}

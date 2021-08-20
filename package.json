@@ -44,6 +44,7 @@
 		"react-native-web": "~0.13.12"
 	},
 	"devDependencies": {
+		"@types/react-native": "^0.64.13",
 		"@babel/core": "^7.9.0",
 		"@expo/ngrok": "^2.5.0",
 		"babel-preset-expo": "^8.4.1",

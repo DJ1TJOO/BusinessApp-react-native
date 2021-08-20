@@ -3,7 +3,10 @@ import { config } from "./config/config";
 
 const handleError = async (error) => {
 	// Check if servers are reachable
-	if (error === "servers-timeout") return navigate("NoConnection", { servers: true });
+	if (error === "servers-timeout") {
+		return navigate("NoConnection", { servers: true });
+	}
+
 	try {
 		const res = await fetchTimeout(config.api).then((res) => res.json());
 		if (res.success) {
@@ -37,8 +40,15 @@ const handleError = async (error) => {
  * @param {number} timeout
  * @returns
  */
-const fetchTimeout = async (url, options = null, timeout = 10000) =>
-	Promise.race([fetch(url, options), new Promise((_, reject) => setTimeout(() => reject(new Error("servers-timeout")), timeout))]);
+const fetchTimeout = async (url, options = null, timeout = 10000) => {
+	let timeoutPid;
+	const timeoutPromise = new Promise((_, reject) => (timeoutPid = setTimeout(() => reject(new Error("servers-timeout")), timeout)));
+
+	return Promise.race([fetch(url, options), timeoutPromise]).then((res) => {
+		clearTimeout(timeoutPid);
+		return res;
+	});
+};
 
 const uuidv4 = () =>
 	"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {

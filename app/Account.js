@@ -1,6 +1,7 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import React from "react";
 
+import Chats from "./Chats";
 import CheckHours from "./CheckHours";
 import Hours from "./Hours";
 import Members from "./Members";
@@ -28,6 +29,8 @@ const Account = () => {
 
 			<Drawer.Screen name="Hours" component={Hours} />
 			<Drawer.Screen name="CheckHours" component={CheckHours} />
+
+			<Drawer.Screen name="Chats" component={Chats} />
 
 			<Drawer.Screen name="Members" component={Members} />
 			<Drawer.Screen name="CreateMember" component={CreateMemberScreen} />
