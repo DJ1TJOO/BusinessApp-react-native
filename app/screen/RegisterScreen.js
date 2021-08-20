@@ -285,11 +285,8 @@ const RegisterScreen = ({ navigation }) => {
 							const res = await api
 								.fetchToken("business/", {
 									method: "POST",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(body),
+									json: true,
+									body: body,
 								})
 								.then((res) => res.json());
 							// Business created
@@ -310,11 +307,8 @@ const RegisterScreen = ({ navigation }) => {
 								const resUser = await api
 									.fetchToken("users/", {
 										method: "POST",
-										headers: {
-											Accept: "application/json",
-											"Content-Type": "application/json",
-										},
-										body: JSON.stringify(bodyUser),
+										json: true,
+										body: bodyUser,
 									})
 									.then((res) => res.json());
 								if (resUser.success) {
@@ -323,11 +317,8 @@ const RegisterScreen = ({ navigation }) => {
 									const resBusiness = await api
 										.fetchToken("business/" + res.data.business.id, {
 											method: "PATCH",
-											headers: {
-												Accept: "application/json",
-												"Content-Type": "application/json",
-											},
-											body: JSON.stringify(bodyBusiness),
+											json: true,
+											body: bodyBusiness,
 										})
 										.then((res) => res.json());
 									if (resBusiness.success) {

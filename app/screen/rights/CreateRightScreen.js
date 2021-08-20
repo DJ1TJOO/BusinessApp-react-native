@@ -91,11 +91,8 @@ const CreateRightScreen = ({ navigation, route }) => {
 							const resRight = await api
 								.fetchToken("rights/", {
 									method: "POST",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(bodyRight),
+									json: true,
+									body: bodyRight,
 								})
 								.then((res) => res.json());
 

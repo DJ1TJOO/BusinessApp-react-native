@@ -112,11 +112,8 @@ const ChangeRightScreen = ({ navigation, route }) => {
 							const resRight = await api
 								.fetchToken("rights/" + route.params.id, {
 									method: "PATCH",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(bodyRight),
+									json: true,
+									body: bodyRight,
 								})
 								.then((res) => res.json());
 

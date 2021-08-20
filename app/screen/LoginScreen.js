@@ -96,13 +96,10 @@ const LoginScreen = ({ navigation }) => {
 					const res = await api
 						.fetchToken("login/validate", {
 							method: "POST",
-							headers: {
-								Accept: "application/json",
-								"Content-Type": "application/json",
-							},
-							body: JSON.stringify({
+							json: true,
+							body: {
 								token,
-							}),
+							},
 						})
 						.then((res) => res.json());
 
@@ -116,13 +113,10 @@ const LoginScreen = ({ navigation }) => {
 								const resToken = await api
 									.fetchToken("users/" + res.data.user.id, {
 										method: "PATCH",
-										headers: {
-											Accept: "application/json",
-											"Content-Type": "application/json",
-										},
-										body: JSON.stringify({
+										json: true,
+										body: {
 											notificationToken: data.notificationToken,
-										}),
+										},
 									})
 									.then((res) => res.json());
 
@@ -211,15 +205,12 @@ const LoginScreen = ({ navigation }) => {
 							const res = await api
 								.fetchToken("login", {
 									method: "POST",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify({
+									json: true,
+									body: {
 										business: formData.businessName.value,
 										email: formData.email.value,
 										password: formData.password.value,
-									}),
+									},
 								})
 								.then((res) => res.json());
 
@@ -241,13 +232,10 @@ const LoginScreen = ({ navigation }) => {
 									const resToken = await api
 										.fetchToken("users/" + res.data.user.id, {
 											method: "PATCH",
-											headers: {
-												Accept: "application/json",
-												"Content-Type": "application/json",
-											},
-											body: JSON.stringify({
+											json: true,
+											body: {
 												notificationToken: data.notificationToken,
-											}),
+											},
 										})
 										.then((res) => res.json());
 

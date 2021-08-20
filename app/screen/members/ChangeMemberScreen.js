@@ -222,11 +222,8 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 							const resUser = await api
 								.fetchToken("users/" + route.params.id, {
 									method: "PATCH",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(bodyUser),
+									json: true,
+									body: bodyUser,
 								})
 								.then((res) => res.json());
 
@@ -244,13 +241,10 @@ const ChangeMemberScreen = ({ navigation, route }) => {
 										const resTeam = await api
 											.fetchToken("teams/" + team.id, {
 												method: "POST",
-												headers: {
-													Accept: "application/json",
-													"Content-Type": "application/json",
-												},
-												body: JSON.stringify({
+												json: true,
+												body: {
 													userId: resUser.data.id,
-												}),
+												},
 											})
 											.then((res) => res.json());
 

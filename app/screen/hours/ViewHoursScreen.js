@@ -168,13 +168,10 @@ const ViewHoursScreen = ({ navigation, route }) => {
 							const res = await api
 								.fetchToken(`hours/${currentHours.id}`, {
 									method: "PATCH",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify({
+									json: true,
+									body: {
 										submitted: null,
-									}),
+									},
 								})
 								.then((res) => res.json());
 							if (!res.success) {

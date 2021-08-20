@@ -197,11 +197,8 @@ const CreateMemberScreen = ({ navigation }) => {
 							const resUser = await api
 								.fetchToken("users/", {
 									method: "POST",
-									headers: {
-										Accept: "application/json",
-										"Content-Type": "application/json",
-									},
-									body: JSON.stringify(bodyUser),
+									json: true,
+									body: bodyUser,
 								})
 								.then((res) => res.json());
 							if (resUser.success) {
@@ -215,13 +212,10 @@ const CreateMemberScreen = ({ navigation }) => {
 										const resTeam = await api
 											.fetchToken("teams/" + team.id, {
 												method: "POST",
-												headers: {
-													Accept: "application/json",
-													"Content-Type": "application/json",
-												},
-												body: JSON.stringify({
+												json: true,
+												body: {
 													userId: resUser.data.id,
-												}),
+												},
 											})
 											.then((res) => res.json());
 

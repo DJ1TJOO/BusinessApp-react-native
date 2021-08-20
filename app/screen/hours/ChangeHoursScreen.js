@@ -218,16 +218,13 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 			const res = await api
 				.fetchToken(`hours/`, {
 					method: "POST",
-					headers: {
-						Accept: "application/json",
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
+					json: true,
+					body: {
 						userId: data.user.id,
 						businessId: data.user.businessId,
 						week: currentHours.week,
 						year: currentHours.year,
-					}),
+					},
 				})
 				.then((res) => res.json());
 			if (res.success) {
@@ -264,11 +261,8 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 				const res = await api
 					.fetchToken(`hours/${currentHours.id}`, {
 						method: "POST",
-						headers: {
-							Accept: "application/json",
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify(update),
+						json: true,
+						body: update,
 					})
 					.then((res) => res.json());
 				if (res.success) {
@@ -296,11 +290,8 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 				const res = await api
 					.fetchToken(`hours/project/${update.id}`, {
 						method: "PATCH",
-						headers: {
-							Accept: "application/json",
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify(update),
+						json: true,
+						body: update,
 					})
 					.then((res) => res.json());
 				if (!res.success) {
@@ -539,14 +530,11 @@ const ChangeHoursScreen = ({ navigation, route }) => {
 								const res = await api
 									.fetchToken(`hours/${currentHours.id}`, {
 										method: "PATCH",
-										headers: {
-											Accept: "application/json",
-											"Content-Type": "application/json",
-										},
-										body: JSON.stringify({
+										json: true,
+										body: {
 											submitted: true,
 											valid: null,
-										}),
+										},
 									})
 									.then((res) => res.json());
 								if (!res.success) {

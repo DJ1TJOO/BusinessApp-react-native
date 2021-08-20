@@ -47,13 +47,10 @@ const updatePassword = async (businessId, userId, code, password, setCurrentErro
 		const res = await api
 			.fetchToken(`users/recover/${businessId}/${userId}/${code}`, {
 				method: "POST",
-				headers: {
-					Accept: "application/json",
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
+				json: true,
+				body: {
 					newPassword: password,
-				}),
+				},
 			})
 			.then((res) => res.json());
 		if (!res.success) {
