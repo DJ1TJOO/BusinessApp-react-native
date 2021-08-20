@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const { promisePool: db } = require("./db");
 
-module.exports.authToken = async (req, res, next) => {
+const authToken = async (req, res, next) => {
 	try {
 		let token = req.body.token;
 
@@ -79,7 +79,7 @@ module.exports.authToken = async (req, res, next) => {
 };
 
 const timeoutPromise = new Promise((resolve) => setTimeout(resolve.bind(undefined, false), 1000 * 10));
-module.exports.authToken.promise = (req, res) =>
+authToken.promise = (req, res) =>
 	Promise.race([
 		new Promise((resolve) => {
 			authToken(req, res, () => {
@@ -89,7 +89,7 @@ module.exports.authToken.promise = (req, res) =>
 		timeoutPromise,
 	]);
 
-module.exports.authRights = async (rights, token, businessId = null) => {
+const authRights = async (rights, token, businessId = null) => {
 	if (!token) {
 		return {
 			status: 401,
@@ -175,3 +175,5 @@ module.exports.authRights = async (rights, token, businessId = null) => {
 		};
 	}
 };
+
+module.exports = { authToken, authRights };
