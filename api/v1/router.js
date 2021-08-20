@@ -6,6 +6,7 @@ const business = require("./business");
 const hours = require("./hours");
 const teams = require("./teams");
 const rights = require("./rights");
+const chats = require("./chats");
 
 const images = require("./helpers/images");
 
@@ -23,5 +24,6 @@ V1.use("/business", business);
 V1.use("/hours", hours);
 V1.use("/teams", teams);
 V1.use("/rights", rights);
+V1.use("/chats", chats);
 
 module.exports = V1;
