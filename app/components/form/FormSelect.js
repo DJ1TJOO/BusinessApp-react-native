@@ -227,7 +227,6 @@ const styles = StyleSheet.create({
 	icon: {
 		position: "absolute",
 		left: "100%",
-		marginTop: 6,
 		marginLeft: -15,
 		width: 28,
 		height: 28,
