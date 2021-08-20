@@ -44,7 +44,7 @@ const emptyProject = { project: "Project", description: "", hours: ["0", "0", "0
 const convertDataToHours = (currentHours) => {
 	return currentHours.hours.map((x) => ({
 		id: x.id,
-		hours_id: x.hours_id,
+		hoursId: x.hoursId,
 		project: x.project + (x.projectName ? " - " + x.projectName : ""),
 		description: x.description,
 		hours: [x.monday.toString(), x.tuesday.toString(), x.wednesday.toString(), x.thursday.toString(), x.friday.toString(), x.saturday.toString(), x.sunday.toString()],

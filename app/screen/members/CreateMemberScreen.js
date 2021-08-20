@@ -106,7 +106,7 @@ const CreateMemberScreen = ({ navigation }) => {
 	const getRights = async () => {
 		if (!data.rights) data.rights = [];
 		try {
-			const res = await api.fetchToken("rights/business/" + data.user.business_id).then((res) => res.json());
+			const res = await api.fetchToken("rights/business/" + data.user.businessId).then((res) => res.json());
 			if (res.success) data.rights = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -183,7 +183,7 @@ const CreateMemberScreen = ({ navigation }) => {
 
 							// Create user
 							const bodyUser = {
-								businessId: data.user.business_id,
+								businessId: data.user.businessId,
 								firstName: formData.firstname.value,
 								lastName: formData.lastname.value,
 								email: formData.email.value,

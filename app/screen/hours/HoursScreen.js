@@ -99,8 +99,8 @@ const HoursScreen = ({ navigation, route }) => {
 					// Create new hours
 					if (!hours) {
 						hours = {
-							user_id: data.user.id,
-							business_id: data.user.business_id,
+							userId: data.user.id,
+							businessId: data.user.businessId,
 							hours: [],
 							year: year,
 							week: i,

@@ -17,7 +17,7 @@ import languagesUtils from "../../languages/utils";
 import utils from "../../utils";
 
 const defaultFormData = [
-	["password", "confirm_password"],
+	["password", "confirmPassword"],
 	[],
 	[
 		{
@@ -32,7 +32,7 @@ const defaultFormData = [
 			},
 		},
 		{
-			key: "confirm_password",
+			key: "confirmPassword",
 			validator: (formData, data, text) => {
 				if (!text) return "Het wachtwoord mag niet leeg zijn";
 				if (text !== formData.password.value) return "Het wachtwoord moet het zelfde zijn ";
@@ -95,7 +95,7 @@ const ChangePasswordScreen = ({ navigation, route }) => {
 					label={isCreating ? "Bevestig wachtwoord" : "Bevestig nieuw wachtwoord"}
 					hideText={true}
 					textContentType="password"
-					{...getFormProps("confirm_password")}
+					{...getFormProps("confirmPassword")}
 				/>
 
 				<FormButton

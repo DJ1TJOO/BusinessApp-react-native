@@ -17,11 +17,11 @@ import languagesUtils from "../languages/utils";
 import utils from "../utils";
 
 const defaultFormData = [
-	["business_name", "email", "password"],
+	["businessName", "email", "password"],
 	[],
 	[
 		{
-			key: "business_name",
+			key: "businessName",
 			validator: (formData, data, text) => {
 				if (!text) return "De bedrijfsnaam mag niet leeg zijn";
 				if (text.length < 6) return "De bedrijfsnaam mag niet korter zijn dan 5 karakters";
@@ -89,7 +89,7 @@ const LoginScreen = ({ navigation }) => {
 				// If user is present
 				if (user) {
 					// Set default business and email
-					setFormValues(["business_name", "email"], [user.business, user.email]);
+					setFormValues(["businessName", "email"], [user.business, user.email]);
 				}
 
 				if (token && user) {
@@ -112,7 +112,7 @@ const LoginScreen = ({ navigation }) => {
 						await AsyncStorage.setItem("token", res.data.token);
 						if (res.data.user) {
 							// Update notification token
-							if (res.data.user.notification_token !== data.notificationToken) {
+							if (res.data.user.notificationToken !== data.notificationToken) {
 								const resToken = await api
 									.fetchToken("users/" + res.data.user.id, {
 										method: "PATCH",
@@ -152,7 +152,7 @@ const LoginScreen = ({ navigation }) => {
 							);
 						}
 
-						const businessRes = await api.fetchToken("business/" + user.business_id).then((res) => res.json());
+						const businessRes = await api.fetchToken("business/" + user.businessId).then((res) => res.json());
 
 						if (businessRes.success) {
 							// Store in data
@@ -181,7 +181,7 @@ const LoginScreen = ({ navigation }) => {
 	return (
 		<Wrapper navigation={navigation} showHeader={true} error={currentError} setError={setCurrentError}>
 			<Form title="Login" errorLabel={currentFormError}>
-				<FormInput label="Bedrijf" textContentType="name" {...getFormProps("business_name")} />
+				<FormInput label="Bedrijf" textContentType="name" {...getFormProps("businessName")} />
 				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("email")} />
 				<FormInput
 					label="Wachtwoord"
@@ -216,7 +216,7 @@ const LoginScreen = ({ navigation }) => {
 										"Content-Type": "application/json",
 									},
 									body: JSON.stringify({
-										business: formData.business_name.value,
+										business: formData.businessName.value,
 										email: formData.email.value,
 										password: formData.password.value,
 									}),
@@ -232,12 +232,12 @@ const LoginScreen = ({ navigation }) => {
 									"user",
 									JSON.stringify({
 										...res.data.user,
-										business: formData.business_name.value,
+										business: formData.businessName.value,
 									})
 								);
 
 								// Update notification token
-								if (res.data.user.notification_token !== data.notificationToken) {
+								if (res.data.user.notificationToken !== data.notificationToken) {
 									const resToken = await api
 										.fetchToken("users/" + res.data.user.id, {
 											method: "PATCH",
@@ -268,7 +268,7 @@ const LoginScreen = ({ navigation }) => {
 									}
 								}
 
-								const businessRes = await api.fetchToken("business/" + res.data.user.business_id).then((res) => res.json());
+								const businessRes = await api.fetchToken("business/" + res.data.user.businessId).then((res) => res.json());
 
 								if (businessRes.success) {
 									// Store in data

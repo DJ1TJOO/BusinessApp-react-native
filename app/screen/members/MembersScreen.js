@@ -20,7 +20,7 @@ const MembersScreen = ({ navigation, route }) => {
 	const getUsers = async () => {
 		if (!data.members) data.members = [];
 		try {
-			const res = await api.fetchToken("users/business/" + data.user.business_id).then((res) => res.json());
+			const res = await api.fetchToken("users/business/" + data.user.businessId).then((res) => res.json());
 			if (res.success) data.members = res.data;
 			setData({ ...data });
 		} catch (error) {
@@ -40,14 +40,14 @@ const MembersScreen = ({ navigation, route }) => {
 				data.members.length > 0 &&
 				data.members
 					.map((member) => ({
-						firstname: member.first_name,
-						lastname: member.last_name,
+						firstname: member.firstName,
+						lastname: member.lastName,
 						born: new Date(member.born).getTime(),
-						function: member.function_descr,
+						function: member.functionDescr,
 						//TODO: add teams
 						teams: [],
 						email: member.email,
-						rights: member.right_id,
+						rights: member.rightId,
 						id: member.id,
 					}))
 					.map((member, index) => (

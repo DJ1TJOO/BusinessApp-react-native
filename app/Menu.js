@@ -40,7 +40,7 @@ const Menu = ({ navigation }) => {
 				<View style={styles.info}>
 					{data.user && (
 						<Text style={styles.name}>
-							{data.user.first_name} {data.user.last_name}
+							{data.user.firstName} {data.user.lastName}
 						</Text>
 					)}
 					{data.user && data.user.function && <Text style={styles.function}>{data.user.function}</Text>}

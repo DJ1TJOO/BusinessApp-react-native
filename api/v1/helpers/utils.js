@@ -72,10 +72,38 @@ const fileGenerateUniqueId = (folder, ext) => fileGenerateUnique(folder, ext, uu
  * @param {String} str
  * @returns {Number}
  */
-function lengthInUtf8Bytes(str) {
+const lengthInUtf8Bytes = (str) => {
 	// Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
-	var m = encodeURIComponent(str).match(/%[89ABab]/g);
+	const m = encodeURIComponent(str).match(/%[89ABab]/g);
 	return str.length + (m ? m.length : 0);
-}
+};
 
-module.exports = { objectToResponse, dbGenerateUnique, dbGenerateUniqueId, fileGenerateUnique, fileGenerateUniqueId, lengthInUtf8Bytes };
+// Makes string camel cased
+const stringToCamel = (s) => {
+	return s.replace(/([-_][a-z])/gi, ($1) => {
+		return $1.toUpperCase().replace("-", "").replace("_", "");
+	});
+};
+
+// Check if o is and object
+const isObject = (o) => o === Object(o) && !Array.isArray(o) && typeof o !== "function";
+
+// Makes obj keys with nested obj keys camel cased
+const toCamel = (obj) => {
+	if (isObject(obj)) {
+		const n = {};
+
+		const keys = Object.keys(obj);
+		for (let i = 0; i < keys.length; i++) {
+			n[stringToCamel(keys[i])] = toCamel(obj[keys[i]]);
+		}
+
+		return n;
+	} else if (Array.isArray(obj)) {
+		return obj.map((i) => toCamel(i));
+	}
+
+	return obj;
+};
+
+module.exports = { objectToResponse, dbGenerateUnique, dbGenerateUniqueId, fileGenerateUnique, fileGenerateUniqueId, lengthInUtf8Bytes, isObject, toCamel };

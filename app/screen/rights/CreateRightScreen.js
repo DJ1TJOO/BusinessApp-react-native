@@ -83,7 +83,7 @@ const CreateRightScreen = ({ navigation, route }) => {
 
 							// Create right
 							const bodyRight = {
-								businessId: data.user.business_id,
+								businessId: data.user.businessId,
 								name: formData.name.value,
 								rights: formData.rights.value.map((x) => rights.find((y) => y.name === x)?.id),
 							};

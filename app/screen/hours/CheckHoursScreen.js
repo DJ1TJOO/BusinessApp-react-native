@@ -19,7 +19,7 @@ const CheckHoursScreen = ({ navigation }) => {
 
 		(async () => {
 			try {
-				const res = await api.fetchToken("users/business/" + data.user.business_id).then((res) => res.json());
+				const res = await api.fetchToken("users/business/" + data.user.businessId).then((res) => res.json());
 				if (res.success) data.checkHours.users = res.data;
 				else data.checkHours.users = [];
 				setData({ ...data });
@@ -37,7 +37,7 @@ const CheckHoursScreen = ({ navigation }) => {
 				data.checkHours.users.map((user) => (
 					<MenuCard
 						key={user.id}
-						title={user.first_name + " " + user.last_name}
+						title={user.firstName + " " + user.lastName}
 						onPress={() => {
 							navigation.navigate("CheckHoursPerson", { id: user.id });
 						}}

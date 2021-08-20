@@ -22,16 +22,16 @@ import languagesUtils from "../languages/utils";
 import utils from "../utils";
 
 const defaultFormData = [
-	["business_name", "account_firstname", "account_lastname", "account_born", "account_email", "account_password", "account_confirm_password", "account_function", "image"],
+	["businessName", "accountFirstname", "accountLastname", "accountBorn", "accountEmail", "accountPassword", "accountConfirmPassword", "accountFunction", "image"],
 	[
 		{
-			key: "account_born",
+			key: "accountBorn",
 			value: new Date(new Date().getFullYear() - 19, new Date().getMonth(), new Date().getDate()),
 		},
 	],
 	[
 		{
-			key: "business_name",
+			key: "businessName",
 			validator: (formData, data, text) => {
 				if (!text) return "De bedrijfsnaam mag niet leeg zijn";
 				if (text.length < 6) return "De bedrijfsnaam mag niet korter zijn dan 5 karakters";
@@ -40,7 +40,7 @@ const defaultFormData = [
 			},
 		},
 		{
-			key: "account_firstname",
+			key: "accountFirstname",
 			validator: (formData, data, text) => {
 				if (!text) return "De voornaam mag niet leeg zijn";
 				if (text.length < 3) return "De voornaam mag niet korter zijn dan 5 karakters";
@@ -49,7 +49,7 @@ const defaultFormData = [
 			},
 		},
 		{
-			key: "account_lastname",
+			key: "accountLastname",
 			validator: (formData, data, text) => {
 				if (!text) return "De achternaam mag niet leeg zijn";
 				if (text.length < 3) return "De achternaam mag niet korter zijn dan 5 karakters";
@@ -58,7 +58,7 @@ const defaultFormData = [
 			},
 		},
 		{
-			key: "account_email",
+			key: "accountEmail",
 			validator: (formData, data, text) => {
 				if (!text) return "Het email address mag niet leeg zijn";
 				if (
@@ -73,7 +73,7 @@ const defaultFormData = [
 			},
 		},
 		{
-			key: "account_password",
+			key: "accountPassword",
 			validator: (formData, data, text) => {
 				if (!text) return "Het wachtwoord mag niet leeg zijn";
 				if (text.length < 8) return "Het wachtwoord mag niet korter zijn dan 8 karakters";
@@ -84,15 +84,15 @@ const defaultFormData = [
 			},
 		},
 		{
-			key: "account_confirm_password",
+			key: "accountConfirmPassword",
 			validator: (formData, data, text) => {
 				if (!text) return "Het wachtwoord mag niet leeg zijn";
-				if (text !== formData.account_password.value) return "Het wachtwoord moet het zelfde zijn ";
+				if (text !== formData.accountPassword.value) return "Het wachtwoord moet het zelfde zijn ";
 				return true;
 			},
 		},
 		{
-			key: "account_born",
+			key: "accountBorn",
 			validator: (formData, data, currentDate) => {
 				if (!currentDate) return "De geboorte datum mag niet leeg zijn";
 				const ageDiffMilliseconds = Date.now() - currentDate.getTime();
@@ -104,7 +104,7 @@ const defaultFormData = [
 			},
 		},
 		{
-			key: "account_function",
+			key: "accountFunction",
 			validator: (formData, data, text) => {
 				if (!text) return true;
 
@@ -208,13 +208,13 @@ const RegisterScreen = ({ navigation }) => {
 	return (
 		<Wrapper navigation={navigation} showHeader={true} error={currentError} setError={setCurrentError}>
 			<Form title="Registeer bedrijf" onLayout={(e) => setFormLayout(e.nativeEvent.layout)} errorLabel={currentFormError}>
-				<FormInput label="Bedrijfsnaam" textContentType="name" {...getFormProps("business_name")} />
+				<FormInput label="Bedrijfsnaam" textContentType="name" {...getFormProps("businessName")} />
 				<FormHeading title="Hoofdaccount" />
-				<FormInput label="Voornaam" textContentType="name" {...getFormProps("account_firstname")} />
-				<FormInput label="Achternaam" textContentType="name" {...getFormProps("account_lastname")} />
-				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("account_email")} />
-				<FormInput label="Wachtwoord" hideText={true} textContentType="password" {...getFormProps("account_password")} />
-				<FormInput label="Bevestig wachtwoord" hideText={true} textContentType="password" {...getFormProps("account_confirm_password")} />
+				<FormInput label="Voornaam" textContentType="name" {...getFormProps("accountFirstname")} />
+				<FormInput label="Achternaam" textContentType="name" {...getFormProps("accountLastname")} />
+				<FormInput label="Email" textContentType="emailAddress" keyboardType="email-address" {...getFormProps("accountEmail")} />
+				<FormInput label="Wachtwoord" hideText={true} textContentType="password" {...getFormProps("accountPassword")} />
+				<FormInput label="Bevestig wachtwoord" hideText={true} textContentType="password" {...getFormProps("accountConfirmPassword")} />
 				<FormDate
 					label="Geboorte datum"
 					links={[
@@ -249,9 +249,9 @@ const RegisterScreen = ({ navigation }) => {
 							},
 						},
 					]}
-					{...getFormProps("account_born")}
+					{...getFormProps("accountBorn")}
 				/>
-				<FormInput label="Functie omschrijving" textContentType="jobTitle" {...getFormProps("account_function")} />
+				<FormInput label="Functie omschrijving" textContentType="jobTitle" {...getFormProps("accountFunction")} />
 				{formData.image.value && (
 					<Image
 						source={{ uri: formData.image.value.uri }}
@@ -279,7 +279,7 @@ const RegisterScreen = ({ navigation }) => {
 							setCurrentFormError(null);
 
 							const body = {
-								name: formData.business_name.value,
+								name: formData.businessName.value,
 								image: "data:image/png;base64," + formData.image.value.base64,
 							};
 							const res = await api
@@ -297,15 +297,15 @@ const RegisterScreen = ({ navigation }) => {
 								// Create user
 								const bodyUser = {
 									businessId: res.data.business.id,
-									firstName: formData.account_firstname.value,
-									lastName: formData.account_lastname.value,
-									email: formData.account_email.value,
-									password: formData.account_password.value,
-									born: formData.account_born.value,
+									firstName: formData.accountFirstname.value,
+									lastName: formData.accountLastname.value,
+									email: formData.accountEmail.value,
+									password: formData.accountPassword.value,
+									born: formData.accountBorn.value,
 									sendCreateCode: false,
 								};
 
-								if (formData.account_function.value) bodyUser.functionDescription = formData.account_function.value;
+								if (formData.accountFunction.value) bodyUser.functionDescription = formData.accountFunction.value;
 
 								const resUser = await api
 									.fetchToken("users/", {

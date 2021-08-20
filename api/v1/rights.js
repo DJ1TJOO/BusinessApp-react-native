@@ -11,6 +11,7 @@ rights.get("/available", (req, res) => {
 	return res.send({
 		success: true,
 		data: availableRights,
+		camel: false,
 	});
 });
 

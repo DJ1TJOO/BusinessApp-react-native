@@ -18,10 +18,15 @@ const ChatsScreen = ({ navigation, route }) => {
 
 	// TODO: get chat groups
 	const getUsers = async () => {
+		if (!data.chatMembers) data.chatMembers = [];
 		if (!data.chats) data.chats = [];
 		try {
-			const res = await api.fetchToken("users/business/" + data.user.business_id + "?names=true").then((res) => res.json());
-			if (res.success) data.chats = res.data.filter((x) => x.id !== data.user.id);
+			const resMembers = await api.fetchToken("users/business/" + data.user.businessId + "?names=true").then((res) => res.json());
+			if (resMembers.success) data.chatMembers = resMembers.data.filter((x) => x.id !== data.user.id);
+
+			const resChats = await api.fetchToken("chats").then((res) => res.json());
+			if (resChats.success) data.chats = resChats.data;
+
 			setData({ ...data });
 		} catch (error) {
 			utils.handleError(error);
@@ -39,9 +44,9 @@ const ChatsScreen = ({ navigation, route }) => {
 			{data.chats &&
 				data.chats.length > 0 &&
 				data.chats
-					.map((member) => ({
-						firstname: member.first_name,
-						lastname: member.last_name,
+					.map((chat) => ({
+						firstname: member.firstName,
+						lastname: member.lastName,
 						date: Date.now(),
 						text: "Joo hoe gaat het nou. Ik hoorde van blabla blalbla lbl.ab labl alb lllalb lab ll balbal a blalbl la l",
 					}))

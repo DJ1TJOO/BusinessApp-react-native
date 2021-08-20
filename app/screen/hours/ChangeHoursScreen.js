@@ -26,14 +26,14 @@ import utils from "../../utils";
  * 	name: String,
  * 	hours: Array<{
  * 	id: String,
- * 	hours_id: String,
+ * 	hoursId: String,
  *	project: String,
  *	description: String,
  *	hours: Array<String>
  * }>}>,
  * setHours: (hours: Array<{
  * 	id: String,
- * 	hours_id: String,
+ * 	hoursId: String,
  *	project: String,
  *	description: String,
  *	hours: Array<String>
@@ -125,7 +125,7 @@ const emptyProject = { project: "Project", description: "", hours: ["0", "0", "0
  *
  * @param {Array<{
  * 	id: String,
- *	hours_id: String,
+ *	hoursId: String,
  *	project: String,
  *	projectName: String,
  *	description: String,
@@ -139,7 +139,7 @@ const emptyProject = { project: "Project", description: "", hours: ["0", "0", "0
  * }>} currentHours
  * @returns {Array<{
  * 	id: String,
- * 	hours_id: String,
+ * 	hoursId: String,
  *	project: String,
  *	description: String,
  *	hours: Array<String>
@@ -148,7 +148,7 @@ const emptyProject = { project: "Project", description: "", hours: ["0", "0", "0
 const convertDataToHours = (currentHours) => {
 	return currentHours.hours.map((x) => ({
 		id: x.id,
-		hours_id: x.hours_id,
+		hoursId: x.hoursId,
 		project: x.project + (x.projectName ? " - " + x.projectName : ""),
 		description: x.description,
 		hours: [x.monday.toString(), x.tuesday.toString(), x.wednesday.toString(), x.thursday.toString(), x.friday.toString(), x.saturday.toString(), x.sunday.toString()],
@@ -158,14 +158,14 @@ const convertDataToHours = (currentHours) => {
 /**
  * @param {Array<{
  * 	id: String,
- * 	hours_id: String,
+ * 	hoursId: String,
  *	project: String,
  *	description: String,
  *	hours: Array<String>
  * }>} hours
  * @returns {Array<{
  * 	id: String,
- *	hours_id: String,
+ *	hoursId: String,
  *	project: String,
  *	projectName: String,
  *	description: String,
@@ -192,7 +192,7 @@ const convertHoursToData = (hours) => {
 
 			return {
 				id: x.id,
-				hours_id: x.hours_id,
+				hoursId: x.hoursId,
 				project,
 				projectName,
 				description: x.description,
@@ -224,7 +224,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 					},
 					body: JSON.stringify({
 						userId: data.user.id,
-						businessId: data.user.business_id,
+						businessId: data.user.businessId,
 						week: currentHours.week,
 						year: currentHours.year,
 					}),
@@ -239,7 +239,7 @@ const update = async (data, currentHours, hours, setCurrentError) => {
 						res,
 						{
 							userId: data.user.id,
-							businessId: data.user.business_id,
+							businessId: data.user.businessId,
 							week: currentHours.week,
 							year: currentHours.year,
 						},
