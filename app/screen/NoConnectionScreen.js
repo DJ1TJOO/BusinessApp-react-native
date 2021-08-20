@@ -44,26 +44,25 @@ const NoConnectionScreen = ({ navigation, route }) => {
 			</Text>
 			<FormButton
 				style={styles.retry}
-				onPress={() => {
-					NetInfo.fetch().then(async (state) => {
-						if (state.isConnected) {
-							try {
-								const res = await api.fetchToken().then((res) => res.json());
-								if (res.success) {
-									navigation.goBack();
-								} else {
-									if (!servers) setServers(true);
-									else setCurrentError("Geen verbinding");
-								}
-							} catch (error) {
+				onPress={async () => {
+					if (state.isConnected) {
+						try {
+							const res = await api.fetchToken().then((res) => res.json());
+							if (res.success) {
+								navigation.goBack();
+							} else {
 								if (!servers) setServers(true);
-								else setCurrentError("Geen verbinding");
+								else setCurrentError("Geen verbinding met server");
 							}
-						} else {
-							if (servers) setServers(false);
-							setCurrentError("Geen verbinding");
+						} catch (error) {
+							console.log(error);
+							if (!servers) setServers(true);
+							else setCurrentError("Geen verbinding");
 						}
-					});
+					} else {
+						if (servers) setServers(false);
+						setCurrentError("Geen verbinding");
+					}
 				}}
 			>
 				Opnieuw proberen

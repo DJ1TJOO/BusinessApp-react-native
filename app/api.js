@@ -11,7 +11,7 @@ const base = config.api;
  * @param {number} timeout
  * @returns
  */
-const fetchToken = async (path, options = null, timeout = 10000) => {
+const fetchToken = async (path = "", options = null, timeout = 10000) => {
 	try {
 		const token = await AsyncStorage.getItem("token");
 		if (!options && token) {
@@ -33,6 +33,9 @@ const fetchToken = async (path, options = null, timeout = 10000) => {
 		return utils.fetchTimeout(base + path, options, timeout);
 	} catch (error) {
 		utils.handleError(error);
+		return {
+			success: false,
+		};
 	}
 };
 
