@@ -47,6 +47,7 @@ const Menu = ({ navigation }) => {
 				</View>
 				<IconArrowBack style={styles.back} />
 			</TouchableOpacity>
+			// TODO: check for rights
 			<MenuCard
 				title="Start"
 				onPress={() => {
