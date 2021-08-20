@@ -45,6 +45,8 @@ users.get("/:id", authToken, async (req, res) => {
 
 users.get("/business/:businessId", authToken, async (req, res) => {
 	const { businessId } = req.params;
+	const names = !!req.query.names;
+
 	try {
 		const [business_result] = await db.query(`SELECT count(*) FROM business WHERE id = ?`, [businessId]);
 
@@ -58,10 +60,19 @@ users.get("/business/:businessId", authToken, async (req, res) => {
 		}
 
 		// Check if user has rights
-		const auth = await authRights([availableRights.GET_MEMBERS], req.token, businessId);
-		if (!auth.success) return objectToResponse(res, auth);
+		if (names) {
+			const auth = await authRights([], req.token, businessId);
+			if (!auth.success) return objectToResponse(res, auth);
+		} else {
+			const auth = await authRights([availableRights.GET_MEMBERS], req.token, businessId);
+			if (!auth.success) return objectToResponse(res, auth);
+		}
 
-		const [results] = await db.query(`SELECT id,business_id,right_id,first_name,last_name,email,born,function_descr FROM users WHERE business_id = ?`, [businessId]);
+		const [results] = await db.query(
+			`SELECT ${names ? "id,first_name,last_name" : "id,business_id,right_id,first_name,last_name,email,born,function_descr"} FROM users WHERE business_id = ?`,
+			[businessId]
+		);
+		console.log(results);
 
 		return res.send({
 			success: true,
