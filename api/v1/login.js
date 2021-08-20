@@ -71,7 +71,7 @@ login.post("/validate", authToken, async (req, res) => {
 		});
 	}
 
-	res.json({
+	res.send({
 		success: true,
 		data: {
 			token,

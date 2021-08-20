@@ -15,7 +15,7 @@ const authToken = async (req, res, next) => {
 		}
 
 		if (!token) {
-			return res.status(401).json({
+			return res.status(401).send({
 				success: false,
 				error: "no_token",
 			});
@@ -49,7 +49,7 @@ const authToken = async (req, res, next) => {
 			if (invalidToken.date > decodedToken.iat * 1000) {
 				// Something changed on the user token is not valid
 				// Return status 401 (failed authentication)
-				return res.status(401).json({
+				return res.status(401).send({
 					success: false,
 					error: "failed_authentication",
 				});
@@ -61,7 +61,7 @@ const authToken = async (req, res, next) => {
 		// User not found
 		if (results[0]["count(*)"] < 1) {
 			// Return status 401 (failed authentication)
-			return res.status(401).json({
+			return res.status(401).send({
 				success: false,
 				error: "failed_authentication",
 			});
@@ -71,7 +71,7 @@ const authToken = async (req, res, next) => {
 
 		next();
 	} catch (error) {
-		res.status(401).json({
+		res.status(401).send({
 			success: false,
 			error: "failed_authentication",
 		});
