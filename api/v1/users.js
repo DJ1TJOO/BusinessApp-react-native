@@ -72,7 +72,6 @@ users.get("/business/:businessId", authToken, async (req, res) => {
 			`SELECT ${names ? "id,first_name,last_name" : "id,business_id,right_id,first_name,last_name,email,born,function_descr"} FROM users WHERE business_id = ?`,
 			[businessId]
 		);
-		console.log(results);
 
 		return res.send({
 			success: true,

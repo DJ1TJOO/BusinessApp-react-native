@@ -13,7 +13,7 @@ import { IconLoading } from "./Icons";
 import Loading from "./Loading";
 import SafeView from "./SafeView";
 
-const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError, confirmation, setConfirmation, heading }) => {
+const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError, confirmation, setConfirmation, heading, toBottom }) => {
 	const insets = useSafeAreaInsets();
 
 	const offset = useRef(new Animated.Value(0)).current;
@@ -171,12 +171,16 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 							hasHitBottom = false;
 							hitBottom();
 						}}
+						onContentSizeChange={(contentWidth, contentHeight) => {
+							toBottom && scrollView.current.scrollToEnd({ animated: true });
+						}}
 						scrollEventThrottle={1}
 						keyboardDismissMode="interactive"
 						style={[styles.wrapper, style]}
 						{...refreshControl}
 					>
 						{children}
+						<View style={{ height: Platform.OS === "android" ? 5 : 0 }} />
 					</KeyboardAwareScrollView>
 				)}
 			</wrapperScrollViewContext.Provider>

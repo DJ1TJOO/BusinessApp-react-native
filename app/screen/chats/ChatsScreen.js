@@ -1,23 +1,28 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+
 import api from "../../api";
 
-import Heading from "../../components/Heading";
-import Wrapper from "../../components/Wrapper";
 import Card from "../../components/Card";
+import Heading from "../../components/Heading";
+import { IconArrowForward } from "../../components/Icons";
+import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
 import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
 
+import languagesUtils from "../../languages/utils";
+
 import utils from "../../utils";
 
 const ChatsScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
+	const [currentError, setCurrentError] = useState();
 
 	// TODO: get chat groups
-	const getUsers = async () => {
+	const getData = async () => {
 		if (!data.chatMembers) data.chatMembers = [];
 		if (!data.chats) data.chats = [];
 		try {
@@ -26,7 +31,6 @@ const ChatsScreen = ({ navigation, route }) => {
 
 			const resChats = await api.fetchToken("chats").then((res) => res.json());
 			if (resChats.success) data.chats = resChats.data;
-
 			setData({ ...data });
 		} catch (error) {
 			utils.handleError(error);
@@ -35,44 +39,127 @@ const ChatsScreen = ({ navigation, route }) => {
 
 	useEffect(() => {
 		// Get users
-		getUsers();
+		getData();
 	}, [route]);
 
 	return (
-		<Wrapper showHeader={true} navigation={navigation} refresh={getUsers} loading={!data.chats}>
+		<Wrapper showHeader={true} navigation={navigation} refresh={getData} loading={!data.chats || !data.chatMembers} error={currentError} setError={setCurrentError}>
 			<Heading title="Alle chats" />
 			{data.chats &&
 				data.chats.length > 0 &&
-				data.chats
-					.map((chat) => ({
-						firstname: member.firstName,
-						lastname: member.lastName,
-						date: Date.now(),
-						text: "Joo hoe gaat het nou. Ik hoorde van blabla blalbla lbl.ab labl alb lllalb lab ll balbal a blalbl la l",
-					}))
+				data.chats.map((chat, index) => (
+					<Card
+						key={index}
+						onPress={() => {
+							navigation.navigate("Chat", chat);
+						}}
+					>
+						<View style={styles.row}>
+							<Text style={styles.name}>
+								{chat.members.length === 2
+									? data.chatMembers.find((x) => chat.members.includes(x.id))?.firstName +
+									  " " +
+									  data.chatMembers.find((x) => chat.members.includes(x.id))?.lastName
+									: chat.name}
+							</Text>
+							{chat.lastMessage && (
+								<Text style={styles.date}>
+									{new Date(chat.lastMessage.created).setHours(0, 0, 0, 0) == new Date().setHours(0, 0, 0, 0)
+										? new Date(chat.lastMessage.created).toLocaleString(undefined, {
+												hour: "2-digit",
+												minute: "2-digit",
+										  })
+										: new Date(chat.lastMessage.created).toLocaleDateString()}
+								</Text>
+							)}
+							{!chat.lastMessage && <IconArrowForward color={Colors.textPrimary} style={[styles.icon, { top: 7 }]} />}
+						</View>
+
+						{chat.lastMessage && (
+							<Text style={styles.text}>
+								{decodeURIComponent(chat.lastMessage.message).substring(0, 90)}
+								{decodeURIComponent(chat.lastMessage.message).length > 90 && "..."}
+							</Text>
+						)}
+					</Card>
+				))}
+			{data.chatMembers &&
+				data.chats &&
+				data.chatMembers
+					.filter((x) => !data.chats.find((y) => y.members.length === 2 && y.members.includes(x.id)))
 					.map((member, index) => (
 						<Card
 							key={index}
-							onPress={() => {
-								navigation.navigate("Chat", member);
+							onPress={async () => {
+								try {
+									const res = await api
+										.fetchToken("chats", {
+											method: "POST",
+											json: true,
+											body: {
+												businessId: data.user.businessId,
+												randomName: true,
+											},
+										})
+										.then((res) => res.json());
+									if (res.success) {
+										const userRes = await api
+											.fetchToken("chats/" + res.data.id, {
+												method: "POST",
+												json: true,
+												body: {
+													userId: member.id,
+												},
+											})
+											.then((res) => res.json());
+										if (userRes.success) {
+											await getData();
+											navigation.navigate("Chat", userRes.data);
+										} else {
+											// Display error
+											setCurrentError(
+												languagesUtils.convertError(
+													data.language,
+													res,
+													{
+														userId: member.id,
+													},
+													"berichten",
+													{
+														userId: "de gebruiker",
+													}
+												)
+											);
+										}
+									} else {
+										// Display error
+										setCurrentError(
+											languagesUtils.convertError(
+												data.language,
+												res,
+												{
+													businessId: data.user.businessId,
+													randomName: true,
+												},
+												"berichten",
+												{
+													name: "de naam",
+												}
+											)
+										);
+									}
+								} catch (error) {
+									utils.handleError(error);
+								}
 							}}
 						>
 							<View style={styles.row}>
-								<Text style={styles.name}>
-									{member.firstname} {member.lastname}
-								</Text>
-								{member.date && member.text && <Text style={styles.date}> {new Date(member.date).toLocaleDateString()}</Text>}
+								<Text style={styles.name}>{member.firstName + " " + member.lastName}</Text>
+								<IconArrowForward color={Colors.textPrimary} style={[styles.icon, { top: 7 }]} />
 							</View>
-
-							{member.date && member.text && (
-								<Text style={styles.text}>
-									{member.text.substring(0, 90)}
-									{member.text.length > 90 && "..."}
-								</Text>
-							)}
 						</Card>
 					))}
-			{data.chats && data.chats.length < 1 && <Text style={styles.info}>Geen chats</Text>}
+			{data.chats && data.chats.length < 1 && data.chatMembers && data.chatMembers.length < 0 && <Text style={styles.info}>Geen chats</Text>}
 		</Wrapper>
 	);
 };
@@ -100,6 +187,10 @@ const styles = StyleSheet.create({
 	row: {
 		flexDirection: "row",
 		justifyContent: "space-between",
+	},
+	icon: {
+		height: 20,
+		top: 0,
 	},
 });
 

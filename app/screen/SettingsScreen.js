@@ -88,11 +88,8 @@ const SettingsScreen = ({ navigation, route }) => {
 								const resUser = await api
 									.fetchToken("users/" + data.user.id, {
 										method: "PATCH",
-										headers: {
-											Accept: "application/json",
-											"Content-Type": "application/json",
-										},
-										body: JSON.stringify(bodyUser),
+										json: true,
+										body: bodyUser,
 									})
 									.then((res) => res.json());
 
