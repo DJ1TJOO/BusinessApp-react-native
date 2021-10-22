@@ -11,7 +11,7 @@ const Message = ({ member = null, name = true, message, date, style }) => {
 	const currentDate = new Date(date);
 
 	return (
-		<View style={[styles.card, style, (!member || member.id === data.user.id) && { marginLeft: "10%" }]}>
+		<View style={[styles.card, style, (!member || member.id === data.user.id) && { marginLeft: "10%", backgroundColor: Colors.tertiary }]}>
 			{name && member && <Text style={styles.member}>{member.firstName + " " + member.lastName}</Text>}
 			<Text style={[styles.message]}>{message}</Text>
 			<Text style={[styles.date]}>
@@ -27,7 +27,7 @@ const Message = ({ member = null, name = true, message, date, style }) => {
 const styles = StyleSheet.create({
 	card: {
 		width: "90%",
-		backgroundColor: Colors.tertiary,
+		backgroundColor: Colors.secondary,
 		borderRadius: 12,
 		marginBottom: 5,
 		padding: 10,

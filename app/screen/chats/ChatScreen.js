@@ -1,18 +1,23 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+
 import api from "../../api";
 
 import Message from "../../components/chat/Message";
-import Heading from "../../components/Heading";
-import Wrapper from "../../components/Wrapper";
 import FormInput from "../../components/form/FormInput";
+import Heading from "../../components/Heading";
+import { IconArrowForward } from "../../components/Icons";
+import Wrapper from "../../components/Wrapper";
+
+import Colors from "../../config/Colors";
 
 import dataContext from "../../contexts/dataContext";
 
-import utils from "../../utils";
-import { IconArrowForward } from "../../components/Icons";
-import Colors from "../../config/Colors";
 import useFormData from "../../hooks/useFormData";
+
+import languagesUtils from "../../languages/utils";
+
+import utils from "../../utils";
 
 const defaultFormData = [["message"], [], []];
 
@@ -75,18 +80,46 @@ const ChatScreen = ({ navigation, route }) => {
 			{data.chatMessages &&
 				data.chatMembers &&
 				data.chatMessages[route.params.id] &&
-				data.chatMessages[route.params.id].map((message) => {
-					<Heading title={"Vandaag"} />;
+				data.chatMessages[route.params.id].map((message, index) => {
+					let heading = false;
+					const created = new Date(message.created);
 
-					return (
+					if (index === 0) {
+						heading = true;
+					} else {
+						const previousMessage = data.chatMessages[route.params.id][index - 1];
+						const previousCreated = new Date(previousMessage.created);
+
+						// Not same date
+						if (
+							previousCreated.getUTCDate() !== created.getUTCDate() ||
+							previousCreated.getUTCMonth() !== created.getUTCMonth() ||
+							previousCreated.getUTCFullYear() !== created.getUTCFullYear()
+						) {
+							heading = true;
+						}
+					}
+
+					const messageComponent = (
 						<Message
 							key={message.message + message.created}
 							member={message.userId === data.user.id ? data.user : data.chatMembers.find((x) => x.id === message.userId)}
 							name={false}
 							message={decodeURIComponent(message.message)}
-							date={new Date(message.created)}
+							date={created}
 						/>
 					);
+
+					if (heading) {
+						return (
+							<View>
+								<Heading title={languagesUtils.capitalizeFirstLetter(utils.formatDate(created))} />
+								{messageComponent}
+							</View>
+						);
+					} else {
+						return messageComponent;
+					}
 				})}
 			<View style={[styles.input]}>
 				<FormInput multiline={true} returnKeyType="default" innerStyle={{ height: 100 }} {...getFormProps("message")} />

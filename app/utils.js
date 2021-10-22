@@ -57,4 +57,30 @@ const uuidv4 = () =>
 		return v.toString(16);
 	});
 
-export default { handleError, fetchTimeout, uuidv4 };
+const fulldays = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+const months = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+const fullMonths = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"];
+const formatDate = (date) => {
+	var dt = new Date(date),
+		date = dt.getDate(),
+		month = dt.getMonth(),
+		diffDays = new Date().getDate() - date,
+		diffMonths = new Date().getMonth() - dt.getMonth(),
+		diffYears = new Date().getFullYear() - dt.getFullYear();
+
+	if (diffYears === 0 && diffDays === 0 && diffMonths === 0) {
+		return "vandaag";
+	} else if (diffYears === 0 && diffDays === 1) {
+		return "gisteren";
+	} else if (diffYears === 0 && diffDays === -1) {
+		return "morgen";
+	} else if (diffYears === 0 && diffDays < -1 && diffDays > -7) {
+		return fulldays[dt.getDay()];
+	} else if (diffYears >= 1) {
+		return date + " " + months[month] + ", " + new Date(date).getFullYear();
+	} else {
+		return date + " " + fullMonths[month];
+	}
+};
+
+export default { handleError, fetchTimeout, uuidv4, formatDate };
