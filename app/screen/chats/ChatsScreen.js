@@ -50,16 +50,13 @@ const ChatsScreen = ({ navigation, route }) => {
 		});
 
 		es.addEventListener("error", (event) => {
-			if (event.type === "error") {
-				console.error("Connection error:", event.message);
-			} else if (event.type === "exception") {
-				console.error("Error:", event.message, event.error);
-			}
+			es.close();
+			es.open();
 		});
 
 		es.addEventListener("close", (event) => {
-			// TODO: reconnect
-			console.log("Close SSE connection.");
+			es.close();
+			es.open();
 		});
 	};
 
