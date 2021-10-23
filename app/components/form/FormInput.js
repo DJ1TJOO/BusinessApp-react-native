@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
 		borderColor: Colors.tertiary,
 		paddingHorizontal: 10,
 		height: 38,
-		textAlignVertical: "top",
+		textAlignVertical: "center",
 	},
 	inputValid: {
 		borderColor: Colors.primary,

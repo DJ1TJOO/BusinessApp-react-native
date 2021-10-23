@@ -60,16 +60,19 @@ const uuidv4 = () =>
 const fulldays = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
 const months = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 const fullMonths = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"];
-const formatDate = (date) => {
+const formatDate = (date, time = false) => {
 	var dt = new Date(date),
 		date = dt.getDate(),
 		month = dt.getMonth(),
+		hours = dt.getHours(),
+		minutes = dt.getMinutes(),
 		diffDays = new Date().getDate() - date,
 		diffMonths = new Date().getMonth() - dt.getMonth(),
 		diffYears = new Date().getFullYear() - dt.getFullYear();
 
 	if (diffYears === 0 && diffDays === 0 && diffMonths === 0) {
-		return "vandaag";
+		if (!time) return "vandaag";
+		return hours + ":" + minutes;
 	} else if (diffYears === 0 && diffDays === 1) {
 		return "gisteren";
 	} else if (diffYears === 0 && diffDays === -1) {

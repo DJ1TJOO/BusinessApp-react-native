@@ -62,16 +62,7 @@ const ChatsScreen = ({ navigation, route }) => {
 									  data.chatMembers.find((x) => chat.members.includes(x.id))?.lastName
 									: chat.name}
 							</Text>
-							{chat.lastMessage && (
-								<Text style={styles.date}>
-									{new Date(chat.lastMessage.created).setHours(0, 0, 0, 0) == new Date().setHours(0, 0, 0, 0)
-										? new Date(chat.lastMessage.created).toLocaleString(undefined, {
-												hour: "2-digit",
-												minute: "2-digit",
-										  })
-										: new Date(chat.lastMessage.created).toLocaleDateString()}
-								</Text>
-							)}
+							{chat.lastMessage && <Text style={styles.date}>{languagesUtils.capitalizeFirstLetter(utils.formatDate(chat.lastMessage.created, true))}</Text>}
 							{!chat.lastMessage && <IconArrowForward color={Colors.textPrimary} style={[styles.icon, { top: 7 }]} />}
 						</View>
 

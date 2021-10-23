@@ -113,7 +113,7 @@ const ChatScreen = ({ navigation, route }) => {
 					if (heading) {
 						return (
 							<View>
-								<Heading title={languagesUtils.capitalizeFirstLetter(utils.formatDate(created))} />
+								<Heading key={message.created + " header"} title={languagesUtils.capitalizeFirstLetter(utils.formatDate(created))} />
 								{messageComponent}
 							</View>
 						);
@@ -122,7 +122,7 @@ const ChatScreen = ({ navigation, route }) => {
 					}
 				})}
 			<View style={[styles.input]}>
-				<FormInput multiline={true} returnKeyType="default" innerStyle={{ height: 100 }} {...getFormProps("message")} />
+				<FormInput multiline={true} returnKeyType="default" innerStyle={{ height: 100, textAlignVertical: "top", paddingTop: 10 }} {...getFormProps("message")} />
 				<TouchableOpacity
 					style={styles.send}
 					onPress={async () => {
