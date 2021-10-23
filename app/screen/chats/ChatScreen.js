@@ -112,7 +112,7 @@ const ChatScreen = ({ navigation, route }) => {
 
 					if (heading) {
 						return (
-							<View>
+							<View key={message.created + " view"}>
 								<Heading key={message.created + " header"} title={languagesUtils.capitalizeFirstLetter(utils.formatDate(created))} />
 								{messageComponent}
 							</View>
@@ -143,8 +143,6 @@ const ChatScreen = ({ navigation, route }) => {
 								.then((res) => res.json());
 
 							if (res.success) {
-								data.chatMessages[route.params.id].push(res.data);
-								setData({ ...data });
 								setFormValue("message")("");
 							} else {
 								setCurrentError("Kon bericht niet versturen");

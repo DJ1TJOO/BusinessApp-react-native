@@ -40,13 +40,14 @@
 		"react-native-root-siblings": "^4.1.1",
 		"react-native-safe-area-context": "3.2.0",
 		"react-native-screens": "~3.4.0",
+		"react-native-sse": "^1.1.0",
 		"react-native-svg": "12.1.1",
 		"react-native-web": "~0.13.12"
 	},
 	"devDependencies": {
-		"@types/react-native": "^0.64.13",
 		"@babel/core": "^7.9.0",
 		"@expo/ngrok": "^2.5.0",
+		"@types/react-native": "^0.64.13",
 		"babel-preset-expo": "^8.4.1",
 		"concurrently": "^6.2.0"
 	},

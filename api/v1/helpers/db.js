@@ -12,6 +12,7 @@ const pool = mysql.createPool(configuration);
 
 const promisePool = pool.promise();
 
+const messagesListeners = [];
 (async () => {
 	const events = new MySQLEvents(configuration, {
 		startAtEnd: true,
@@ -46,6 +47,21 @@ const promisePool = pool.promise();
 			},
 		});
 
+		events.addTrigger({
+			name: "listen",
+			expression: "business_api.messages",
+			statement: MySQLEvents.STATEMENTS.ALL,
+			onEvent: async (e) => {
+				try {
+					for (let i = 0; i < messagesListeners.length; i++) {
+						messagesListeners[i](e);
+					}
+				} catch (error) {
+					console.log(error);
+				}
+			},
+		});
+
 		events.on(MySQLEvents.EVENTS.CONNECTION_ERROR, console.error);
 		events.on(MySQLEvents.EVENTS.ZONGJI_ERROR, console.error);
 	} catch (error) {
@@ -53,4 +69,4 @@ const promisePool = pool.promise();
 	}
 })();
 
-module.exports = { pool, promisePool, escape: mysql.escape };
+module.exports = { pool, promisePool, escape: mysql.escape, messagesListeners };

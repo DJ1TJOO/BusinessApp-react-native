@@ -1,5 +1,6 @@
 const { authToken, authRights } = require("./helpers/auth");
 const { promisePool: db, messagesListeners, escape } = require("./helpers/db");
+const { objectToResponse, dbGenerateUniqueId, toCamel } = require("./helpers/utils");
 const { v4: uuid } = require("uuid");
 
 const chats = require("express").Router();
@@ -47,24 +48,21 @@ chats.get("/", authToken, async (req, res) => {
 	}
 });
 
-chats.get("/:id", authToken, async (req, res) => {
-	const { id } = req.params;
+const getChat = async (id, userId) => {
 	try {
-		const [results] = await db.query(`SELECT * FROM chats WHERE id = ? AND business_id = ?`, [id, req.token.businessId]);
+		const [results] = await db.query(`SELECT * FROM chats WHERE id = ?`, [id]);
 		if (results.length < 1) {
-			return res.status(404).send({
+			return {
+				status: 404,
 				success: false,
 				error: "chat_not_found",
-			});
+			};
 		}
 
-		const [user_results] = await db.query(`SELECT count(*) FROM user_chats WHERE user_id = ? and chat_id = ?`, [req.token.id, id]);
+		const [user_results] = await db.query(`SELECT count(*) FROM user_chats WHERE user_id = ? and chat_id = ?`, [userId, id]);
 
 		if (user_results[0]["count(*)"] < 1) {
-			return res.status(403).send({
-				success: false,
-				error: "forbidden",
-			});
+			return { status: 403, success: false, error: "forbidden" };
 		}
 
 		// Add members
@@ -82,18 +80,100 @@ chats.get("/:id", authToken, async (req, res) => {
                                                     ORDER BY messages.created`);
 		results[0].lastMessage = messages.length > 0 ? { ...messages[0], created: messages[0].created.replace(" ", "T") } : null;
 
-		return res.send({
+		return {
 			success: true,
 			data: results[0],
-		});
+		};
 	} catch (error) {
 		// Mysql error
 		console.log(error);
 		// Return status 500 (internal server error) mysql
-		return res.status(500).send({
+		return {
+			status: 500,
 			success: false,
 			error: "mysql",
-		});
+		};
+	}
+};
+
+/**
+ * @type {Array<{
+ * 	res: import("express").Response
+ * 	userId: String
+ * 	created: Date
+ * }>}
+ */
+const sseMessages = [];
+
+chats.get("/connect", authToken, async (req, res) => {
+	res.writeHead(200, {
+		"Content-Type": "text/event-stream",
+		"Cache-Control": "no-cache",
+		Connection: "keep-alive",
+		"X-Accel-Buffering": "no",
+	});
+
+	sseMessages.push({
+		res,
+		userId: req.token.id,
+	});
+
+	sseWrite(req.token.id, -1, null);
+
+	req.on("close", () => {
+		sseMessages.splice(
+			sseMessages.findIndex((x) => x.userId === req.token.userId),
+			1
+		);
+	});
+});
+
+/**
+ * @param {String} userId
+ * @param {Number} type
+ * @param {any} data
+ * @returns {Boolean}
+ */
+const sseWrite = (userId, type, data) => {
+	const sse = sseMessages.find((x) => x.userId === userId);
+	if (!sse) return false;
+
+	sse.res.write("event: message\n");
+	sse.res.write(
+		"data: " +
+			JSON.stringify({
+				success: true,
+				type,
+				data,
+			})
+	);
+	sse.res.write("\n\n");
+
+	return true;
+};
+
+messagesListeners.push(async (e) => {
+	for (let i = 0; i < e.affectedRows.length; i++) {
+		const { before, after } = e.affectedRows[i];
+		try {
+			// New message
+			if (!before && after) {
+				// Get chat
+				const resChat = await getChat(after.chat_id, after.user_id);
+				if (!resChat.success) continue;
+
+				const chat = resChat.data;
+				for (let i = 0; i < chat.members.length; i++) {
+					sseWrite(chat.members[i], 0, toCamel({ ...after, created: after.created.replace(" ", "T") }));
+
+					// TODO: notification, badge, add routes
+				}
+			}
+
+			// TODO: delete, edit message
+		} catch (error) {
+			console.log(error);
+		}
 	}
 });
 
@@ -140,6 +220,11 @@ chats.get("/messages/:id/:amount/:start?", authToken, async (req, res) => {
 			error: "mysql",
 		});
 	}
+});
+
+chats.get("/:id", authToken, async (req, res) => {
+	const { id } = req.params;
+	objectToResponse(res, await getChat(id, req.token.id));
 });
 
 chats.post("/", authToken, async (req, res) => {
@@ -435,4 +520,5 @@ chats.post("/:chatId/message", authToken, async (req, res) => {
 
 // TODO: add user to chat, patch, delete, delete user from chat
 
-module.exports = chats;
+const chatsModule = (module.exports = chats);
+chatsModule.sseWrite = sseWrite;

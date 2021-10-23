@@ -1,5 +1,7 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import EventSource from "react-native-sse";
 
 import api from "../../api";
 
@@ -9,6 +11,7 @@ import { IconArrowForward } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
+import { config } from "../../config/config";
 import FontSizes from "../../config/FontSizes";
 
 import dataContext from "../../contexts/dataContext";
@@ -21,21 +24,66 @@ const ChatsScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 	const [currentError, setCurrentError] = useState();
 
+	const connect = async () => {
+		const es = new EventSource(config.api + "chats/connect", {
+			headers: { authorization: "token " + (await AsyncStorage.getItem("token")) },
+		});
+
+		es.addEventListener("message", (event) => {
+			const messageData = JSON.parse(event.data);
+
+			// New message
+			if (messageData.type === 0) {
+				if (!messageData.chatMessages) messageData.chatMessages = {};
+
+				if (!data.chatMessages[messageData.data.chatId]) data.chatMessages[messageData.data.chatId] = [];
+
+				if (!data.chatMessages[messageData.data.chatId].find((x) => x.id === messageData.data.id)) {
+					data.chatMessages[messageData.data.chatId].push(messageData.data);
+
+					const chat = data.chats.find((x) => x.id === messageData.data.chatId);
+					chat.lastMessage = messageData.data;
+				}
+
+				setData({ ...data });
+			}
+		});
+
+		es.addEventListener("error", (event) => {
+			if (event.type === "error") {
+				console.error("Connection error:", event.message);
+			} else if (event.type === "exception") {
+				console.error("Error:", event.message, event.error);
+			}
+		});
+
+		es.addEventListener("close", (event) => {
+			// TODO: reconnect
+			console.log("Close SSE connection.");
+		});
+	};
+
 	// TODO: get chat groups
 	const getData = async () => {
 		if (!data.chatMembers) data.chatMembers = [];
 		if (!data.chats) data.chats = [];
+		if (!data.chatMessages) data.chatMessages = {};
 		try {
 			const resMembers = await api.fetchToken("users/business/" + data.user.businessId + "?names=true").then((res) => res.json());
 			if (resMembers.success) data.chatMembers = resMembers.data.filter((x) => x.id !== data.user.id);
 
 			const resChats = await api.fetchToken("chats").then((res) => res.json());
 			if (resChats.success) data.chats = resChats.data;
+
 			setData({ ...data });
 		} catch (error) {
 			utils.handleError(error);
 		}
 	};
+
+	useEffect(() => {
+		connect();
+	}, []);
 
 	useEffect(() => {
 		// Get users
