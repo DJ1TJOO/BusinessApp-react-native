@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const sendEmail = require("./helpers/mailer");
-const { promisePool: db } = require("./helpers/db");
+const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 const { authToken, authRights } = require("./helpers/auth");
 const availableRights = require("./availableRights.json");
@@ -419,9 +419,9 @@ users.post("/", async (req, res) => {
 			`INSERT INTO 
 					users (id, business_id, ${hasRight ? "right_id," : ""} first_name, last_name,
 						email, pwd, born${hasFunctionDescription ? ", function_descr" : ""}${hasNotificationToken ? ", notification_token" : ""})
-					VALUES ('${escape(id)}', '${escape(businessId)}',${hasRight ? `'${escape(rightId)}',` : ""}'${escape(firstName)}','${escape(lastName)}',
-						'${escape(email)}', '${pwd}', '${escape(bornDate.toISOString())}'${hasFunctionDescription ? `,'${escape(functionDescription)}'` : ""}${
-				hasNotificationToken ? `,'${escape(notificationToken)}'` : ""
+					VALUES (${escape(id)}, ${escape(businessId)},${hasRight ? `${escape(rightId)},` : ""}${escape(firstName)},${escape(lastName)},
+						${escape(email)}, '${pwd}', ${escape(bornDate.toISOString())}${hasFunctionDescription ? `,${escape(functionDescription)}` : ""}${
+				hasNotificationToken ? `,${escape(notificationToken)}` : ""
 			})`
 		);
 
@@ -1103,7 +1103,7 @@ users.patch("/:id", authToken, async (req, res) => {
 		// Check if notification token is specified
 		let hasNotificationToken = false;
 		if (typeof notificationToken !== "undefined" && currentUser.notification_token !== notificationToken) {
-			if (functionDescription !== null) {
+			if (notificationToken !== null) {
 				// Notification token too short
 				if (notificationToken.length < 10) {
 					// Return status 422 (unprocessable entity) too short

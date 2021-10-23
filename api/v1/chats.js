@@ -1,6 +1,5 @@
 const { authToken, authRights } = require("./helpers/auth");
-const { promisePool: db } = require("./helpers/db");
-const { objectToResponse, dbGenerateUniqueId } = require("./helpers/utils");
+const { promisePool: db, messagesListeners, escape } = require("./helpers/db");
 const { v4: uuid } = require("uuid");
 
 const chats = require("express").Router();
@@ -225,11 +224,11 @@ chats.post("/", authToken, async (req, res) => {
 		// Generate id
 		const id = await dbGenerateUniqueId("chats", "id");
 
-		// Insert team into db
+		// Insert into db
 		await db.query(
 			`INSERT INTO 
 					chats (id, name, business_id ${hasDescription ? ", description" : ""})
-					VALUES ('${escape(id)}', '${escape(name)}','${escape(businessId)}'${hasDescription ? `',${escape(description)}'` : ""})`
+					VALUES (${escape(id)}, ${escape(name)},${escape(businessId)}${hasDescription ? `,${escape(description)}` : ""})`
 		);
 
 		const [results] = await db.query(`SELECT * FROM chats WHERE id = ?`, [id]);
@@ -241,7 +240,7 @@ chats.post("/", authToken, async (req, res) => {
 		}
 
 		// Add user to chat
-		await db.query(`INSERT INTO user_chats (user_id, chat_id) VALUES ('${escape(req.token.id)}', '${escape(id)}')`);
+		await db.query(`INSERT INTO user_chats (user_id, chat_id) VALUES (${escape(req.token.id)}, ${escape(id)})`);
 
 		// Add members
 		const [members] = await db.query(`SELECT user_id FROM user_chats WHERE chat_id = ?`, [results[0].id]);
@@ -311,7 +310,7 @@ chats.post("/:id", authToken, async (req, res) => {
 		}
 
 		// Add user to chat
-		await db.query(`INSERT INTO user_chats (user_id, chat_id) VALUES ('${escape(userId)}', '${escape(id)}')`);
+		await db.query(`INSERT INTO user_chats (user_id, chat_id) VALUES (${escape(userId)}, ${escape(id)})`);
 
 		get_results[0].members.push(userId);
 
@@ -408,7 +407,7 @@ chats.post("/:chatId/message", authToken, async (req, res) => {
 		const id = await dbGenerateUniqueId("messages", "id");
 
 		// Create message
-		await db.query(`INSERT INTO messages (id, chat_id, user_id, message) VALUES ('${escape(id)}', '${escape(chatId)}', '${escape(req.token.id)}', '${escape(message)}')`);
+		await db.query(`INSERT INTO messages (id, chat_id, user_id, message) VALUES (${escape(id)}, ${escape(chatId)}, ${escape(req.token.id)}, ${escape(message)})`);
 
 		const [results] = await db.query(`SELECT * FROM messages WHERE id = ?`, [id]);
 		if (results.length < 1) {

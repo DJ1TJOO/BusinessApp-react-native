@@ -487,9 +487,9 @@ const createProjectHours = async (hoursId, body) => {
 		await db.query(
 			`INSERT INTO 
 					project_hours (id, hours_id, project, ${hasProjectId ? "project_id," : ""} ${hasDescription ? "description," : ""} monday, tuesday, wednesday, thursday, friday, saturday, sunday)
-					VALUES (${escape(id)}, ${escape(hoursId)},${escape(project)}, ${hasProjectId ? `${escape(projectId)},` : ""} ${hasDescription ? `${escape(description)},` : ""} '${escape(
+					VALUES (${escape(id)}, ${escape(hoursId)},${escape(project)}, ${hasProjectId ? `${escape(projectId)},` : ""} ${hasDescription ? `${escape(description)},` : ""} ${escape(
 				monday
-			)}', ${escape(tuesday)}, ${escape(wednesday)}, ${escape(thursday)}, ${escape(friday)}, ${escape(saturday)}, ${escape(sunday)})`
+			)}, ${escape(tuesday)}, ${escape(wednesday)}, ${escape(thursday)}, ${escape(friday)}, ${escape(saturday)}, ${escape(sunday)})`
 		);
 
 		const [results] = await db.query(`SELECT * FROM project_hours WHERE id = ?`, [id]);

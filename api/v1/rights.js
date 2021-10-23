@@ -1,4 +1,4 @@
-const { promisePool: db } = require("./helpers/db");
+const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 const { authToken, authRights } = require("./helpers/auth");
 const availableRights = require("./availableRights.json");
@@ -196,7 +196,7 @@ rights.post("/", authToken, async (req, res) => {
 		await db.query(
 			`INSERT INTO 
 					rights (id, name, business_id, rights)
-					VALUES ('${escape(id)}', '${escape(name)}','${escape(businessId)}','${rights.map((x) => escape(x)).join(",")}')`
+					VALUES (${escape(id)}, ${escape(name)},${escape(businessId)},'${rights.map((x) => escape(x)).join(",")}')`
 		);
 
 		const [results] = await db.query(`SELECT * FROM rights WHERE id = ?`, [id]);

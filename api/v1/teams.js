@@ -1,5 +1,5 @@
 const { authToken, authRights } = require("./helpers/auth");
-const { promisePool: db } = require("./helpers/db");
+const { promisePool: db, escape } = require("./helpers/db");
 const { dbGenerateUniqueId, objectToResponse } = require("./helpers/utils");
 const availableRights = require("./availableRights.json");
 
@@ -187,7 +187,7 @@ teams.post("/", authToken, async (req, res) => {
 		await db.query(
 			`INSERT INTO 
 					teams (id, name, business_id, ${hasChat ? "chat_id," : ""}${hasAgenda ? ", agenda_id" : ""})
-					VALUES ('${escape(id)}', '${escape(name)}','${escape(businessId)}',${hasChat ? `'${escape(chatId)}',` : ""}${hasAgenda ? `,'${escape(agendaId)}'` : ""})`
+					VALUES (${escape(id)}, ${escape(name)},${escape(businessId)},${hasChat ? `${escape(chatId)},` : ""}${hasAgenda ? `,${escape(agendaId)}` : ""})`
 		);
 
 		const [results] = await db.query(`SELECT * FROM teams WHERE id = ?`, [id]);
