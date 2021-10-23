@@ -13,7 +13,23 @@ import { IconLoading } from "./Icons";
 import Loading from "./Loading";
 import SafeView from "./SafeView";
 
-const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBottom, refresh, loading, error, setError, confirmation, setConfirmation, heading, toBottom }) => {
+const Wrapper = ({
+	children,
+	style,
+	showHeader,
+	navigation,
+	scrollEnabled,
+	hitBottom,
+	refresh,
+	loading,
+	error,
+	setError,
+	confirmation,
+	setConfirmation,
+	heading,
+	toBottom,
+	loadingOffset,
+}) => {
 	const insets = useSafeAreaInsets();
 
 	const offset = useRef(new Animated.Value(0)).current;
@@ -111,8 +127,8 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 						size={100}
 						isActive={true}
 						style={{
-							marginTop: headerLayout.height + insets.top,
-							height: Dimensions.get("screen").height - headerLayout.height * 2 - insets.top * 2,
+							marginTop: headerLayout.height + insets.top + loadingOffset,
+							height: Dimensions.get("screen").height - headerLayout.height * 2 - insets.top * 2 - loadingOffset,
 						}}
 					/>
 				)}
@@ -125,7 +141,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 							alignSelf: "center",
 							alignItems: "center",
 							justifyContent: "center",
-							top: headerLayout.height + insets.top,
+							top: headerLayout.height + insets.top + loadingOffset,
 						}}
 					/>
 				)}
@@ -172,7 +188,7 @@ const Wrapper = ({ children, style, showHeader, navigation, scrollEnabled, hitBo
 							hitBottom();
 						}}
 						onContentSizeChange={(contentWidth, contentHeight) => {
-							toBottom && scrollView.current.scrollToEnd({ animated: true });
+							toBottom && !refreshing && scrollView.current.scrollToEnd({ animated: true });
 						}}
 						scrollEventThrottle={1}
 						keyboardDismissMode="interactive"

@@ -47,6 +47,20 @@ const ChatScreen = ({ navigation, route }) => {
 		}
 	};
 
+	const addOld = async () => {
+		if (!data.chatMembers) data.chatMembers = [];
+		if (!data.chats) data.chats = [];
+		if (!data.chatMessages) data.chatMessages = {};
+		try {
+			const resChatMessages = await api.fetchToken("chats/messages/" + route.params.id + "/20/" + data.chatMessages[route.params.id].length).then((res) => res.json());
+			if (resChatMessages.success) data.chatMessages[route.params.id].unshift(...resChatMessages.data);
+
+			setData({ ...data });
+		} catch (error) {
+			utils.handleError(error);
+		}
+	};
+
 	useEffect(() => {
 		// Get users
 		getData();
@@ -73,6 +87,8 @@ const ChatScreen = ({ navigation, route }) => {
 					containerStyle={styles.heading}
 				/>
 			}
+			refresh={addOld}
+			loadingOffset={50}
 			error={currentError}
 			setError={setCurrentError}
 			loading={!data.chats || !data.chatMembers || !data.chatMessages || !data.chatMessages[route.params.id]}
@@ -102,7 +118,7 @@ const ChatScreen = ({ navigation, route }) => {
 
 					const messageComponent = (
 						<Message
-							key={message.message + message.created}
+							key={message.message + message.created + message.id}
 							member={message.userId === data.user.id ? data.user : data.chatMembers.find((x) => x.id === message.userId)}
 							name={false}
 							message={decodeURIComponent(message.message)}

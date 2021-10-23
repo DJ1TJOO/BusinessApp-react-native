@@ -51,11 +51,9 @@ const ChatsScreen = ({ navigation, route }) => {
 
 		es.addEventListener("error", (event) => {
 			es.close();
-			es.open();
 		});
 
 		es.addEventListener("close", (event) => {
-			es.close();
 			es.open();
 		});
 	};

@@ -64,15 +64,16 @@ const formatDate = (date, time = false) => {
 	var dt = new Date(date),
 		date = dt.getDate(),
 		month = dt.getMonth(),
-		hours = dt.getHours(),
-		minutes = dt.getMinutes(),
 		diffDays = new Date().getDate() - date,
 		diffMonths = new Date().getMonth() - dt.getMonth(),
 		diffYears = new Date().getFullYear() - dt.getFullYear();
 
 	if (diffYears === 0 && diffDays === 0 && diffMonths === 0) {
 		if (!time) return "vandaag";
-		return hours + ":" + minutes;
+		return dt.toLocaleString(undefined, {
+			hour: "2-digit",
+			minute: "2-digit",
+		});
 	} else if (diffYears === 0 && diffDays === 1) {
 		return "gisteren";
 	} else if (diffYears === 0 && diffDays === -1) {
