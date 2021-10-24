@@ -28,7 +28,7 @@ const Wrapper = ({
 	setConfirmation,
 	heading,
 	toBottom,
-	loadingOffset,
+	loadingOffset = 0,
 }) => {
 	const insets = useSafeAreaInsets();
 
