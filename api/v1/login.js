@@ -26,6 +26,7 @@ login.post("/", async (req, res) => {
 		}
 
 		const { pwd, ...user } = results[0];
+
 		if (!bcrypt.compareSync(password, pwd)) {
 			return res.status(401).send({
 				success: false,

@@ -276,6 +276,7 @@ const LoginScreen = ({ navigation }) => {
 									// Display error
 									setCurrentError(languagesUtils.convertError(data.language, res));
 								} else {
+									console.log(res.error);
 									setCurrentFormError("Het email address of wachtwoord is incorrect");
 								}
 							}
