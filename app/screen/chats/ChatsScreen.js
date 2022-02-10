@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import EventSource from "react-native-sse";
@@ -23,10 +22,11 @@ import utils from "../../utils";
 const ChatsScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 	const [currentError, setCurrentError] = useState();
+	const [eventSource, setEventSource] = useState(null);
 
-	const connect = async () => {
+	const connect = () => {
 		const es = new EventSource(config.api + "chats/connect", {
-			headers: { authorization: "token " + (await AsyncStorage.getItem("token")) },
+			headers: { authorization: "token " + data.token },
 		});
 
 		es.addEventListener("message", (event) => {
@@ -56,6 +56,8 @@ const ChatsScreen = ({ navigation, route }) => {
 		es.addEventListener("close", (event) => {
 			es.open();
 		});
+
+		return es;
 	};
 
 	// TODO: get chat groups
@@ -77,7 +79,7 @@ const ChatsScreen = ({ navigation, route }) => {
 	};
 
 	useEffect(() => {
-		connect();
+		return connect().close;
 	}, []);
 
 	useEffect(() => {
@@ -90,33 +92,44 @@ const ChatsScreen = ({ navigation, route }) => {
 			<Heading title="Alle chats" />
 			{data.chats &&
 				data.chats.length > 0 &&
-				data.chats.map((chat, index) => (
-					<Card
-						key={index}
-						onPress={() => {
-							navigation.navigate("Chat", chat);
-						}}
-					>
-						<View style={styles.row}>
-							<Text style={styles.name}>
-								{chat.members.length === 2
-									? data.chatMembers.find((x) => chat.members.includes(x.id))?.firstName +
-									  " " +
-									  data.chatMembers.find((x) => chat.members.includes(x.id))?.lastName
-									: chat.name}
-							</Text>
-							{chat.lastMessage && <Text style={styles.date}>{languagesUtils.capitalizeFirstLetter(utils.formatDate(chat.lastMessage.created, true))}</Text>}
-							{!chat.lastMessage && <IconArrowForward color={Colors.textPrimary} style={[styles.icon, { top: 7 }]} />}
-						</View>
+				data.chats
+					.sort((a, b) => new Date(a.lastMessage.created) - new Date(a.lastRead).getTime() > new Date(b.lastMessage.created) - new Date(b.lastRead).getTime())
+					.map((chat, index) => {
+						const unread = chat.lastMessage && new Date(chat.lastRead).getTime() < new Date(chat.lastMessage.created);
 
-						{chat.lastMessage && (
-							<Text style={styles.text}>
-								{decodeURIComponent(chat.lastMessage.message).substring(0, 90)}
-								{decodeURIComponent(chat.lastMessage.message).length > 90 && "..."}
-							</Text>
-						)}
-					</Card>
-				))}
+						return (
+							<Card
+								key={index}
+								onPress={() => {
+									navigation.navigate("Chat", chat);
+								}}
+								style={[unread && { backgroundColor: Colors.primary }]}
+							>
+								<View style={styles.row}>
+									<Text style={[styles.name, unread && { color: Colors.white }]}>
+										{chat.members.length === 2
+											? data.chatMembers.find((x) => chat.members.includes(x.id))?.firstName +
+											  " " +
+											  data.chatMembers.find((x) => chat.members.includes(x.id))?.lastName
+											: chat.name}
+									</Text>
+									{chat.lastMessage && (
+										<Text style={[styles.date, unread && { color: Colors.white }]}>
+											{languagesUtils.capitalizeFirstLetter(utils.formatDate(new Date(chat.lastMessage.created), true))}
+										</Text>
+									)}
+									{!chat.lastMessage && <IconArrowForward color={Colors.textPrimary} style={[styles.icon, { top: 7 }]} />}
+								</View>
+
+								{chat.lastMessage && (
+									<Text style={[styles.text, unread && { color: Colors.white }]}>
+										{decodeURIComponent(chat.lastMessage.message).substring(0, 90)}
+										{decodeURIComponent(chat.lastMessage.message).length > 90 && "..."}
+									</Text>
+								)}
+							</Card>
+						);
+					})}
 			{data.chatMembers &&
 				data.chats &&
 				data.chatMembers

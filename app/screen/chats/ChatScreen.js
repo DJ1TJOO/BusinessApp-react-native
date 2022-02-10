@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import EventSource from "react-native-sse";
 
 import api from "../../api";
 
@@ -10,6 +11,7 @@ import { IconArrowForward } from "../../components/Icons";
 import Wrapper from "../../components/Wrapper";
 
 import Colors from "../../config/Colors";
+import { config } from "../../config/config";
 
 import dataContext from "../../contexts/dataContext";
 
@@ -24,7 +26,57 @@ const defaultFormData = [["message"], [], []];
 const ChatScreen = ({ navigation, route }) => {
 	const [data, setData] = useContext(dataContext);
 	const [currentError, setCurrentError] = useState();
-	const [formData, setFormValue, setFormValues, getFormProps, validate] = useFormData(...defaultFormData);
+	const [formData, setFormValue, setFormValues, getFormProps] = useFormData(...defaultFormData);
+
+	const connect = () => {
+		const es = new EventSource(config.api + "chats/connect", {
+			headers: { authorization: "token " + data.token },
+		});
+
+		es.addEventListener("message", (event) => {
+			const messageData = JSON.parse(event.data);
+
+			// New message
+			if (messageData.type === 0) {
+				if (!messageData.chatMessages) messageData.chatMessages = {};
+
+				if (!data.chatMessages[messageData.data.chatId]) data.chatMessages[messageData.data.chatId] = [];
+
+				if (!data.chatMessages[messageData.data.chatId].find((x) => x.id === messageData.data.id)) {
+					data.chatMessages[messageData.data.chatId].push(messageData.data);
+
+					const chat = data.chats.find((x) => x.id === messageData.data.chatId);
+					chat.lastMessage = messageData.data;
+				}
+
+				setData({ ...data });
+			}
+		});
+
+		es.addEventListener("error", (event) => {
+			es.close();
+		});
+
+		es.addEventListener("close", (event) => {
+			es.open();
+		});
+
+		return es;
+	};
+
+	const updateLastRead = async () => {
+		try {
+			await api
+				.fetchToken("chats/" + route.params.id + "/lastRead", {
+					method: "POST",
+					json: true,
+					body: {
+						lastRead: new Date().toISOString(),
+					},
+				})
+				.then((res) => res.json());
+		} catch (error) {}
+	};
 
 	// TODO: get chat groups
 	const getData = async () => {
@@ -32,6 +84,7 @@ const ChatScreen = ({ navigation, route }) => {
 		if (!data.chats) data.chats = [];
 		if (!data.chatMessages) data.chatMessages = {};
 		try {
+			updateLastRead();
 			const resMembers = await api.fetchToken("users/business/" + data.user.businessId + "?names=true").then((res) => res.json());
 			if (resMembers.success) data.chatMembers = resMembers.data.filter((x) => x.id !== data.user.id);
 
@@ -60,6 +113,13 @@ const ChatScreen = ({ navigation, route }) => {
 			utils.handleError(error);
 		}
 	};
+
+	useEffect(() => {
+		return () => {
+			connect().close();
+			updateLastRead();
+		};
+	}, []);
 
 	useEffect(() => {
 		// Get users
@@ -118,7 +178,7 @@ const ChatScreen = ({ navigation, route }) => {
 
 					const messageComponent = (
 						<Message
-							key={message.message + message.created + message.id}
+							key={message.message + created + message.id}
 							member={message.userId === data.user.id ? data.user : data.chatMembers.find((x) => x.id === message.userId)}
 							name={false}
 							message={decodeURIComponent(message.message)}
@@ -128,8 +188,8 @@ const ChatScreen = ({ navigation, route }) => {
 
 					if (heading) {
 						return (
-							<View key={message.created + " view"}>
-								<Heading key={message.created + " header"} title={languagesUtils.capitalizeFirstLetter(utils.formatDate(created))} />
+							<View key={created + " view"}>
+								<Heading key={created + " header"} title={languagesUtils.capitalizeFirstLetter(utils.formatDate(created))} />
 								{messageComponent}
 							</View>
 						);

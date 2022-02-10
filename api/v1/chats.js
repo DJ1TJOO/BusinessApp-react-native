@@ -7,16 +7,18 @@ const chats = require("express").Router();
 
 chats.get("/", authToken, async (req, res) => {
 	try {
-		const [results] = await db.query(`SELECT chats.* FROM chats LEFT JOIN user_chats ON chats.id = user_chats.chat_id WHERE user_chats.user_id = ? AND chats.business_id = ?`, [
-			req.token.id,
-			req.token.businessId,
-		]);
+		const [results] = await db.query(
+			`SELECT chats.*, user_chats.last_read FROM chats LEFT JOIN user_chats ON chats.id = user_chats.chat_id WHERE user_chats.user_id = ? AND chats.business_id = ?`,
+			[req.token.id, req.token.businessId]
+		);
 
 		const chats = await Promise.all(
 			results.map(async (chat) => {
 				// Add members
 				const [members] = await db.query(`SELECT user_id FROM user_chats WHERE chat_id = ?`, [chat.id]);
 				chat.members = members.map((x) => x.user_id);
+
+				chat.last_read = chat.last_read.replace(" ", "T") + ".000Z";
 
 				// Add last message
 				const [messages] = await db.query(`SELECT messages.*
@@ -27,7 +29,7 @@ chats.get("/", authToken, async (req, res) => {
                                                         LIMIT 1
                                                     ) messages
                                                     ORDER BY messages.created`);
-				chat.lastMessage = messages.length > 0 ? { ...messages[0], created: messages[0].created.replace(" ", "T") } : null;
+				chat.lastMessage = messages.length > 0 ? { ...messages[0], created: messages[0].created.replace(" ", "T") + ".000Z" } : null;
 
 				return chat;
 			})
@@ -59,11 +61,12 @@ const getChat = async (id, userId) => {
 			};
 		}
 
-		const [user_results] = await db.query(`SELECT count(*) FROM user_chats WHERE user_id = ? and chat_id = ?`, [userId, id]);
+		const [user_results] = await db.query(`SELECT last_read FROM user_chats WHERE user_id = ? and chat_id = ?`, [userId, id]);
 
-		if (user_results[0]["count(*)"] < 1) {
+		if (user_results.length < 1) {
 			return { status: 403, success: false, error: "forbidden" };
 		}
+		results[0].lastRead = user_results[0].last_read.replace(" ", "T") + ".000Z";
 
 		// Add members
 		const [members] = await db.query(`SELECT user_id FROM user_chats WHERE chat_id = ?`, [results[0].id]);
@@ -78,7 +81,7 @@ const getChat = async (id, userId) => {
                                                         LIMIT 1
                                                     ) messages
                                                     ORDER BY messages.created`);
-		results[0].lastMessage = messages.length > 0 ? { ...messages[0], created: messages[0].created.replace(" ", "T") } : null;
+		results[0].lastMessage = messages.length > 0 ? { ...messages[0], created: messages[0].created.replace(" ", "T") + ".000Z" } : null;
 
 		return {
 			success: true,
@@ -164,7 +167,7 @@ messagesListeners.push(async (e) => {
 
 				const chat = resChat.data;
 				for (let i = 0; i < chat.members.length; i++) {
-					sseWrite(chat.members[i], 0, toCamel({ ...after, created: after.created.replace(" ", "T") }));
+					sseWrite(chat.members[i], 0, toCamel({ ...after, created: after.created.replace(" ", "T") + ".000Z" }));
 
 					// TODO: notification, badge, add routes
 				}
@@ -209,7 +212,7 @@ chats.get("/messages/:id/:amount/:start?", authToken, async (req, res) => {
 
 		return res.send({
 			success: true,
-			data: message_results.map((x) => ({ ...x, created: x.created.replace(" ", "T") })),
+			data: message_results.map((x) => ({ ...x, created: x.created.replace(" ", "T") + ".000Z" })),
 		});
 	} catch (error) {
 		// Mysql error
@@ -340,7 +343,7 @@ chats.post("/", authToken, async (req, res) => {
                                                         LIMIT 1
                                                     ) messages
                                                     ORDER BY messages.created`);
-		results[0].lastMessage = messages.length > 0 ? { ...messages[0], created: messages[0].created.replace(" ", "T") } : null;
+		results[0].lastMessage = messages.length > 0 ? { ...messages[0], created: messages[0].created.replace(" ", "T") + ".000Z" } : null;
 
 		return res.send({
 			success: true,
@@ -408,7 +411,7 @@ chats.post("/:id", authToken, async (req, res) => {
                                                         LIMIT 1
                                                     ) messages
                                                     ORDER BY messages.created`);
-		get_results[0].lastMessage = messages.length > 0 ? { ...messages[0], created: messages[0].created.replace(" ", "T") } : null;
+		get_results[0].lastMessage = messages.length > 0 ? { ...messages[0], created: messages[0].created.replace(" ", "T") + ".000Z" } : null;
 
 		return res.send({
 			success: true,
@@ -501,12 +504,86 @@ chats.post("/:chatId/message", authToken, async (req, res) => {
 				error: "message_not_found",
 			});
 		}
-		results[0].created = results[0].created.replace(" ", "T");
+		results[0].created = results[0].created.replace(" ", "T") + ".000Z";
 
 		return res.send({
 			success: true,
 			data: results[0],
 		});
+	} catch (error) {
+		// Mysql error
+		console.log(error);
+		// Return status 500 (internal server error) mysql
+		return res.status(500).send({
+			success: false,
+			error: "mysql",
+		});
+	}
+});
+
+chats.post("/:chatId/lastread", authToken, async (req, res) => {
+	const { chatId } = req.params;
+	let { lastRead } = req.body;
+
+	try {
+		const [get_results] = await db.query(`SELECT business_id FROM chats WHERE id = ?`, [chatId]);
+		if (get_results.length < 1) {
+			return res.status(404).send({
+				success: false,
+				error: "chat_not_found",
+			});
+		}
+
+		// Check if user has rights
+		const auth = await authRights([], req.token, get_results[0].business_id);
+		if (!auth.success) return objectToResponse(res, auth);
+
+		// Add members
+		const [members] = await db.query(`SELECT user_id FROM user_chats WHERE chat_id = ?`, [chatId]);
+		get_results[0].members = members.map((x) => x.user_id);
+		if (!get_results[0].members.includes(req.token.id)) {
+			return res.status(403).send({ success: false, error: "forbidden" });
+		}
+
+		// Check if lastread is correct
+		// lastread is empty
+		if (!lastRead) {
+			// Return status 422 (unprocessable entity) empty
+			return res.status(422).send({
+				success: false,
+				error: "empty",
+				data: {
+					field: "lastread",
+				},
+			});
+		}
+
+		// lastread not a date
+		try {
+			lastRead = new Date(lastRead).toJSON().slice(0, 19).replace("T", " ");
+		} catch (error) {
+			// Return status 422 (unprocessable entity) too long
+			return res.status(422).send({
+				success: false,
+				error: "invalid",
+				data: {
+					field: "lastread",
+					maxLength: 255,
+				},
+			});
+		}
+
+		const update = [];
+		update.push({ name: "last_read", value: escape(lastRead) });
+		await db.query(
+			`UPDATE 
+					user_chats
+					SET ${update.map((x) => `${x.name} = ${x.value}`).join(",")}
+					WHERE user_id = ? AND chat_id = ?`,
+			[req.token.id, chatId]
+		);
+
+		return objectToResponse(res, getChat(chatId, req.token.id));
 	} catch (error) {
 		// Mysql error
 		console.log(error);
